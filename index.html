@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All my boardgames</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.7.4/dist/instantsearch.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/instantsearch.js@2.7.4/dist/instantsearch-theme-algolia.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.7.4"></script>
+</head>
+<body>
+  <header>
+    <h1>All my boardgames</h1>
+  </header>
+
+  <article>
+    <main>
+      <div class="search-box" id="search-box"></div>
+      <div id="stats"></div>
+      <div class="hits" id="hits"></div>
+      <div id="pagination"></div>
+      <a href="https://www.algolia.com"><img src="search-by-algolia.png" width="130" height="18"></a>
+    </main>
+    <aside>
+      <div class="clear-all" id="clear-all"></div>
+
+      <h2>Filter games</h2>
+
+      <div class="facet" id="facet-players"></div>
+      <div class="facet" id="facet-playing-time"></div>
+      <div class="facet" id="facet-weight"></div>
+      <div class="facet" id="facet-categories"></div>
+      <div class="facet" id="facet-mechanics"></div>
+    </aside>
+  </article>
+
+  <script type="text/html" id="hits-template">
+    <details>
+      <summary>
+        <div class="image" style="background-image: url({{{ image }}})"></div>
+        <h2>
+          {{{ _highlightResult.name.value }}}
+        </h2>
+      </summary>
+      <table>
+        <tr><th>Players</th><td>{{ players }}</td></tr>
+        <tr><th>Playing time</th><td>{{ playing_time }}</td></tr>
+        <tr><th>Complexity</th><td>{{ weight }}</td></tr>
+        <tr><th>Categories</th><td>{{ categories }}</td></tr>
+        <tr><th>Mechanics</th><td>{{ mechanics }}</td></tr>
+      </table>
+      <p><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">Read more on Boardgamegeek</a></p>
+      <p>{{{ _highlightResult.description.value }}}</p>
+    </details>
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>

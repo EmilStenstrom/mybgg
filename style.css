@@ -1,0 +1,108 @@
+/* Main layout */
+body {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 0 0.5em;
+}
+article {
+	display: flex;
+}
+	main {
+		flex-grow: 1;
+	}
+	aside {
+		padding-left: 20px;
+		min-width: 250px;
+	}
+
+/* Typography */
+body {
+	color: #606c76;
+	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+	font-size: 14px;
+	font-weight: 300;
+	letter-spacing: .01em;
+	line-height: 1.2;
+}
+
+/* Components */
+table {
+	border-collapse: collapse;
+}
+	table th {
+		text-align: left;
+		white-space: nowrap;
+	}
+	table th, table td {
+		border: 1px solid #eee;
+		padding: 3px 4px;
+	}
+
+details {
+	margin-bottom: 1em;
+}
+	details summary {
+		display: flex;
+		cursor: pointer;
+		margin-bottom: 0.5em;
+		list-style-type: none;
+	}
+	details summary::-webkit-details-marker {
+		display: none;
+	}
+	details summary:focus {
+		outline: 1px dotted gray;
+	}
+
+	.image {
+		flex-shrink: 0;
+		background-position: 50% 0;
+		background-size: cover;
+		background-repeat: no-repeat;
+		width: 50px;
+		height: 50px;
+		margin-right: 0.5em;
+		border: 1px solid #eee;
+		border-radius: 4px;
+		box-shadow: 0 1px 1px 0 rgba(85,95,110,.2);
+	}
+	h2 {
+		align-self: center;
+	}
+	details p {
+		margin-left: 4px;
+		white-space: pre-line;
+	}
+.search-box {
+	margin-bottom: 1em;
+}
+aside h2 {
+	margin-top: 0;
+}
+aside .clear-all {
+	float: right;
+	margin-bottom: 1em;
+}
+.facet {
+	margin-bottom: 1em;
+}
+	.facet .ais-show-more {
+		cursor: pointer;
+		color: gray;
+		font-size: 0.8em;
+		margin-left: 2em;
+	}
+	.facet .ais-show-more:after {
+		content: " »";
+	}
+.hits {
+	margin-top: 1em;
+}
+	.hits h2 {
+		display: inline-block;
+		margin: 0;
+	}
+	.hits strong {
+		background-color: #ffcdd2;
+		color: #c62828;
+	}
