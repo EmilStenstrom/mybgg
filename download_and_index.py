@@ -25,7 +25,7 @@ class Downloader():
         collection = self.client.collection(
             user_name=user_name,
             exclude_subtype=u'boardgameexpansion',
-            **SETTINGS["boardgamegeek"]["extra_params"],
+            **SETTINGS["boardgamegeek"]["extra_params"]
         )
 
         games = [
