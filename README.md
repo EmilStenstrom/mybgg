@@ -13,7 +13,7 @@ Using this project, you can set up your own site for searching and filtering you
 
 ## Getting your own site
 
-1. **[Fork](https://github.com/EmilStenstrom/mybgg#fork-destination-box) this project** (EmilStenstrom/mybgg) to your own GitHub account.
+1. **Fork this project** (EmilStenstrom/mybgg) to your own GitHub account.
 
 2. **Update the config.json-file** with your account details for Boardgamegeek and Algolia. Commit this file to your forked repository.
 
