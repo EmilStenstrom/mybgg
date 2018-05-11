@@ -39,20 +39,15 @@ class Downloader():
         return games
 
     def _num_players_is_recommended(self, num, votes):
-        if int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating']):
-            return True
-
-        return False
+        return int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating'])
 
     def _facet_for_num_player(self, num, num_with_maybe_plus, votes):
-        if int(votes['best_rating']) > 10 and int(votes['best_rating']) > int(votes['recommended_rating']):
-            best_or_recommended = f"{num} > Best with {num_with_maybe_plus}"
-        else:
-            best_or_recommended = f"{num} > Recommended with {num_with_maybe_plus}"
+        is_best = int(votes['best_rating']) > 10 and int(votes['best_rating']) > int(votes['recommended_rating'])
+        best_or_recommended = "Best" if is_best else "Recommended"
 
         return {
             "level1": num,
-            "level2": best_or_recommended,
+            "level2": f"{num} > " + best_or_recommended +  f" with {num_with_maybe_plus}",
         }
 
     def game(self, game_id):
