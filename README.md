@@ -13,7 +13,7 @@ Using this project, you can set up your own site for searching and filtering you
 
 ## Getting your own site
 
-1. **Fork this project** (EmilStenstrom/mybgg) to your own GitHub account.
+1. **[Fork](https://github.com/EmilStenstrom/mybgg#fork-destination-box) this project** (EmilStenstrom/mybgg) to your own GitHub account.
 
 2. **Update the config.json-file** with your account details for Boardgamegeek and Algolia. Commit this file to your forked repository.
 
@@ -28,4 +28,4 @@ Using this project, you can set up your own site for searching and filtering you
 5. **Enable GitHub Pages** on your forked repository by going into _Settings ->
 GitHub Pages_. Select your master branch as Source, and click Save.
 
-6. Your site is now available on (https://YOUR_GITHUB_USERNAME.github.io)
+6. Your site is now available on (https://YOUR_GITHUB_USERNAME.github.io/mybgg)
