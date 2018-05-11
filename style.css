@@ -52,8 +52,7 @@ details {
 	details summary:focus {
 		outline: 1px dotted gray;
 	}
-
-	.image {
+	details .image {
 		flex-shrink: 0;
 		background-position: 50% 0;
 		background-size: cover;
@@ -65,7 +64,7 @@ details {
 		border-radius: 4px;
 		box-shadow: 0 1px 1px 0 rgba(85,95,110,.2);
 	}
-	h2 {
+	details h2 {
 		align-self: center;
 	}
 	details p {
