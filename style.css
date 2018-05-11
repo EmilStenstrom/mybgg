@@ -19,6 +19,7 @@ article {
 body {
 	color: #606c76;
 	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+	font-weight: 300;
 	font-size: 14px;
 	letter-spacing: .01em;
 	line-height: 1.2;
@@ -66,6 +67,7 @@ details {
 	}
 	details h2 {
 		align-self: center;
+		font-weight: 700;
 	}
 	details p {
 		margin-left: 4px;
