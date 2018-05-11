@@ -155,7 +155,8 @@ function init(SETTINGS) {
   search.addWidget(
     instantsearch.widgets.pagination({
       container: '#pagination',
-      maxPages: 20
+      maxPages: 20,
+      showFirstLast: false
     })
   );
 
