@@ -33,9 +33,6 @@ class Downloader():
             for game_in_collection in collection.items
         ]
 
-        # Print linebreak to terminal, since each game has print(..., end="")
-        print()
-
         return games
 
     def _num_players_is_recommended(self, num, votes):
@@ -86,9 +83,6 @@ class Downloader():
           5: "Heavy",
         }
         weight = weight_mapping[math.ceil(game.rating_average_weight)]
-
-        # Print progress to terminal
-        print(".", end="", flush=True)
 
         return BoardGame(
             id=game.id,
