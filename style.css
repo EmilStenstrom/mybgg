@@ -53,6 +53,9 @@ details {
 	details summary:focus {
 		outline: 1px dotted gray;
 	}
+	details .wrapper {
+		display: flex;
+	}
 	details .image {
 		flex-shrink: 0;
 		background-position: 50% 0;

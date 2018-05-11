@@ -39,10 +39,12 @@
   <script type="text/html" id="hits-template">
     <details>
       <summary>
-        <div class="image" style="background-image: url({{{ image }}})"></div>
-        <h2>
-          {{{ _highlightResult.name.value }}}
-        </h2>
+        <div class="wrapper">
+          <div class="image" style="background-image: url({{{ image }}})"></div>
+          <h2>
+            {{{ _highlightResult.name.value }}}
+          </h2>
+        </div>
       </summary>
       <table>
         <tr><th>Players</th><td>{{ players }}</td></tr>
