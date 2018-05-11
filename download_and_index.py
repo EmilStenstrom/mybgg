@@ -28,12 +28,11 @@ class Downloader():
             **SETTINGS["boardgamegeek"]["extra_params"]
         )
 
-        games = [
-            self.game(game_in_collection.id)
-            for game_in_collection in collection.items
-        ]
+        game_data = self.client.game_list(
+            [game_in_collection.id for game_in_collection in collection.items]
+        )
 
-        return games
+        return [self.game_data_to_boardgame(game) for game in game_data]
 
     def _num_players_is_recommended(self, num, votes):
         return int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating'])
@@ -47,9 +46,7 @@ class Downloader():
             "level2": f"{num} > " + best_or_recommended +  f" with {num_with_maybe_plus}",
         }
 
-    def game(self, game_id):
-        game = self.client.game(game_id=game_id)
-
+    def game_data_to_boardgame(self, game):
         num_players = []
         for num, votes in game.suggested_players['results'].items():
             if not self._num_players_is_recommended(num, votes):
