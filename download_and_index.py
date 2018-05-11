@@ -127,6 +127,7 @@ class Indexer:
                 'weight',
                 'playing_time',
             ],
+            'customRanking': ['asc(name)'],
             'highlightPreTag': '<strong class="highlight">',
             'highlightPostTag': '</strong>'
         })
