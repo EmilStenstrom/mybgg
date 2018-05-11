@@ -93,7 +93,7 @@ aside .clear-all {
 		cursor: pointer;
 		color: gray;
 		font-size: 0.8em;
-		margin-left: 2em;
+		margin-left: 2.3em;
 	}
 	.facet .ais-show-more:after {
 		content: " »";
