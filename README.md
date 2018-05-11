@@ -9,7 +9,7 @@ Using this project, you can set up your own site for searching and filtering you
 * [GitHub](https://github.com) account (free). We will serve the site using GitHub Pages.
 * [Boardgamegeek](https://boardgamegeek.com) account (free). We will fetch all your games and game metadata from here.
 * [Algolia](https://algolia.com) account (free). Used for creating and searching with lightning speed.
-* Computer (not free) with Python 3.4+ installed.
+* Computer (not free) with Python 3.6+ installed.
 
 ## Getting your own site
 
