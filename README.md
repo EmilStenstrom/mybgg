@@ -101,25 +101,25 @@ GitHub Pages_. Select your master branch as Source, and click Save.
 
 ## Updating your project to the latest version when mybgg is updated
 
-1. **Add a connection between your forked project*, and the mybgg project. We will use this "connection", or remote, to fetch the latest version. _You only need to do this the first time_.
+1. **Add a connection between your forked project**, and the mybgg project. We will use this "connection", or remote, to fetch the latest version. _You only need to do this the first time_.
 
    ```
    git remote add upstream https://github.com/YOUR_GITHUB_USERNAME/mybgg.git
    ```
    
-2. Fetch the latest changes from the mybgg project: 
+2. **Fetch the latest changes** from the mybgg project: 
 
    ```
    git fetch upstream
    ```
 
-3. Merge the changes you fetched with the changes you made to your project locally: 
+3. **Merge the changes you fetched** with the changes you made to your project locally: 
 
    ```
    git merge upstream/master
    ```
    
-4. Push the new updated version to GitHub:
+4. **Push the new updated version** to GitHub:
 
    ```
    git push
