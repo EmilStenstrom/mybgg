@@ -11,7 +11,7 @@ Using this project, you can set up your own site for searching and filtering you
 * [Algolia](https://algolia.com) account (free). Used for creating and searching with lightning speed.
 * Computer (not free) with Python 3.6+ installed.
 
-## Getting your own site
+## Getting your own site up and running the first time
 
 1. **Fork this project** (EmilStenstrom/mybgg) to your own GitHub account.
    <details>
@@ -19,7 +19,7 @@ Using this project, you can set up your own site for searching and filtering you
       Forking a project is pretty much copying it to your own GitHub account. On the top of this page, to the right, is a button called Fork. Click it and accept all the defaults. You now have a copy of this project you can make changes to.
    </details>
 
-2. **Update the config.json-file** with your account details for Boardgamegeek and Algolia. Commit this file to your forked repository.
+2. **Update the config.json-file** with your account details for Boardgamegeek and Algolia. Commit and push this file to your forked repository.
    <details>
       <summary>Details</summary>
 
@@ -51,7 +51,12 @@ Using this project, you can set up your own site for searching and filtering you
       }
       ```
 
-      * Your're all set. If you cloned your project from github, you can commit your change my typing `git commit -m "Update config.json"`
+      * Your're all set. If you cloned your project from github, you can commit your change my typing:
+      
+      ```
+      git commit -m "Update config.json"
+      git push
+      ```
    </details>
 
 3. **Install the python libraries needed** by running:
@@ -83,3 +88,39 @@ Using this project, you can set up your own site for searching and filtering you
 GitHub Pages_. Select your master branch as Source, and click Save.
 
 6. Your site is now available on (https://YOUR_GITHUB_USERNAME.github.io/mybgg)
+
+## Working on your site locally
+
+1. Go to your project directory. Run this command: 
+
+    ```python -m http.server```
+    
+    This starts a webserver in the directory you're in.
+
+2. Open your web browser and go to `http://localhost:8000`. Voliá! Any time you make a change to your project you can 
+
+## Updating your project to the latest version when mybgg is updated
+
+1. **Add a connection between your forked project*, and the mybgg project. We will use this "connection", or remote, to fetch the latest version. _You only need to do this the first time_.
+
+   ```
+   git remote add upstream https://github.com/YOUR_GITHUB_USERNAME/mybgg.git
+   ```
+   
+2. Fetch the latest changes from the mybgg project: 
+
+   ```
+   git fetch upstream
+   ```
+
+3. Merge the changes you fetched with the changes you made to your project locally: 
+
+   ```
+   git merge upstream/master
+   ```
+   
+4. Push the new updated version to GitHub:
+
+   ```
+   git push
+   ```
