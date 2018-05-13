@@ -5,7 +5,6 @@ from textwrap import dedent
 
 from algoliasearch import algoliasearch
 from boardgamegeek import BGGClient
-from boardgamegeek.cache import CacheBackendSqlite
 
 SETTINGS = json.load(open("config.json", "rb"))
 
@@ -17,9 +16,7 @@ class BoardGame:
 class Downloader():
     def __init__(self):
         project_name = SETTINGS["project"]["name"]
-        self.client = BGGClient(
-            cache=CacheBackendSqlite(path=f"{project_name}-cache.sqlite", ttl=60*60*24)
-        )
+        self.client = BGGClient()
 
     def collection(self, user_name):
         collection = self.client.collection(
