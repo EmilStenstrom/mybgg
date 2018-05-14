@@ -124,3 +124,9 @@ GitHub Pages_. Select your master branch as Source, and click Save.
    ```
    git push
    ```
+
+## Projects used under the hood
+
+* Meeple icon (CC4 Attribtion): https://icon-icons.com/icon/meeple/38522#256
+* Python library for BGG (BSD-3): https://github.com/lcosmin/boardgamegeek
+* Algolia search client (MIT): https://github.com/algolia/algoliasearch-client-python
