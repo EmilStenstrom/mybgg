@@ -7,8 +7,6 @@ from algoliasearch import algoliasearch
 from boardgamegeek import BGGClient
 from boardgamegeek.cache import CacheBackendSqlite
 
-SETTINGS = json.load(open("config.json", "rb"))
-
 class BoardGame:
     def __init__(self, game_data):
         self.id = game_data.id
@@ -73,22 +71,21 @@ class BoardGame:
         return weight_mapping[math.ceil(game_data.rating_average_weight)]
 
 class Downloader():
-    def __init__(self, cache_bgg):
-        project_name = SETTINGS["project"]["name"]
+    def __init__(self, project_name, cache_bgg):
         if cache_bgg:
             self.client = BGGClient(
                 cache=CacheBackendSqlite(
-                    path=f"{SETTINGS['project']['name']}-cache.sqlite",
+                    path=f"{project_name}-cache.sqlite",
                     ttl=60 * 60 * 24,
                 )
             )
         else:
             self.client = BGGClient()
 
-    def collection(self, user_name):
+    def collection(self, user_name, extra_params):
         collection = self.client.collection(
             user_name=user_name,
-            **SETTINGS["boardgamegeek"]["extra_params"]
+            **extra_params,
         )
 
         games_data = self.client.game_list(
@@ -98,12 +95,12 @@ class Downloader():
         return [BoardGame(game_data) for game_data in games_data]
 
 class Indexer:
-    def __init__(self, apikey):
+    def __init__(self, app_id, apikey, index_name):
         client = algoliasearch.Client(
-            app_id=SETTINGS["algolia"]["app_id"],
+            app_id=app_id,
             api_key=apikey,
         )
-        index = client.init_index(SETTINGS["algolia"]["index_name"])
+        index = client.init_index(index_name)
 
         index.set_settings({
             'searchableAttributes': [
@@ -138,14 +135,24 @@ class Indexer:
         })
 
 def main(args):
-    downloader = Downloader(cache_bgg=args.cache_bgg)
+    SETTINGS = json.load(open("config.json", "rb"))
+
+    downloader = Downloader(
+        project_name=SETTINGS["project"]["name"],
+        cache_bgg=args.cache_bgg,
+    )
     collection = downloader.collection(
-        user_name=SETTINGS["boardgamegeek"]["user_name"]
+        user_name=SETTINGS["boardgamegeek"]["user_name"],
+        extra_params=SETTINGS["boardgamegeek"]["extra_params"],
     )
     print(f"Imported {len(collection)} games from boardgamegeek.")
 
     if not args.no_indexing:
-        indexer = Indexer(apikey=args.apikey)
+        indexer = Indexer(
+            app_id=SETTINGS["algolia"]["app_id"],
+            apikey=args.apikey,
+            index_name=SETTINGS["algolia"]["index_name"],
+        )
         indexer.add_objects(collection)
         indexer.delete_objects_not_in(collection)
         print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
