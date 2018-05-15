@@ -1,6 +1,6 @@
 import json
 import math
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from textwrap import dedent
 
 from algoliasearch import algoliasearch
@@ -8,7 +8,7 @@ from boardgamegeek import BGGClient
 from boardgamegeek.cache import CacheBackendSqlite
 
 class BoardGame:
-    def __init__(self, game_data):
+    def __init__(self, game_data, expansions=[]):
         self.id = game_data.id
         self.name = game_data.name
         self.description = game_data.description
@@ -18,6 +18,7 @@ class BoardGame:
         self.players = self.calc_num_players(game_data)
         self.weight = self.calc_weight(game_data)
         self.playing_time = self.calc_playing_time(game_data)
+        self.expansions = expansions
 
     def _num_players_is_recommended(self, num, votes):
         return int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating'])
@@ -92,7 +93,21 @@ class Downloader():
             [game_in_collection.id for game_in_collection in collection.items]
         )
 
-        return [BoardGame(game_data) for game_data in games_data]
+        games = list(filter(lambda x: not x.expansion, games_data))
+        expansions = list(filter(lambda x: x.expansion, games_data))
+
+        game_id_to_expansion = {game.id: [] for game in games}
+        for expansion_data in expansions:
+            for expands_game in expansion_data.expands:
+                if expands_game.id in game_id_to_expansion:
+                    expansion = BoardGame(expansion_data)
+                    del(expansion.description)  # Don't index the description of expansions
+                    game_id_to_expansion[expands_game.id].append(expansion)
+
+        return [
+            BoardGame(game_data, expansions=game_id_to_expansion[game_data.id])
+            for game_data in games
+        ]
 
 class Indexer:
     def __init__(self, app_id, apikey, index_name):
@@ -121,8 +136,24 @@ class Indexer:
 
         self.index = index
 
+    @staticmethod
+    def todict(obj):
+        if isinstance(obj, str):
+            return obj
+
+        elif isinstance(obj, dict):
+            return dict((key, Indexer.todict(val)) for key, val in obj.items())
+
+        elif hasattr(obj, '__iter__'):
+            return [Indexer.todict(val) for val in obj]
+
+        elif hasattr(obj, '__dict__'):
+            return Indexer.todict(vars(obj))
+
+        return obj
+
     def add_objects(self, collection):
-        games = [game.__dict__ for game in collection]
+        games = [Indexer.todict(game) for game in collection]
         for game in games:
             game["objectID"] = f"bgg{game['id']}"
 

@@ -5,8 +5,7 @@
     "boardgamegeek": {
         "user_name": "YOUR_BGG_USERNAME",
         "extra_params": {
-            "own": 1,
-            "exclude_subtype": "boardgameexpansion"
+            "own": 1
         }
     },
     "algolia": {
