@@ -128,14 +128,14 @@ class Indexer:
             'filters': delete_filter,
         })
 
-def main(api_key_admin):
+def main(args):
     downloader = Downloader()
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"]
     )
     print(f"Imported {len(collection)} games from boardgamegeek.")
 
-    indexer = Indexer(api_key_admin=api_key_admin)
+    indexer = Indexer(api_key_admin=args.api_key_admin)
     indexer.add_objects(collection)
     indexer.delete_objects_not_in(collection)
     print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
@@ -153,4 +153,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    main(api_key_admin=args.apikey)
+    main(args)
