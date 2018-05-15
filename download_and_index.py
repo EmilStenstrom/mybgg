@@ -135,10 +135,13 @@ def main(args):
     )
     print(f"Imported {len(collection)} games from boardgamegeek.")
 
-    indexer = Indexer(api_key_admin=args.api_key_admin)
-    indexer.add_objects(collection)
-    indexer.delete_objects_not_in(collection)
-    print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
+    if not args.no_indexing:
+        indexer = Indexer(api_key_admin=args.api_key_admin)
+        indexer.add_objects(collection)
+        indexer.delete_objects_not_in(collection)
+        print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
+    else:
+        print("Skipped indexing.")
 
 if __name__ == '__main__':
     import argparse
@@ -149,6 +152,11 @@ if __name__ == '__main__':
         type=str,
         required=True,
         help='The admin api key for your algolia site'
+    )
+    parser.add_argument(
+        '--no_indexing',
+        action='store_true',
+        help="Skip indexing in algolia. This is useful during development, when you want to fetch data från BGG over and over again, and don't want to use up your indexing quota with Algolia."
     )
 
     args = parser.parse_args()
