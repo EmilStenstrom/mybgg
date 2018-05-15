@@ -9,26 +9,16 @@ from boardgamegeek import BGGClient
 SETTINGS = json.load(open("config.json", "rb"))
 
 class BoardGame:
-    def __init__(self, *args, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-class Downloader():
-    def __init__(self):
-        project_name = SETTINGS["project"]["name"]
-        self.client = BGGClient()
-
-    def collection(self, user_name):
-        collection = self.client.collection(
-            user_name=user_name,
-            **SETTINGS["boardgamegeek"]["extra_params"]
-        )
-
-        game_data = self.client.game_list(
-            [game_in_collection.id for game_in_collection in collection.items]
-        )
-
-        return [self.game_data_to_boardgame(game) for game in game_data]
+    def __init__(self, game_data):
+        self.id = game_data.id
+        self.name = game_data.name
+        self.description = game_data.description
+        self.image = game_data.thumbnail
+        self.categories = game_data.categories
+        self.mechanics = game_data.mechanics
+        self.players = self.calc_num_players(game_data)
+        self.weight = self.calc_weight(game_data)
+        self.playing_time = self.calc_playing_time(game_data)
 
     def _num_players_is_recommended(self, num, votes):
         return int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating'])
@@ -42,9 +32,9 @@ class Downloader():
             "level2": f"{num} > " + best_or_recommended +  f" with {num_with_maybe_plus}",
         }
 
-    def game_data_to_boardgame(self, game):
+    def calc_num_players(self, game_data):
         num_players = []
-        for num, votes in game.suggested_players['results'].items():
+        for num, votes in game_data.suggested_players['results'].items():
             if not self._num_players_is_recommended(num, votes):
                 continue
 
@@ -54,6 +44,9 @@ class Downloader():
                 for i in range(int(num.replace("+", "")) + 1, 11):
                     num_players.append(self._facet_for_num_player(i, num, votes))
 
+        return num_players
+
+    def calc_playing_time(self, game_data):
         playing_time_mapping = {
             30: '< 30min',
             60: '30min - 1h',
@@ -62,11 +55,12 @@ class Downloader():
             240: '3-4h',
         }
         for playing_time_max, playing_time in playing_time_mapping.items():
-            if playing_time_max > int(game.playing_time):
-                break
-        else:
-            playing_time = '> 4h'
+            if playing_time_max > int(game_data.playing_time):
+                return playing_time
 
+        return '> 4h'
+
+    def calc_weight(self, game_data):
         weight_mapping = {
             0: "Light",
             1: "Light",
@@ -75,19 +69,24 @@ class Downloader():
             4: "Medium Heavy",
             5: "Heavy",
         }
-        weight = weight_mapping[math.ceil(game.rating_average_weight)]
+        return weight_mapping[math.ceil(game_data.rating_average_weight)]
 
-        return BoardGame(
-            id=game.id,
-            name=game.name,
-            description=game.description,
-            image=game.thumbnail,
-            categories=[cat for cat in game.categories],
-            mechanics=[mec for mec in game.mechanics],
-            players=num_players,
-            weight=weight,
-            playing_time=playing_time,
+class Downloader():
+    def __init__(self):
+        project_name = SETTINGS["project"]["name"]
+        self.client = BGGClient()
+
+    def collection(self, user_name):
+        collection = self.client.collection(
+            user_name=user_name,
+            **SETTINGS["boardgamegeek"]["extra_params"]
         )
+
+        games_data = self.client.game_list(
+            [game_in_collection.id for game_in_collection in collection.items]
+        )
+
+        return [BoardGame(game_data) for game_data in games_data]
 
 class Indexer:
     def __init__(self, api_key_admin):
