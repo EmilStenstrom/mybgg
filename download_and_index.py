@@ -68,12 +68,12 @@ class Downloader():
             playing_time = '> 4h'
 
         weight_mapping = {
-          0: "Light",
-          1: "Light",
-          2: "Light Medium",
-          3: "Medium",
-          4: "Medium Heavy",
-          5: "Heavy",
+            0: "Light",
+            1: "Light",
+            2: "Light Medium",
+            3: "Medium",
+            4: "Medium Heavy",
+            5: "Heavy",
         }
         weight = weight_mapping[math.ceil(game.rating_average_weight)]
 
