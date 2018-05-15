@@ -5,6 +5,7 @@ from textwrap import dedent
 
 from algoliasearch import algoliasearch
 from boardgamegeek import BGGClient
+from boardgamegeek.cache import CacheBackendSqlite
 
 SETTINGS = json.load(open("config.json", "rb"))
 
@@ -72,9 +73,17 @@ class BoardGame:
         return weight_mapping[math.ceil(game_data.rating_average_weight)]
 
 class Downloader():
-    def __init__(self):
+    def __init__(self, cache_bgg):
         project_name = SETTINGS["project"]["name"]
-        self.client = BGGClient()
+        if cache_bgg:
+            self.client = BGGClient(
+                cache=CacheBackendSqlite(
+                    path=f"{SETTINGS['project']['name']}-cache.sqlite",
+                    ttl=60 * 60 * 24,
+                )
+            )
+        else:
+            self.client = BGGClient()
 
     def collection(self, user_name):
         collection = self.client.collection(
@@ -129,7 +138,7 @@ class Indexer:
         })
 
 def main(args):
-    downloader = Downloader()
+    downloader = Downloader(cache_bgg=args.cache_bgg)
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"]
     )
@@ -157,6 +166,11 @@ if __name__ == '__main__':
         '--no_indexing',
         action='store_true',
         help="Skip indexing in algolia. This is useful during development, when you want to fetch data från BGG over and over again, and don't want to use up your indexing quota with Algolia."
+    )
+    parser.add_argument(
+        '--cache_bgg',
+        action='store_true',
+        help="Enable a cache for all BGG calls. This makes script run very fast the second time it's run. Bug doesn't fetch new data från BGG."
     )
 
     args = parser.parse_args()
