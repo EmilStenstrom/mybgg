@@ -24,18 +24,29 @@ body {
 	letter-spacing: .01em;
 	line-height: 1.2;
 }
+a {
+	color: #3e82f7;
+}
 
 /* Components */
 table {
 	border-collapse: collapse;
 }
-	table th {
-		text-align: left;
-		white-space: nowrap;
-	}
 	table th, table td {
 		border: 1px solid #eee;
 		padding: 3px 4px;
+	}
+	table th {
+		text-align: left;
+		white-space: nowrap;
+		vertical-align: top;
+	}
+	table ul {
+		margin: 0;
+		padding: 0;
+	}
+	table li {
+		list-style: none;
 	}
 
 details {

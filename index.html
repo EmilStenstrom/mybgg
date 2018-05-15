@@ -53,8 +53,19 @@
         <tr><th>Complexity</th><td>{{ weight }}</td></tr>
         <tr><th>Categories</th><td>{{ categories }}</td></tr>
         <tr><th>Mechanics</th><td>{{ mechanics }}</td></tr>
+        <tr>
+            <th>BGG Link</th>
+            <td><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></td>
+        </tr>
+        <tr>
+          <th>Expansions</th>
+          <td><ul>
+            {{# expansions }}
+              <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+            {{/ expansions }}
+          </ul></td>
+        </tr>
       </table>
-      <p><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">Read more on Boardgamegeek</a></p>
       <p>{{{ _highlightResult.description.value }}}</p>
     </details>
   </script>
