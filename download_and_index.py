@@ -98,10 +98,10 @@ class Downloader():
         return [BoardGame(game_data) for game_data in games_data]
 
 class Indexer:
-    def __init__(self, api_key_admin):
+    def __init__(self, apikey):
         client = algoliasearch.Client(
             app_id=SETTINGS["algolia"]["app_id"],
-            api_key=api_key_admin,
+            api_key=apikey,
         )
         index = client.init_index(SETTINGS["algolia"]["index_name"])
 
@@ -145,7 +145,7 @@ def main(args):
     print(f"Imported {len(collection)} games from boardgamegeek.")
 
     if not args.no_indexing:
-        indexer = Indexer(api_key_admin=args.api_key_admin)
+        indexer = Indexer(apikey=args.apikey)
         indexer.add_objects(collection)
         indexer.delete_objects_not_in(collection)
         print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
