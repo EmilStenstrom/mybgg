@@ -15,7 +15,7 @@ class BoardGame:
         self.image = game_data.thumbnail
         self.categories = game_data.categories
         self.mechanics = game_data.mechanics
-        self.players = self.calc_num_players(game_data)
+        self.players = self.calc_num_players(game_data, expansions)
         self.weight = self.calc_weight(game_data)
         self.playing_time = self.calc_playing_time(game_data)
         self.expansions = expansions
@@ -26,7 +26,7 @@ class BoardGame:
     def _num_players_is_best(self, num, votes):
         return int(votes['best_rating']) > 10 and int(votes['best_rating']) > int(votes['recommended_rating'])
 
-    def calc_num_players(self, game_data):
+    def calc_num_players(self, game_data, expansions):
         num_players = []
         for num, votes in game_data.suggested_players['results'].items():
             if not self._num_players_is_recommended(num, votes):
@@ -39,6 +39,11 @@ class BoardGame:
                 for i in range(int(num.replace("+", "")) + 1, 11):
                     is_best = self._num_players_is_best(num, votes)
                     num_players.append((num, "best" if is_best else "recommended"))
+
+        for expansion in expansions:
+            for expansion_num, _ in expansion.players:
+                if expansion_num not in [num for num, _ in num_players]:
+                    num_players.append((expansion_num, "expansion"))
 
         return num_players
 
@@ -162,6 +167,10 @@ class Indexer:
             "recommended": {
                 "level1": num_no_plus,
                 "level2": f"{num_no_plus} > Recommended with {num}",
+            },
+            "expansion": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Expansion allows {num}",
             },
         }
 
