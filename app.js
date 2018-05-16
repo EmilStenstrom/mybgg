@@ -122,16 +122,24 @@ function init(SETTINGS) {
       collapsible: true,
       transformData: {
         item: function(game){
-          num_players_list = [];
+          players = [];
           for (let num_players of game.players) {
-            num_players = num_players.level2.replace(/^\d+ > [\w ]+ (\d+\+?)$/, '$1')
-            num_players_list.push(num_players);
+            match = num_players.level2.match(/^\d+ > ([\w ]+) (?:with|allows) (\d+\+?)$/)
+            type = match[1].toLowerCase()
+            num = match[2]
 
-            if (num_players.indexOf("+") > -1) {
+            type_to_string = {
+              "best": " (best)",
+              "recommended": "",
+              "expansion": " (with exp)"
+            }
+            players.push(num + type_to_string[type]);
+
+            if (num.indexOf("+") > -1) {
               break;
             }
           }
-          game.players = num_players_list.join(", ");
+          game.players = players.join(", ");
 
           game.categories = game.categories.join(", ");
           game.mechanics = game.mechanics.join(", ");
