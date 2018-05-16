@@ -129,9 +129,9 @@ function init(SETTINGS) {
             num = match[2]
 
             type_to_string = {
-              "best": " (best)",
-              "recommended": "",
-              "expansion": " (with exp)"
+              'best': ' <span class="soft">(best)</span>',
+              'recommended': '',
+              'expansion': ' <span class="soft">(with exp)</span>'
             }
             players.push(num + type_to_string[type]);
 
