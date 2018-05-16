@@ -8,7 +8,7 @@ from boardgamegeek import BGGClient
 from boardgamegeek.cache import CacheBackendSqlite
 
 class BoardGame:
-    def __init__(self, game_data, expansions=[]):
+    def __init__(self, game_data, tags=[], expansions=[]):
         self.id = game_data.id
         self.name = game_data.name
         self.description = game_data.description
@@ -18,6 +18,7 @@ class BoardGame:
         self.players = self.calc_num_players(game_data, expansions)
         self.weight = self.calc_weight(game_data)
         self.playing_time = self.calc_playing_time(game_data)
+        self.tags = tags
         self.expansions = expansions
 
     def _num_players_is_recommended(self, num, votes):
@@ -114,9 +115,17 @@ class Downloader():
                 if expands_game.id in game_id_to_expansion:
                     game_id_to_expansion[expands_game.id].append(expansion_data)
 
+        game_id_to_tags = {game.id: [] for game in games}
+        for stats_data in collection:
+            if stats_data.id in game_id_to_tags:
+                for tag in ['preordered', 'prevowned', 'want', 'wanttobuy', 'wanttoplay', 'fortrade', 'wishlist']:
+                    if int(getattr(stats_data, tag)):
+                        game_id_to_tags[stats_data.id].append(tag)
+
         return [
             BoardGame(
                 game_data,
+                tags=game_id_to_tags[game_data.id],
                 expansions=[
                     BoardGame(expansion_data)
                     for expansion_data in game_id_to_expansion[game_data.id]

@@ -143,6 +143,7 @@ function init(SETTINGS) {
 
           game.categories = game.categories.join(", ");
           game.mechanics = game.mechanics.join(", ");
+          game.tags = game.tags.join(", ");
           game.description = game.description.trim();
           return game;
         },

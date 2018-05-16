@@ -27,6 +27,10 @@ body {
 a {
 	color: #3e82f7;
 }
+.soft {
+	color: #ccc;
+	font-weight: 300;
+}
 
 /* Components */
 table {
