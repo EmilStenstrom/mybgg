@@ -85,13 +85,22 @@ class Downloader():
             self.client = BGGClient()
 
     def collection(self, user_name, extra_params):
-        collection = self.client.collection(
-            user_name=user_name,
-            **extra_params,
-        )
+        collection = []
+
+        if isinstance(extra_params, list):
+            for params in extra_params:
+                collection += self.client.collection(
+                    user_name=user_name,
+                    **params,
+                )
+        else:
+            collection = list(self.client.collection(
+                user_name=user_name,
+                **extra_params,
+            ))
 
         games_data = self.client.game_list(
-            [game_in_collection.id for game_in_collection in collection.items]
+            [game_in_collection.id for game_in_collection in collection]
         )
 
         games = list(filter(lambda x: not x.expansion, games_data))
