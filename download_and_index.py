@@ -45,6 +45,8 @@ class BoardGame:
                 if expansion_num not in [num for num, _ in num_players]:
                     num_players.append((expansion_num, "expansion"))
 
+        num_players = sorted(num_players)
+
         return num_players
 
     def calc_playing_time(self, game_data):
