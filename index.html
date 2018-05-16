@@ -58,6 +58,7 @@
             <th>BGG Link</th>
             <td><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></td>
         </tr>
+        {{# has_expansions }}
         <tr>
           <th>Expansions</th>
           <td><ul>
@@ -66,6 +67,7 @@
             {{/ expansions }}
           </ul></td>
         </tr>
+        {{/ has_expansions }}
       </table>
       <p>{{{ _highlightResult.description.value }}}</p>
     </details>

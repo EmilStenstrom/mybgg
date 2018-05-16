@@ -145,6 +145,8 @@ function init(SETTINGS) {
           game.mechanics = game.mechanics.join(", ");
           game.tags = game.tags.join(", ");
           game.description = game.description.trim();
+
+          game.has_expansions = (game.expansions.length > 0)
           return game;
         },
       },
