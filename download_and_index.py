@@ -23,14 +23,8 @@ class BoardGame:
     def _num_players_is_recommended(self, num, votes):
         return int(votes['best_rating']) + int(votes['recommended_rating']) > int(votes['not_recommended_rating'])
 
-    def _facet_for_num_player(self, num, num_with_maybe_plus, votes):
-        is_best = int(votes['best_rating']) > 10 and int(votes['best_rating']) > int(votes['recommended_rating'])
-        best_or_recommended = "Best" if is_best else "Recommended"
-
-        return {
-            "level1": num,
-            "level2": f"{num} > " + best_or_recommended +  f" with {num_with_maybe_plus}",
-        }
+    def _num_players_is_best(self, num, votes):
+        return int(votes['best_rating']) > 10 and int(votes['best_rating']) > int(votes['recommended_rating'])
 
     def calc_num_players(self, game_data):
         num_players = []
@@ -39,10 +33,12 @@ class BoardGame:
                 continue
 
             if "+" not in num:
-                num_players.append(self._facet_for_num_player(num, num, votes))
+                is_best = self._num_players_is_best(num, votes)
+                num_players.append((num, "best" if is_best else "recommended"))
             else:
                 for i in range(int(num.replace("+", "")) + 1, 11):
-                    num_players.append(self._facet_for_num_player(i, num, votes))
+                    is_best = self._num_players_is_best(num, votes)
+                    num_players.append((num, "best" if is_best else "recommended"))
 
         return num_players
 
@@ -100,12 +96,16 @@ class Downloader():
         for expansion_data in expansions:
             for expands_game in expansion_data.expands:
                 if expands_game.id in game_id_to_expansion:
-                    expansion = BoardGame(expansion_data)
-                    del(expansion.description)  # Don't index the description of expansions
-                    game_id_to_expansion[expands_game.id].append(expansion)
+                    game_id_to_expansion[expands_game.id].append(expansion_data)
 
         return [
-            BoardGame(game_data, expansions=game_id_to_expansion[game_data.id])
+            BoardGame(
+                game_data,
+                expansions=[
+                    BoardGame(expansion_data)
+                    for expansion_data in game_id_to_expansion[game_data.id]
+                ]
+            )
             for game_data in games
         ]
 
@@ -152,10 +152,35 @@ class Indexer:
 
         return obj
 
+    def _facet_for_num_player(self, num, type_):
+        num_no_plus = num.replace("+", "")
+        facet_types = {
+            "best": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Best with {num}",
+            },
+            "recommended": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Recommended with {num}",
+            },
+        }
+
+        return facet_types[type_]
+
     def add_objects(self, collection):
         games = [Indexer.todict(game) for game in collection]
         for game in games:
             game["objectID"] = f"bgg{game['id']}"
+
+            # Turn players tuple into a hierarchical facet
+            game["players"] = [
+                self._facet_for_num_player(num, type_)
+                for num, type_ in game["players"]
+            ]
+
+            # Don't index descriptions of expansions, they make objects too big
+            for expansion in game["expansions"]:
+                del(expansion["description"])
 
         self.index.add_objects(games)
 
