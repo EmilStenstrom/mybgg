@@ -1,6 +1,7 @@
 {
     "project": {
-        "name": "mybgg"
+        "name": "mybgg",
+        "title": ""
     },
     "boardgamegeek": {
         "user_name": "YOUR_BGG_USERNAME",

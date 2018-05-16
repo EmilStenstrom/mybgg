@@ -172,11 +172,14 @@ function init(SETTINGS) {
   search.start();
 
   function set_bgg_name() {
-    name = SETTINGS.boardgamegeek.user_name + "'s";
-    title = document.getElementsByTagName("title")[0];
-    title.innerHTML = title.innerHTML.replace("my", name);
-    h1 = document.getElementsByTagName("h1")[0];
-    h1.innerHTML = h1.innerHTML.replace("my", name);
+    title = SETTINGS.project.title;
+    if (!title) {
+      title = "All " + SETTINGS.boardgamegeek.user_name + "'s boardgames";
+    }
+
+    title_tag = document.getElementsByTagName("title")[0];
+    h1_tag = document.getElementsByTagName("h1")[0];
+    title_tag.innerHTML = h1_tag.innerHTML = title;
   }
   set_bgg_name();
 }
