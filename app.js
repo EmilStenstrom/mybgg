@@ -88,7 +88,7 @@ function init(SETTINGS) {
       collapsible: true,
       attributeName: 'weight',
       operator: 'or',
-      sortBy: function(a, b){ return WEIGHT_LABELS.indexOf(a.name) > WEIGHT_LABELS.indexOf(b.name) },
+      sortBy: function(a, b){ return WEIGHT_LABELS.indexOf(a.name) - WEIGHT_LABELS.indexOf(b.name) },
       templates: {
         header: 'Complexity'
       }
@@ -109,7 +109,7 @@ function init(SETTINGS) {
       collapsible: true,
       attributeName: 'playing_time',
       operator: 'or',
-      sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) > PLAYING_TIME_ORDER.indexOf(b.name) },
+      sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) - PLAYING_TIME_ORDER.indexOf(b.name) },
       templates: {
         header: 'Playing time'
       }
