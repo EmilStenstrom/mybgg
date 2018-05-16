@@ -68,7 +68,7 @@ function init(SETTINGS) {
       attributes: ['players.level1', 'players.level2'],
       operator: 'or',
       showMore: true,
-      sortBy: function(a, b){ return parseInt(a.name) > parseInt(b.name) },
+      sortBy: function(a, b){ return parseInt(a.name) - parseInt(b.name) },
       templates: {
         header: 'Number of players'
       }
