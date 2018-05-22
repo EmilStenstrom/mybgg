@@ -99,7 +99,7 @@ GitHub Pages_. Select your master branch as Source, and click Save.
 
     This starts a webserver in the directory you're in.
 
-2. Open your web browser and go to `http://localhost:8000`. Voliá! Any time you make a change to your project you can
+2. Open your web browser and go to `http://localhost:8000`. Voliá! Any time you make a change to your project you can just reload the page to see your changes applied. When you're happy with the result, commit your changes.
 
 ## Updating your project to the latest version when mybgg is updated
 
