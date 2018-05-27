@@ -4,14 +4,14 @@
         "title": ""
     },
     "boardgamegeek": {
-        "user_name": "YOUR_BGG_USERNAME",
+        "user_name": "CMason1985",
         "extra_params": {
             "own": 1
         }
     },
     "algolia": {
-        "app_id": "YOUR_APP_ID",
-        "api_key_search_only": "YOUR_PUBLIC_API_KEY",
-        "index_name": "YOUR_INDEX_NAME"
+        "app_id": "5QVI46DTXS",
+        "api_key_search_only": "f22d738bb366e53b4840be6e4b8f3898",
+        "index_name": "ChandBGG"
     }
 }
