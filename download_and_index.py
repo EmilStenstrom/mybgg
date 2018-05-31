@@ -1,11 +1,12 @@
 import json
 import math
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from textwrap import dedent
 
 from algoliasearch import algoliasearch
 from boardgamegeek import BGGClient
 from boardgamegeek.cache import CacheBackendSqlite
+
 
 class BoardGame:
     def __init__(self, game_data, tags=[], expansions=[]):
