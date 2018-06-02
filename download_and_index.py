@@ -253,7 +253,9 @@ def main(args):
         user_name=SETTINGS["boardgamegeek"]["user_name"],
         extra_params=SETTINGS["boardgamegeek"]["extra_params"],
     )
-    print(f"Imported {len(collection)} games from boardgamegeek.")
+    num_games = len(collection)
+    num_expansions = sum([len(game.expansions) for game in collection])
+    print(f"Imported {num_games} games and {num_expansions} expansions from boardgamegeek.")
 
     if not len(collection):
         assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
@@ -266,7 +268,8 @@ def main(args):
         )
         indexer.add_objects(collection)
         indexer.delete_objects_not_in(collection)
-        print(f"Indexed {len(collection)} games in algolia, and removed everything else.")
+
+        print(f"Indexed {num_games} games and {num_expansions} expansions in algolia, and removed everything else.")
     else:
         print("Skipped indexing.")
 
