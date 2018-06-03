@@ -1,0 +1,110 @@
+import re
+
+from algoliasearch import algoliasearch
+
+
+class Indexer:
+    def __init__(self, app_id, apikey, index_name):
+        client = algoliasearch.Client(
+            app_id=app_id,
+            api_key=apikey,
+        )
+        index = client.init_index(index_name)
+
+        index.set_settings({
+            'searchableAttributes': [
+                'name',
+                'description',
+            ],
+            'attributesForFaceting': [
+                'categories',
+                'mechanics',
+                'players',
+                'weight',
+                'playing_time',
+            ],
+            'customRanking': ['asc(name)'],
+            'highlightPreTag': '<strong class="highlight">',
+            'highlightPostTag': '</strong>'
+        })
+
+        self.index = index
+
+    @staticmethod
+    def todict(obj):
+        if isinstance(obj, str):
+            return obj
+
+        elif isinstance(obj, dict):
+            return dict((key, Indexer.todict(val)) for key, val in obj.items())
+
+        elif hasattr(obj, '__iter__'):
+            return [Indexer.todict(val) for val in obj]
+
+        elif hasattr(obj, '__dict__'):
+            return Indexer.todict(vars(obj))
+
+        return obj
+
+    def _facet_for_num_player(self, num, type_):
+        num_no_plus = num.replace("+", "")
+        facet_types = {
+            "best": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Best with {num}",
+            },
+            "recommended": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Recommended with {num}",
+            },
+            "expansion": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Expansion allows {num}",
+            },
+        }
+
+        return facet_types[type_]
+
+    def _smart_truncate(self, content, length=700, suffix='...'):
+        if len(content) <= length:
+            return content
+        else:
+            return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+
+    def _prepare_description(self, description):
+        # Take only the first paragraph
+        description = description[:description.index("\n\n")]
+
+        # Remove unnessesary spacing
+        description = re.sub(r"\s+", " ", description).strip()
+
+        # Cut at 700 characters, but not in the middle of a sentence
+        description = self._smart_truncate(description)
+
+        return description
+
+    def add_objects(self, collection):
+        games = [Indexer.todict(game) for game in collection]
+        for game in games:
+            game["objectID"] = f"bgg{game['id']}"
+
+            # Turn players tuple into a hierarchical facet
+            game["players"] = [
+                self._facet_for_num_player(num, type_)
+                for num, type_ in game["players"]
+            ]
+
+            # Don't index descriptions of expansions, they make objects too big
+            for expansion in game["expansions"]:
+                del(expansion["description"])
+
+            # Make sure description is not too long
+            game["description"] = self._prepare_description(game["description"])
+
+        self.index.add_objects(games)
+
+    def delete_objects_not_in(self, collection):
+        delete_filter = " AND ".join([f"id != {game.id}" for game in collection])
+        self.index.delete_by({
+            'filters': delete_filter,
+        })
