@@ -69,7 +69,6 @@ class BGGClient:
                 xml.dictionary('item', [
                     xml.integer(".", attribute="objectid", alias="id"),
                     xml.string("name"),
-                    xml.string("thumbnail", alias="image"),
                     xml.string("status", attribute="fortrade"),
                     xml.string("status", attribute="own"),
                     xml.string("status", attribute="preordered"),
