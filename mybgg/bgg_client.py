@@ -37,7 +37,16 @@ class BGGClient:
         return games
 
     def _make_request(self, url, params={}, tries=0):
-        response = self.requester.get(BGGClient.BASE_URL + url, params=params)
+
+        try:
+            response = self.requester.get(BGGClient.BASE_URL + url, params=params)
+        except requests.exceptions.ConnectionError:
+            if tries < 3:
+                time.sleep(2)
+                return self._make_request(url, params=params, tries=tries + 1)
+
+            raise BGGException("BGG API closed the connection prematurely, please try again...")
+
         logger.debug("REQUEST: " + response.url)
         logger.debug("RESPONSE: \n" + prettify_if_xml(response.text))
 
