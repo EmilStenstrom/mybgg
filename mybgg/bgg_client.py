@@ -155,7 +155,7 @@ class BGGClient:
                                 xml.dictionary("result", [
                                     xml.string(".", attribute="value"),
                                     xml.integer(".", attribute="numvotes"),
-                                ]),
+                                ], required=False),
                             )
                         ]),
                         alias="suggested_numplayers"

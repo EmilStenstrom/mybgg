@@ -27,10 +27,15 @@ class BoardGame:
         num_players = []
         for playcount in game_data["suggested_numplayers"]:
             num = playcount["numplayers"]
+            label_to_votes = {val["value"]: val["numvotes"] for val in playcount["result"]}
             votes = {
-                vote["value"].replace(" ", "_").lower() + "_rating": vote["numvotes"]
-                for vote in playcount["result"]
+                "best_rating": 0,
+                "recommended_rating": 0,
+                "not_recommended_rating": 0,
             }
+            for label, numvotes in label_to_votes.items():
+                votes[label.lower().replace(" ", "_") + "_rating"] = numvotes
+
             if not self._num_players_is_recommended(num, votes):
                 continue
 
