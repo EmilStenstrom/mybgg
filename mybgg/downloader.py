@@ -1,63 +1,62 @@
-from boardgamegeek import BGGClient
-from boardgamegeek.cache import CacheBackendSqlite
+from mybgg.bgg_client import BGGClient
+from mybgg.bgg_client import CacheBackendSqlite
 from mybgg.models import BoardGame
 
 
 class Downloader():
-    def __init__(self, project_name, cache_bgg):
+    def __init__(self, project_name, cache_bgg, debug=False):
         if cache_bgg:
             self.client = BGGClient(
                 cache=CacheBackendSqlite(
                     path=f"{project_name}-cache.sqlite",
                     ttl=60 * 60 * 24,
-                )
+                ),
+                debug=debug,
             )
         else:
-            self.client = BGGClient()
+            self.client = BGGClient(
+                debug=debug,
+            )
 
     def collection(self, user_name, extra_params):
-        collection = []
+        collection_data = []
 
         if isinstance(extra_params, list):
             for params in extra_params:
-                collection += self.client.collection(
+                collection_data += self.client.collection(
                     user_name=user_name,
                     **params,
                 )
         else:
-            collection = list(self.client.collection(
+            collection_data = self.client.collection(
                 user_name=user_name,
                 **extra_params,
-            ))
+            )
 
-        games_data = self.client.game_list(
-            [game_in_collection.id for game_in_collection in collection]
+        game_list_data = self.client.game_list(
+            [game_in_collection["id"] for game_in_collection in collection_data]
         )
 
-        games = list(filter(lambda x: not x.expansion, games_data))
-        expansions = list(filter(lambda x: x.expansion, games_data))
+        games_data = list(filter(lambda x: x["type"] == "boardgame", game_list_data))
+        expansions_data = list(filter(lambda x: x["type"] == "boardgameexpansion", game_list_data))
 
-        game_id_to_expansion = {game.id: [] for game in games}
-        for expansion_data in expansions:
-            for expands_game in expansion_data.expands:
-                if expands_game.id in game_id_to_expansion:
-                    game_id_to_expansion[expands_game.id].append(expansion_data)
+        game_id_to_expansion = {game["id"]: [] for game in games_data}
+        for expansion_data in expansions_data:
+            for expansion in expansion_data["expansions"]:
+                if expansion["inbound"] and expansion["id"] in game_id_to_expansion:
+                    game_id_to_expansion[expansion["id"]].append(expansion_data)
 
-        game_id_to_tags = {game.id: [] for game in games}
-        for stats_data in collection:
-            if stats_data.id in game_id_to_tags:
-                for tag in ['preordered', 'prevowned', 'want', 'wanttobuy', 'wanttoplay', 'fortrade', 'wishlist']:
-                    if int(getattr(stats_data, tag)):
-                        game_id_to_tags[stats_data.id].append(tag)
+        game_id_to_tags = {game["id"]: game["tags"] for game in collection_data}
 
-        return [
+        games = [
             BoardGame(
                 game_data,
-                tags=game_id_to_tags[game_data.id],
+                tags=game_id_to_tags[game_data["id"]],
                 expansions=[
                     BoardGame(expansion_data)
-                    for expansion_data in game_id_to_expansion[game_data.id]
+                    for expansion_data in game_id_to_expansion[game_data["id"]]
                 ]
             )
-            for game_data in games
+            for game_data in games_data
         ]
+        return games

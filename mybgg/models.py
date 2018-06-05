@@ -1,14 +1,16 @@
 import math
+from decimal import Decimal
+import html
 
 
 class BoardGame:
     def __init__(self, game_data, tags=[], expansions=[]):
-        self.id = game_data.id
-        self.name = game_data.name
-        self.description = game_data.description
-        self.image = game_data.thumbnail
-        self.categories = game_data.categories
-        self.mechanics = game_data.mechanics
+        self.id = game_data["id"]
+        self.name = game_data["name"]
+        self.description = html.unescape(game_data["description"])
+        self.image = game_data["thumbnail"]
+        self.categories = game_data["categories"]
+        self.mechanics = game_data["mechanics"]
         self.players = self.calc_num_players(game_data, expansions)
         self.weight = self.calc_weight(game_data)
         self.playing_time = self.calc_playing_time(game_data)
@@ -23,7 +25,12 @@ class BoardGame:
 
     def calc_num_players(self, game_data, expansions):
         num_players = []
-        for num, votes in game_data.suggested_players['results'].items():
+        for playcount in game_data["suggested_numplayers"]:
+            num = playcount["numplayers"]
+            votes = {
+                vote["value"].replace(" ", "_").lower() + "_rating": vote["numvotes"]
+                for vote in playcount["result"]
+            }
             if not self._num_players_is_recommended(num, votes):
                 continue
 
@@ -53,7 +60,7 @@ class BoardGame:
             240: '3-4h',
         }
         for playing_time_max, playing_time in playing_time_mapping.items():
-            if playing_time_max > int(game_data.playing_time):
+            if playing_time_max > int(game_data["playing_time"]):
                 return playing_time
 
         return '> 4h'
@@ -67,4 +74,4 @@ class BoardGame:
             4: "Medium Heavy",
             5: "Heavy",
         }
-        return weight_mapping[math.ceil(game_data.rating_average_weight)]
+        return weight_mapping[math.ceil(Decimal(game_data["weight"]))]

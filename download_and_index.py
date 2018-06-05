@@ -10,6 +10,7 @@ def main(args):
     downloader = Downloader(
         project_name=SETTINGS["project"]["name"],
         cache_bgg=args.cache_bgg,
+        debug=args.debug,
     )
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"],
@@ -63,6 +64,10 @@ if __name__ == '__main__':
             "fast the second time it's run. Bug doesn't fetch new data från BGG."
         )
     )
+    parser.add_argument(
+        '--debug',
+        action='store_true',
+        help="Print debug information, such as requests made and responsed recieved."
     )
 
     args = parser.parse_args()

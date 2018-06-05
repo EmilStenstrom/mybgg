@@ -1,2 +1,3 @@
-boardgamegeek2==1.0.0rc2
 algoliasearch
+declxml
+requests-cache
