@@ -52,9 +52,15 @@ class BGGClient:
 
         if response.status_code != 200:
 
-            # Handle: 202 Accepted, and 504 Gateway Timeout
-            if response.status_code in [202, 540]:
-                if tries < 5:
+            # Handle 202 Accepted
+            if response.status_code == 202:
+                if tries < 10:
+                    time.sleep(5)
+                    return self._make_request(url, params=params, tries=tries + 1)
+
+            # Handle 504 Gateway Timeout
+            if response.status_code == 540:
+                if tries < 3:
                     time.sleep(2)
                     return self._make_request(url, params=params, tries=tries + 1)
 
