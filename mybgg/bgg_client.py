@@ -31,9 +31,17 @@ class BGGClient:
         if not game_ids:
             return []
 
-        url = "/thing/?stats=1&id=" + ",".join([str(id_) for id_ in game_ids])
-        data = self._make_request(url)
-        games = self._games_list_to_games(data)
+        # Split game_ids into smaller chunks to avoid "414 URI too long"
+        def chunks(l, n):
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
+
+        games = []
+        for game_ids_subset in chunks(game_ids, 100):
+            url = "/thing/?stats=1&id=" + ",".join([str(id_) for id_ in game_ids_subset])
+            data = self._make_request(url)
+            games += self._games_list_to_games(data)
+
         return games
 
     def _make_request(self, url, params={}, tries=0):
