@@ -35,6 +35,7 @@ def main(args):
     else:
         print("Skipped indexing.")
 
+
 if __name__ == '__main__':
     import argparse
 
@@ -48,12 +49,20 @@ if __name__ == '__main__':
     parser.add_argument(
         '--no_indexing',
         action='store_true',
-        help="Skip indexing in algolia. This is useful during development, when you want to fetch data från BGG over and over again, and don't want to use up your indexing quota with Algolia."
+        help=(
+            "Skip indexing in algolia. This is useful during development"
+            ", when you want to fetch data från BGG over and over again, "
+            "and don't want to use up your indexing quota with Algolia."
+        )
     )
     parser.add_argument(
         '--cache_bgg',
         action='store_true',
-        help="Enable a cache for all BGG calls. This makes script run very fast the second time it's run. Bug doesn't fetch new data från BGG."
+        help=(
+            "Enable a cache for all BGG calls. This makes script run very "
+            "fast the second time it's run. Bug doesn't fetch new data från BGG."
+        )
+    )
     )
 
     args = parser.parse_args()
