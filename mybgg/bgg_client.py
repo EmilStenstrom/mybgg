@@ -48,7 +48,7 @@ class BGGClient:
             raise BGGException("BGG API closed the connection prematurely, please try again...")
 
         logger.debug("REQUEST: " + response.url)
-        logger.debug("RESPONSE: \n" + prettify_if_xml(response.text))
+        logger.debug("RESPONSE: \n" + "\n".join(prettify_if_xml(response.text).splitlines()[:25]))
 
         if response.status_code != 200:
 
