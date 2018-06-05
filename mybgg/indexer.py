@@ -94,9 +94,14 @@ class Indexer:
                 for num, type_ in game["players"]
             ]
 
-            # Don't index descriptions of expansions, they make objects too big
-            for expansion in game["expansions"]:
-                del(expansion["description"])
+            # Algolia has a limit of 10kb per item, so remove unnessesary data from expansions
+            game["expansions"] = [
+                {
+                    attribute: expansion[attribute]
+                    for attribute in ["id", "name", "players"]
+                }
+                for expansion in game["expansions"]
+            ]
 
             # Make sure description is not too long
             game["description"] = self._prepare_description(game["description"])
