@@ -21,7 +21,9 @@ function init(SETTINGS) {
   function closeAll(event){
     var details = document.querySelectorAll("details");
     details.forEach(function(details_elem){
-      details_elem.removeAttribute("open");
+      if (details_elem.hasAttribute("open")) {
+        details_elem.removeAttribute("open");
+      }
     });
   }
 
