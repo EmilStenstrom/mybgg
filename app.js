@@ -47,7 +47,7 @@ function init(SETTINGS) {
       close.setAttribute("tabindex", "-1");
       close.innerHTML = "×";
       close.addEventListener("click", function(){
-        var parent_details = elem.parentElement.removeAttribute("open");
+        elem.parentElement.removeAttribute("open");
       });
       elem.appendChild(close);
 
