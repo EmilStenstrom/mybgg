@@ -38,38 +38,41 @@
   </article>
 
   <script type="text/html" id="hits-template">
-    <details>
+    <details class="game-wrapper">
       <summary>
-        <div class="wrapper">
+        <div class="game">
           <div class="image" style="background-image: url({{{ image }}})"></div>
-          <h2>
-            {{{ _highlightResult.name.value }}}
-            {{# tags }}<span class="soft">({{ tags }})</span>{{/ tags }}
-          </h2>
+          <img src="{{{ image }}}">
         </div>
       </summary>
-      <table>
-        <tr><th>Players</th><td>{{{ players }}}</td></tr>
-        <tr><th>Playing time</th><td>{{ playing_time }}</td></tr>
-        <tr><th>Complexity</th><td>{{ weight }}</td></tr>
-        <tr><th>Categories</th><td>{{ categories }}</td></tr>
-        <tr><th>Mechanics</th><td>{{ mechanics }}</td></tr>
-        <tr>
-            <th>BGG Link</th>
-            <td><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></td>
-        </tr>
-        {{# has_expansions }}
-        <tr>
-          <th>Expansions</th>
-          <td><ul>
-            {{# expansions }}
-              <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
-            {{/ expansions }}
-          </ul></td>
-        </tr>
-        {{/ has_expansions }}
-      </table>
-      <p>{{{ _highlightResult.description.value }}}</p>
+      <div class="game-details">
+        <h2>
+          {{{ _highlightResult.name.value }}}
+          {{# tags }}<span class="soft">({{ tags }})</span>{{/ tags }}
+        </h2>
+        <table>
+          <tr><th>Players</th><td>{{{ players }}}</td></tr>
+          <tr><th>Playing time</th><td>{{ playing_time }}</td></tr>
+          <tr><th>Complexity</th><td>{{ weight }}</td></tr>
+          <tr><th>Categories</th><td>{{ categories }}</td></tr>
+          <tr><th>Mechanics</th><td>{{ mechanics }}</td></tr>
+          <tr>
+              <th>BGG Link</th>
+              <td><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></td>
+          </tr>
+          {{# has_expansions }}
+          <tr>
+            <th>Expansions</th>
+            <td><ul>
+              {{# expansions }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+              {{/ expansions }}
+            </ul></td>
+          </tr>
+          {{/ has_expansions }}
+        </table>
+        <p>{{{ _highlightResult.description.value }}}</p>
+      </div>
     </details>
   </script>
 

@@ -18,6 +18,43 @@ function init(SETTINGS) {
     routing: true
   });
 
+  function closeAll(event){
+    var details = document.querySelectorAll("details");
+    details.forEach(function(details_elem){
+      details_elem.removeAttribute("open");
+    });
+  }
+
+  search.on('render', function() {
+    var summaries = document.querySelectorAll("summary");
+    summaries.forEach(function(elem){
+      elem.addEventListener("click", function(){
+        closeAll();
+        if (!elem.parentElement.hasAttribute("open")) {
+          var game_details = elem.parentElement.querySelector(".game-details");
+          game_details.focus();
+        }
+      });
+    });
+    document.addEventListener("click", closeAll);
+
+    var game_details = document.querySelectorAll(".game-details");
+    game_details.forEach(function(elem){
+      var close = document.createElement("div");
+      close.setAttribute("class", "close");
+      close.setAttribute("tabindex", "-1");
+      close.innerHTML = "×";
+      close.addEventListener("click", function(){
+        var parent_details = elem.parentElement.removeAttribute("open");
+      });
+      elem.appendChild(close);
+
+      elem.addEventListener("click", function(event){
+        event.stopPropagation();
+      });
+    });
+  });
+
   search.addWidget(
     instantsearch.widgets.searchBox({
       container: '#search-box',
