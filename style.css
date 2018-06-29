@@ -70,7 +70,11 @@ table {
 
 .hits {
 	margin-top: 1em;
-	overflow: hidden;
+}
+.hits:after {
+  content: "";
+  display: table;
+  clear: both;
 }
 .game {
 	position: relative;
