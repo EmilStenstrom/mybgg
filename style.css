@@ -70,6 +70,7 @@ table {
 
 .hits {
 	margin-top: 1em;
+	overflow: hidden;
 }
 .game {
 	position: relative;
