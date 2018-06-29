@@ -129,7 +129,7 @@ class BGGClient:
                     xml.string(".", attribute="type"),
                     xml.string("name[@type='primary']", attribute="value", alias="name"),
                     xml.string("description"),
-                    xml.string("image", required=False, alias="thumbnail"),
+                    xml.string("thumbnail", required=False, alias="image"),
                     xml.array(
                         xml.string(
                             "link[@type='boardgamecategory']",

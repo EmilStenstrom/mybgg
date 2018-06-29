@@ -8,7 +8,7 @@ class BoardGame:
         self.id = game_data["id"]
         self.name = game_data["name"]
         self.description = html.unescape(game_data["description"])
-        self.image = game_data["thumbnail"]
+        self.image = game_data["image"]
         self.categories = game_data["categories"]
         self.mechanics = game_data["mechanics"]
         self.players = self.calc_num_players(game_data, expansions)
