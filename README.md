@@ -121,7 +121,14 @@ GitHub Pages_. Select your master branch as Source, and click Save.
    git merge upstream/master
    ```
 
-4. **Push the new updated version** to GitHub:
+4. **Update to the latest version of all external libraries** that mybgg uses internally. They can update between versions.
+
+   ```
+   pip install -r requirements.txt
+   ```
+
+
+5. **Push the new updated version** to GitHub:
 
    ```
    git push
