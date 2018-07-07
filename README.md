@@ -138,3 +138,4 @@ GitHub Pages_. Select your master branch as Source, and click Save.
 
 * Meeple icon (CC4 Attribtion): https://icon-icons.com/icon/meeple/38522#256
 * Algolia search client (MIT): https://github.com/algolia/algoliasearch-client-python
+* Mobile testing with: <a href="https://www.browserstack.com"><img src="https://raw.githubusercontent.com/EmilStenstrom/mybgg/master/Browserstack-logo@2x.png" height="25" alt="Browserstack" style="vertical-align: top"></a>
