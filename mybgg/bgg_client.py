@@ -87,41 +87,53 @@ class BGGClient:
         return response.text
 
     def _collection_to_games(self, data):
+        def after_status_hook(_, status):
+            return [tag for tag, value in status.items() if value == "1"]
+
         game_in_collection_processor = xml.dictionary("items", [
             xml.array(
                 xml.dictionary('item', [
                     xml.integer(".", attribute="objectid", alias="id"),
                     xml.string("name"),
-                    xml.string("status", attribute="fortrade"),
-                    xml.string("status", attribute="own"),
-                    xml.string("status", attribute="preordered"),
-                    xml.string("status", attribute="prevowned"),
-                    xml.string("status", attribute="want"),
-                    xml.string("status", attribute="wanttobuy"),
-                    xml.string("status", attribute="wanttoplay"),
-                    xml.string("status", attribute="wishlist"),
+                    xml.dictionary("status", [
+                        xml.string(".", attribute="fortrade"),
+                        xml.string(".", attribute="own"),
+                        xml.string(".", attribute="preordered"),
+                        xml.string(".", attribute="prevowned"),
+                        xml.string(".", attribute="want"),
+                        xml.string(".", attribute="wanttobuy"),
+                        xml.string(".", attribute="wanttoplay"),
+                        xml.string(".", attribute="wishlist"),
+                    ], alias='tags', hooks=xml.Hooks(after_parse=after_status_hook)),
                     xml.integer("numplays"),
                 ], required=False, alias="items"),
             )
         ])
         collection = xml.parse_from_string(game_in_collection_processor, data)
         collection = collection["items"]
-
-        # Collect all status attributes in one field called "tags"
-        attributes = ["fortrade", "preordered", "prevowned", "want", "wanttobuy", "wanttoplay", "wishlist"]
-        for game in collection:
-            tags = []
-            for attribute in attributes:
-                if game[attribute] == "1":
-                    tags.append(attribute)
-
-                del game[attribute]
-
-            game["tags"] = tags
-
         return collection
 
     def _games_list_to_games(self, data):
+        def numplayers_to_result(_, results):
+            result = {result["value"].lower().replace(" ", "_"): int(result["numvotes"]) for result in results}
+
+            is_recommended = result['best'] + result['recommended'] > result['not_recommended']
+            if not is_recommended:
+                return "not_recommended"
+
+            is_best = result['best'] > 10 and result['best'] > result['recommended']
+            if is_best:
+                return "best"
+
+            return "recommended"
+
+        def simplify_suggested_numplayers(_, numplayers):
+            return [
+                (players["numplayers"], players["result"])
+                for players in numplayers
+                if players["result"] != "not_recommended"
+            ]
+
         game_processor = xml.dictionary("items", [
             xml.array(
                 xml.dictionary("item", [
@@ -164,9 +176,11 @@ class BGGClient:
                                     xml.string(".", attribute="value"),
                                     xml.integer(".", attribute="numvotes"),
                                 ], required=False),
+                                hooks=xml.Hooks(after_parse=numplayers_to_result)
                             )
                         ]),
-                        alias="suggested_numplayers"
+                        alias="suggested_numplayers",
+                        hooks=xml.Hooks(after_parse=simplify_suggested_numplayers),
                     ),
                     xml.string(
                         "statistics/ratings/averageweight",
