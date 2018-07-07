@@ -127,11 +127,18 @@ class BGGClient:
 
             return "recommended"
 
-        def simplify_suggested_numplayers(_, numplayers):
+        def suggested_numplayers(_, numplayers):
+            # Remove not_recommended player counts
+            numplayers = [players for players in numplayers if players["result"] != "not_recommended"]
+
+            # If there's only one player count, that's the best one
+            if len(numplayers) == 1:
+                numplayers[0]["result"] = "best"
+
+            # Just return the numbers
             return [
                 (players["numplayers"], players["result"])
                 for players in numplayers
-                if players["result"] != "not_recommended"
             ]
 
         game_processor = xml.dictionary("items", [
@@ -180,7 +187,7 @@ class BGGClient:
                             )
                         ]),
                         alias="suggested_numplayers",
-                        hooks=xml.Hooks(after_parse=simplify_suggested_numplayers),
+                        hooks=xml.Hooks(after_parse=suggested_numplayers),
                     ),
                     xml.string(
                         "statistics/ratings/averageweight",
