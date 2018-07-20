@@ -127,7 +127,7 @@ table {
 		z-index: 1;
 	}
 		.game-details h2 {
-			margin: 0em 0 0.5em;
+			margin: 0 0 0.5em;
 			border-bottom: 1px solid rgba(0,0,0,0.1);;
 		}
 		.game-details strong {
