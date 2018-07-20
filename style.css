@@ -3,6 +3,12 @@ body {
 	max-width: 960px;
 	margin: 0 auto;
 	padding: 0 0.5em;
+	color: #606c76;
+	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+	font-weight: 300;
+	font-size: 14px;
+	letter-spacing: .01em;
+	line-height: 1.2;
 }
 article {
 	display: flex;
@@ -14,16 +20,6 @@ article {
 		padding-left: 20px;
 		min-width: 200px;
 	}
-
-/* Typography */
-body {
-	color: #606c76;
-	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-	font-weight: 300;
-	font-size: 14px;
-	letter-spacing: .01em;
-	line-height: 1.2;
-}
 a {
 	color: #3e82f7;
 }
