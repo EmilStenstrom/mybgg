@@ -12,22 +12,21 @@
   <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@2.7.4"></script>
 </head>
 <body>
-  <header>
-    <h1>All my boardgames</h1>
-  </header>
-
-  <article>
-    <main>
+  <article class="wrapper">
+    <header class="title">
+      <h1>All my boardgames</h1>
+    </header>
+    <main class="results">
       <div class="search-box" id="search-box"></div>
       <div id="stats"></div>
       <div class="hits" id="hits"></div>
       <div id="pagination"></div>
       <a href="https://www.algolia.com"><img src="search-by-algolia.png" width="130" height="18"></a>
     </main>
-    <aside>
+    <aside class="facets">
       <div class="clear-all" id="clear-all"></div>
 
-      <h2>Filter games</h2>
+      <h2 class="heading">Filter games</h2>
 
       <div class="facet" id="facet-players"></div>
       <div class="facet" id="facet-playing-time"></div>
@@ -46,11 +45,11 @@
         </div>
       </summary>
       <div class="game-details">
-        <h2>
+        <h2 class="heading">
           {{{ _highlightResult.name.value }}}
           {{# tags }}<span class="soft">({{ tags }})</span>{{/ tags }}
         </h2>
-        <table>
+        <table class="properties">
           <tr><th>Players</th><td>{{{ players }}}</td></tr>
           <tr><th>Playing time</th><td>{{ playing_time }}</td></tr>
           <tr><th>Complexity</th><td>{{ weight }}</td></tr>
@@ -71,7 +70,7 @@
           </tr>
           {{/ has_expansions }}
         </table>
-        <p>{{{ _highlightResult.description.value }}}</p>
+        <p class="description">{{{ _highlightResult.description.value }}}</p>
       </div>
     </details>
   </script>

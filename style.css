@@ -6,22 +6,30 @@ body {
 	font-weight: 300;
 	letter-spacing: .01em;
 	line-height: 1.2;
+}
+.wrapper {
+	display: flex;
+	flex-flow: row wrap;
 	margin: 0 auto;
 	max-width: 960px;
 	padding: 0 0.5em;
 }
-article {
-	display: flex;
-}
-	main {
-		flex-grow: 1;
+	.title {
+		flex: 1 100%;
 	}
-	aside {
+	.results {
+		flex: 3;
+	}
+	.facets {
+		flex: 1;
 		min-width: 200px;
-		padding-left: 20px;
 	}
 a {
 	color: #3e82f7;
+}
+strong {
+	background-color: #ffcdd2;
+	color: #c62828;
 }
 .soft {
 	color: #bbb;
@@ -45,33 +53,33 @@ details > summary:first-of-type {
 }
 
 /* Components */
-table {
+.properties {
 	border-collapse: collapse;
 }
-	table th, table td {
+	.properties th, .properties td {
 		padding: 0 20px 10px 0;
 	}
-	table th {
+	.properties th {
 		text-align: left;
 		vertical-align: top;
 		white-space: nowrap;
 	}
-	table ul {
+	.properties ul {
 		margin: 0;
 		padding: 0;
 	}
-	table li {
+	.properties li {
 		list-style: none;
 	}
 
 .hits {
 	margin-top: 1em;
 }
-.hits:after {
-  clear: both;
-  content: "";
-  display: table;
-}
+	.hits:after {
+		clear: both;
+		content: "";
+		display: table;
+	}
 .game {
 	align-items: center;
 	border: 1px solid rgba(0,0,0,0.1);
@@ -122,13 +130,9 @@ table {
 		width: 200%;
 		z-index: 1;
 	}
-		.game-details h2 {
+		.game-details .heading {
 			border-bottom: 1px solid rgba(0,0,0,0.1);
 			margin: 0 0 0.5em;
-		}
-		.game-details strong {
-			background-color: #ffcdd2;
-			color: #c62828;
 		}
 		.game-details .close {
 			cursor: pointer;
@@ -145,11 +149,12 @@ table {
 
 .search-box {
 	margin-bottom: 1em;
+	margin-right: 1em;
 }
-aside h2 {
+.facets .heading {
 	margin-top: 0;
 }
-aside .clear-all {
+.facets .clear-all {
 	float: right;
 	margin-bottom: 1em;
 }
