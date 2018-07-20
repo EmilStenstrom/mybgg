@@ -9,19 +9,25 @@ body {
 }
 .wrapper {
 	display: flex;
-	flex-flow: row wrap;
+	flex-wrap: wrap;
 	margin: 0 auto;
 	max-width: 960px;
 	padding: 0 0.5em;
 }
 	.title {
-		flex: 1 100%;
+		flex-basis: 100%;
+		flex-grow: 1;
+		flex-shrink: 0;
 	}
 	.results {
-		flex: 3;
+		flex-basis: 200px;
+		flex-grow: 3;
+		flex-shrink: 0;
 	}
 	.facets {
-		flex: 1;
+		flex-basis: 200px;
+		flex-grow: 1;
+		flex-shrink: 0;
 		min-width: 200px;
 	}
 a {
