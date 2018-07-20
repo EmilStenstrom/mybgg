@@ -123,12 +123,12 @@ table {
 		padding: 10px 15px;
 		border: 1px solid rgba(0,0,0,0.3);
 		border-radius: 5px;
-		box-shadow: 2px 2px 10px rgba(0,0,0,0.3);;
+		box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
 		z-index: 1;
 	}
 		.game-details h2 {
 			margin: 0 0 0.5em;
-			border-bottom: 1px solid rgba(0,0,0,0.1);;
+			border-bottom: 1px solid rgba(0,0,0,0.1);
 		}
 		.game-details strong {
 			background-color: #ffcdd2;
