@@ -1,14 +1,14 @@
 /* Main layout */
 body {
-	max-width: 960px;
-	margin: 0 auto;
-	padding: 0 0.5em;
 	color: #606c76;
 	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-	font-weight: 300;
 	font-size: 14px;
+	font-weight: 300;
 	letter-spacing: .01em;
 	line-height: 1.2;
+	margin: 0 auto;
+	max-width: 960px;
+	padding: 0 0.5em;
 }
 article {
 	display: flex;
@@ -17,8 +17,8 @@ article {
 		flex-grow: 1;
 	}
 	aside {
-		padding-left: 20px;
 		min-width: 200px;
+		padding-left: 20px;
 	}
 a {
 	color: #3e82f7;
@@ -53,8 +53,8 @@ table {
 	}
 	table th {
 		text-align: left;
-		white-space: nowrap;
 		vertical-align: top;
+		white-space: nowrap;
 	}
 	table ul {
 		margin: 0;
@@ -68,76 +68,76 @@ table {
 	margin-top: 1em;
 }
 .hits:after {
+  clear: both;
   content: "";
   display: table;
-  clear: both;
 }
 .game {
-	position: relative;
-	width: 150px;
-	height: 150px;
-	margin: 0 10px 10px 0;
-	overflow: hidden;
-	display: inline-flex;
-	flex-direction: column;
 	align-items: center;
-	justify-content: center;
 	border: 1px solid rgba(0,0,0,0.1);
 	border-radius: 5px;
+	display: inline-flex;
+	flex-direction: column;
+	height: 150px;
+	justify-content: center;
+	margin: 0 10px 10px 0;
+	overflow: hidden;
+	position: relative;
+	width: 150px;
 }
 @media only screen and (max-width: 640px) {
 	.game {
-		width: 125px;
 		height: 125px;
+		width: 125px;
 	}
 }
 	.game .image {
-		position: absolute;
-		height: 100%;
-		width: 100%;
-		background-size: cover;
 		background-position: top;
-		-webkit-filter: blur(5px);
+		background-size: cover;
 		filter: blur(5px);
+		-webkit-filter: blur(5px);
+		height: 100%;
+		position: absolute;
+		width: 100%;
 		z-index: -1;
 	}
 	.game img {
+		box-shadow: 2px 2px 10px black;
 		margin: 1%;
 		max-height: 98%;
 		max-width: 98%;
-		box-shadow: 2px 2px 10px black;
 	}
 .game-wrapper {
 	position: relative;
 }
 	.game-details {
 		background: white;
-		position: absolute;
-		top: 10px;
-		left: 10px;
-		width: 200%;
-		padding: 10px 15px;
 		border: 1px solid rgba(0,0,0,0.3);
 		border-radius: 5px;
 		box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+		left: 10px;
+		padding: 10px 15px;
+		position: absolute;
+		top: 10px;
+		width: 200%;
 		z-index: 1;
 	}
 		.game-details h2 {
-			margin: 0 0 0.5em;
 			border-bottom: 1px solid rgba(0,0,0,0.1);
+			margin: 0 0 0.5em;
 		}
 		.game-details strong {
 			background-color: #ffcdd2;
 			color: #c62828;
 		}
 		.game-details .close {
+			cursor: pointer;
 			font-size: 2em;
 			line-height: 1.35em;
-			position: absolute;
-			top: 0;
-			right: 14px;
-			cursor: pointer;
 			pointer-events: all;
+			position: absolute;
+			right: 14px;
+			top: 0;
 		}
 		.game-details .close:hover {
 			color: red;
@@ -157,8 +157,8 @@ aside .clear-all {
 	margin-bottom: 1em;
 }
 	.facet .ais-show-more {
-		cursor: pointer;
 		color: gray;
+		cursor: pointer;
 		font-size: 0.8em;
 		margin-left: 2.3em;
 	}
