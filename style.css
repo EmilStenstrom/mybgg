@@ -20,15 +20,22 @@ body {
 		flex-shrink: 0;
 	}
 	.results {
-		flex-basis: 200px;
+		flex-basis: 0;
 		flex-grow: 3;
 		flex-shrink: 0;
 	}
 	.facets {
-		flex-basis: 200px;
+		flex-basis: 0;
 		flex-grow: 1;
 		flex-shrink: 0;
 		min-width: 200px;
+	}
+	/* Safari only override */
+	.results:not(:root:root) {
+		flex-basis: 200px;
+	}
+	.facets:not(:root:root) {
+		flex-basis: 200px;
 	}
 a {
 	color: #3e82f7;
