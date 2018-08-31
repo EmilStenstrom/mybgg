@@ -106,7 +106,7 @@ GitHub Pages_. Select your master branch as Source, and click Save.
 1. **Add a connection between your forked project**, and the mybgg project. We will use this "connection", or remote, to fetch the latest version. _You only need to do this the first time_.
 
    ```
-   git remote add upstream https://github.com/YOUR_GITHUB_USERNAME/mybgg.git
+   git remote add upstream https://github.com/EmilStenstrom/mybgg.git
    ```
 
 2. **Fetch the latest changes** from the mybgg project:
