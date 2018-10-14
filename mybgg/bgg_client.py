@@ -141,6 +141,10 @@ class BGGClient:
                 for players in numplayers
             ]
 
+        def log_item(_, item):
+            logger.debug("Successfully parsed: {} (id: {}).".format(item["name"], item["id"]))
+            return item
+
         game_processor = xml.dictionary("items", [
             xml.array(
                 xml.dictionary("item", [
@@ -205,8 +209,11 @@ class BGGClient:
                         alias="rating"
                     ),
                     xml.string("playingtime", attribute="value", alias="playing_time"),
-                ], required=False, alias="items")
-            )
+                ],
+                required=False,
+                alias="items",
+                hooks=xml.Hooks(after_parse=log_item),
+            ))
         ])
         games = xml.parse_from_string(game_processor, data)
         games = games["items"]
