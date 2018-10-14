@@ -117,6 +117,9 @@ class BGGClient:
         def numplayers_to_result(_, results):
             result = {result["value"].lower().replace(" ", "_"): int(result["numvotes"]) for result in results}
 
+            if not result:
+                result = {'best': 0, 'recommended': 0, 'not_recommended': 0}
+
             is_recommended = result['best'] + result['recommended'] > result['not_recommended']
             if not is_recommended:
                 return "not_recommended"
