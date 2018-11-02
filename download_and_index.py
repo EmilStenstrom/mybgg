@@ -24,10 +24,12 @@ def main(args):
         assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
 
     if not args.no_indexing:
+        hits_per_page = SETTINGS["algolia"].get("hits_per_page", 24)
         indexer = Indexer(
             app_id=SETTINGS["algolia"]["app_id"],
             apikey=args.apikey,
             index_name=SETTINGS["algolia"]["index_name"],
+            hits_per_page=hits_per_page,
         )
         indexer.add_objects(collection)
         indexer.delete_objects_not_in(collection)
