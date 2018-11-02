@@ -5,10 +5,10 @@
 #    pip-compile --output-file requirements.txt requirements.in
 #
 algoliasearch==1.17.0
-certifi==2018.4.16        # via requests
+certifi==2018.10.15       # via requests
 chardet==3.0.4            # via requests
-declxml==1.1.0
+declxml==1.1.1
 idna==2.7                 # via requests
 requests-cache==0.4.13
-requests==2.19.1          # via algoliasearch, requests-cache
-urllib3==1.23             # via requests
+requests==2.20.0          # via algoliasearch, requests-cache
+urllib3==1.24.1           # via requests
