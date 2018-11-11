@@ -72,12 +72,25 @@ class Indexer:
         else:
             return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 
+    def _pick_long_paragraph(self, content):
+        content = content.strip()
+        if "\n\n" not in content:
+            return content
+
+        paragraphs = content.split("\n\n")
+        for paragraph in paragraphs[:3]:
+            paragraph = paragraph.strip()
+            if len(paragraph) > 80:
+                return paragraph
+
+        return content
+
     def _prepare_description(self, description):
-        # Take only the first paragraph
-        description = description[:description.index("\n\n")]
+        # Try to find a long paragraph from the beginning of the description
+        description = self._pick_long_paragraph(description)
 
         # Remove unnessesary spacing
-        description = re.sub(r"\s+", " ", description).strip()
+        description = re.sub(r"\s+", " ", description)
 
         # Cut at 700 characters, but not in the middle of a sentence
         description = self._smart_truncate(description)
