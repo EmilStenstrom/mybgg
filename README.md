@@ -62,7 +62,7 @@ Using this project, you can set up your own site for searching and filtering you
    </details>
 
 3. **Install the python libraries needed** by running:
-   ```pip install -r requirements.txt```
+   ```pip install -r scripts/requirements.txt```
 
    <details>
       <summary>Details</summary>
@@ -73,7 +73,7 @@ Using this project, you can set up your own site for searching and filtering you
    </details>
 
 4. **Download your games from boardgamegeek and send them to algolia**:
-   ```python download_and_index.py --apikey YOUR_ALGOLIA_ADMIN_API_KEY```
+   ```python scripts/download_and_index.py --apikey YOUR_ALGOLIA_ADMIN_API_KEY```
 
    (_Note that this API KEY is NOT the same as the one you put in config.json. Never share your admin api key publicly_)
 
@@ -124,7 +124,7 @@ GitHub Pages_. Select your master branch as Source, and click Save.
 4. **Update to the latest version of all external libraries** that mybgg uses internally. They can update between versions.
 
    ```
-   pip install -r requirements.txt
+   pip install -r scripts/requirements.txt
    ```
 
 
