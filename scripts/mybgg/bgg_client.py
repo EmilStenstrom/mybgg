@@ -207,6 +207,16 @@ class BGGClient:
                         alias="rank"
                     ),
                     xml.string(
+                        "statistics/ratings/usersrated",
+                        attribute="value",
+                        alias="usersrated"
+                    ),
+                    xml.string(
+                        "statistics/ratings/owned",
+                        attribute="value",
+                        alias="numowned"
+                    ),
+                    xml.string(
                         "statistics/ratings/bayesaverage",
                         attribute="value",
                         alias="rating"
