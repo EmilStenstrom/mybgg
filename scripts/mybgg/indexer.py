@@ -4,7 +4,7 @@ from algoliasearch import algoliasearch
 
 
 class Indexer:
-    def __init__(self, app_id, apikey, index_name, hits_per_page):
+    def __init__(self, app_id, apikey, index_name, hits_per_page, sort_by):
         client = algoliasearch.Client(
             app_id=app_id,
             api_key=apikey,
@@ -23,7 +23,7 @@ class Indexer:
                 'weight',
                 'playing_time',
             ],
-            'customRanking': ['asc(name)'],
+            'customRanking': [sort_by],
             'highlightPreTag': '<strong class="highlight">',
             'highlightPostTag': '</strong>',
             'hitsPerPage': hits_per_page,
