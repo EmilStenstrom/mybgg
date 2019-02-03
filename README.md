@@ -46,9 +46,13 @@ Using this project, you can set up your own site for searching and filtering you
                                         // page which says: APPS > YOUR_ID_HERE
               "api_key_search_only": "YOUR_PUBLIC_API_KEY",  // Click "API Keys" in the menu to the left.
                                                              // Use the "Search-Only API Key"!
-              "index_name": "YOUR_INDEX_NAME"  // All your games will be stored in something called an "index".
-                                               // You can create and index by going to "Indices" in the menu to the left.
-                                               // Click to create a new index, and give it a name. Put the name you choose here.
+              "index_name": "YOUR_INDEX_NAME",  // All your games will be stored in something called an "index".
+                                                // You can create and index by going to "Indices" in the menu to the left.
+                                                // Click to create a new index, and give it a name. Put the name you choose here.
+              "hits_per_page": 24,  // Number of games you want to show on each page
+              "sort_by": "asc(name)"  // Default sort order before the user has searched for anything.
+                                      // Can be one of: asc(rank), desc(rating), desc(numrated), desc(numowned)
+                                      // "asc" stands for ascending, meaning lowest number first, desc the opposite
           }
       }
       ```
