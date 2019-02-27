@@ -11,7 +11,6 @@ body {
 	display: flex;
 	flex-wrap: wrap;
 	margin: 0 auto;
-	max-width: 960px;
 	padding: 0 0.5em;
 }
 	.title {
