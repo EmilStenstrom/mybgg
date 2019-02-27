@@ -152,82 +152,85 @@ class BGGClient:
 
         game_processor = xml.dictionary("items", [
             xml.array(
-                xml.dictionary("item", [
-                    xml.integer(".", attribute="id"),
-                    xml.string(".", attribute="type"),
-                    xml.string("name[@type='primary']", attribute="value", alias="name"),
-                    xml.string("description"),
-                    xml.array(
+                xml.dictionary(
+                    "item",
+                    [
+                        xml.integer(".", attribute="id"),
+                        xml.string(".", attribute="type"),
+                        xml.string("name[@type='primary']", attribute="value", alias="name"),
+                        xml.string("description"),
+                        xml.array(
+                            xml.string(
+                                "link[@type='boardgamecategory']",
+                                attribute="value",
+                                required=False
+                            ),
+                            alias="categories",
+                        ),
+                        xml.array(
+                            xml.string(
+                                "link[@type='boardgamemechanic']",
+                                attribute="value",
+                                required=False
+                            ),
+                            alias="mechanics",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgameexpansion']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="expansions",
+                        ),
+                        xml.array(
+                            xml.dictionary("poll[@name='suggested_numplayers']/results", [
+                                xml.string(".", attribute="numplayers"),
+                                xml.array(
+                                    xml.dictionary("result", [
+                                        xml.string(".", attribute="value"),
+                                        xml.integer(".", attribute="numvotes"),
+                                    ], required=False),
+                                    hooks=xml.Hooks(after_parse=numplayers_to_result)
+                                )
+                            ]),
+                            alias="suggested_numplayers",
+                            hooks=xml.Hooks(after_parse=suggested_numplayers),
+                        ),
                         xml.string(
-                            "link[@type='boardgamecategory']",
+                            "statistics/ratings/averageweight",
                             attribute="value",
-                            required=False
+                            alias="weight"
                         ),
-                        alias="categories",
-                    ),
-                    xml.array(
                         xml.string(
-                            "link[@type='boardgamemechanic']",
+                            "statistics/ratings/ranks/rank[@friendlyname='Board Game Rank']",
                             attribute="value",
-                            required=False
+                            alias="rank"
                         ),
-                        alias="mechanics",
-                    ),
-                    xml.array(
-                        xml.dictionary(
-                            "link[@type='boardgameexpansion']", [
-                                xml.integer(".", attribute="id"),
-                                xml.boolean(".", attribute="inbound", required=False),
-                            ],
-                            required=False
+                        xml.string(
+                            "statistics/ratings/usersrated",
+                            attribute="value",
+                            alias="usersrated"
                         ),
-                        alias="expansions",
-                    ),
-                    xml.array(
-                        xml.dictionary("poll[@name='suggested_numplayers']/results", [
-                            xml.string(".", attribute="numplayers"),
-                            xml.array(
-                                xml.dictionary("result", [
-                                    xml.string(".", attribute="value"),
-                                    xml.integer(".", attribute="numvotes"),
-                                ], required=False),
-                                hooks=xml.Hooks(after_parse=numplayers_to_result)
-                            )
-                        ]),
-                        alias="suggested_numplayers",
-                        hooks=xml.Hooks(after_parse=suggested_numplayers),
-                    ),
-                    xml.string(
-                        "statistics/ratings/averageweight",
-                        attribute="value",
-                        alias="weight"
-                    ),
-                    xml.string(
-                        "statistics/ratings/ranks/rank[@friendlyname='Board Game Rank']",
-                        attribute="value",
-                        alias="rank"
-                    ),
-                    xml.string(
-                        "statistics/ratings/usersrated",
-                        attribute="value",
-                        alias="usersrated"
-                    ),
-                    xml.string(
-                        "statistics/ratings/owned",
-                        attribute="value",
-                        alias="numowned"
-                    ),
-                    xml.string(
-                        "statistics/ratings/bayesaverage",
-                        attribute="value",
-                        alias="rating"
-                    ),
-                    xml.string("playingtime", attribute="value", alias="playing_time"),
-                ],
-                required=False,
-                alias="items",
-                hooks=xml.Hooks(after_parse=log_item),
-            ))
+                        xml.string(
+                            "statistics/ratings/owned",
+                            attribute="value",
+                            alias="numowned"
+                        ),
+                        xml.string(
+                            "statistics/ratings/bayesaverage",
+                            attribute="value",
+                            alias="rating"
+                        ),
+                        xml.string("playingtime", attribute="value", alias="playing_time"),
+                    ],
+                    required=False,
+                    alias="items",
+                    hooks=xml.Hooks(after_parse=log_item),
+                )
+            )
         ])
         games = xml.parse_from_string(game_processor, data)
         games = games["items"]
