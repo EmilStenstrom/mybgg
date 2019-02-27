@@ -23,7 +23,7 @@ class BGGClient:
     def collection(self, user_name, **kwargs):
         params = kwargs.copy()
         params["username"] = user_name
-        data = self._make_request("/collection", params)
+        data = self._make_request("/collection?version=1", params)
         collection = self._collection_to_games(data)
         return collection
 
@@ -95,6 +95,8 @@ class BGGClient:
                 xml.dictionary('item', [
                     xml.integer(".", attribute="objectid", alias="id"),
                     xml.string("name"),
+                    xml.string("thumbnail", required=False, alias="image"),
+                    xml.string("version/item/thumbnail", required=False, alias="image_version"),
                     xml.dictionary("status", [
                         xml.string(".", attribute="fortrade"),
                         xml.string(".", attribute="own"),
@@ -155,7 +157,6 @@ class BGGClient:
                     xml.string(".", attribute="type"),
                     xml.string("name[@type='primary']", attribute="value", alias="name"),
                     xml.string("description"),
-                    xml.string("thumbnail", required=False, alias="image"),
                     xml.array(
                         xml.string(
                             "link[@type='boardgamecategory']",
