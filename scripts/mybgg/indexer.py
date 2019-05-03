@@ -1,11 +1,11 @@
 import re
 
-from algoliasearch import algoliasearch
+from algoliasearch.search_client import SearchClient
 
 
 class Indexer:
     def __init__(self, app_id, apikey, index_name, hits_per_page, sort_by):
-        client = algoliasearch.Client(
+        client = SearchClient.create(
             app_id=app_id,
             api_key=apikey,
         )
@@ -120,7 +120,7 @@ class Indexer:
             # Make sure description is not too long
             game["description"] = self._prepare_description(game["description"])
 
-        self.index.add_objects(games)
+        self.index.save_objects(games)
 
     def delete_objects_not_in(self, collection):
         delete_filter = " AND ".join([f"id != {game.id}" for game in collection])
