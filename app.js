@@ -10,131 +10,54 @@ function loadJSON(path, callback) {
   req.send(null);
 }
 
-function init(SETTINGS) {
-  const search = instantsearch({
-    appId: SETTINGS.algolia.app_id,
-    apiKey: SETTINGS.algolia.api_key_search_only,
-    indexName: SETTINGS.algolia.index_name,
-    routing: true
+function close_all(event){
+  var details = document.querySelectorAll("details");
+  details.forEach(function(details_elem){
+    if (details_elem.hasAttribute("open")) {
+      details_elem.removeAttribute("open");
+    }
   });
+}
 
-  function closeAll(event){
-    var details = document.querySelectorAll("details");
-    details.forEach(function(details_elem){
-      if (details_elem.hasAttribute("open")) {
-        details_elem.removeAttribute("open");
+function on_render() {
+  var summaries = document.querySelectorAll("summary");
+  summaries.forEach(function(elem){
+    elem.addEventListener("click", function(){
+      close_all();
+      if (!elem.parentElement.hasAttribute("open")) {
+        var game_details = elem.parentElement.querySelector(".game-details");
+        game_details.focus();
       }
-    });
-  }
-
-  search.on('render', function() {
-    var summaries = document.querySelectorAll("summary");
-    summaries.forEach(function(elem){
-      elem.addEventListener("click", function(){
-        closeAll();
-        if (!elem.parentElement.hasAttribute("open")) {
-          var game_details = elem.parentElement.querySelector(".game-details");
-          game_details.focus();
-        }
-      });
-    });
-    document.addEventListener("click", closeAll);
-
-    var game_details = document.querySelectorAll(".game-details");
-    game_details.forEach(function(elem){
-      var close = document.createElement("div");
-      close.setAttribute("class", "close");
-      close.setAttribute("tabindex", "-1");
-      close.innerHTML = "×";
-      close.addEventListener("click", function(){
-        elem.parentElement.removeAttribute("open");
-      });
-      elem.appendChild(close);
-
-      elem.addEventListener("click", function(event){
-        event.stopPropagation();
-      });
     });
   });
+  document.addEventListener("click", close_all);
 
-  search.addWidget(
-    instantsearch.widgets.searchBox({
-      container: '#search-box',
-      placeholder: 'Search for games'
-    })
-  );
+  var game_details = document.querySelectorAll(".game-details");
+  game_details.forEach(function(elem){
+    var close = document.createElement("div");
+    close.setAttribute("class", "close");
+    close.setAttribute("tabindex", "-1");
+    close.innerHTML = "×";
+    close.addEventListener("click", function(){
+      elem.parentElement.removeAttribute("open");
+    });
+    elem.appendChild(close);
 
-  search.addWidget(
-    instantsearch.widgets.clearAll({
-      container: '#clear-all',
-      templates: {
-        link: 'Clear all'
-      },
-      clearsQuery: true
-    })
-  );
+    elem.addEventListener("click", function(event){
+      event.stopPropagation();
+    });
+  });
+}
 
-  search.addWidget(
-    instantsearch.widgets.refinementList({
-      container: '#facet-categories',
-      collapsible: true,
-      attributeName: 'categories',
-      operator: 'and',
-      showMore: true,
-      templates: {
-        header: 'Categories'
-      }
-    })
-  );
-
-  search.addWidget(
-    instantsearch.widgets.refinementList({
-      container: '#facet-mechanics',
-      collapsible: true,
-      attributeName: 'mechanics',
-      operator: 'and',
-      showMore: true,
-      templates: {
-        header: 'Mechanics'
-      }
-    })
-  );
-
-  search.addWidget(
-    instantsearch.widgets.hierarchicalMenu({
-      container: '#facet-players',
-      collapsible: true,
-      attributes: ['players.level1', 'players.level2'],
-      operator: 'or',
-      showMore: true,
-      sortBy: function(a, b){ return parseInt(a.name) - parseInt(b.name); },
-      templates: {
-        header: 'Number of players'
-      }
-    })
-  );
-
-  var WEIGHT_LABELS = [
+function get_widgets() {
+  const WEIGHT_LABELS = [
     "Light",
     "Light Medium",
     "Medium",
     "Medium Heavy",
     "Heavy"
   ];
-  search.addWidget(
-    instantsearch.widgets.refinementList({
-      container: '#facet-weight',
-      collapsible: true,
-      attributeName: 'weight',
-      operator: 'or',
-      sortBy: function(a, b){ return WEIGHT_LABELS.indexOf(a.name) - WEIGHT_LABELS.indexOf(b.name); },
-      templates: {
-        header: 'Complexity'
-      }
-    })
-  );
-
-  var PLAYING_TIME_ORDER = [
+  const PLAYING_TIME_ORDER = [
     '< 30min',
     '30min - 1h',
     '1-2h',
@@ -142,25 +65,75 @@ function init(SETTINGS) {
     '3-4h',
     '> 4h'
   ];
-  search.addWidget(
-    instantsearch.widgets.refinementList({
-      container: '#facet-playing-time',
-      collapsible: true,
-      attributeName: 'playing_time',
-      operator: 'or',
-      sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) - PLAYING_TIME_ORDER.indexOf(b.name); },
-      templates: {
-        header: 'Playing time'
-      }
-    })
-  );
 
-  search.addWidget(
-    instantsearch.widgets.hits({
+  function panel(header) {
+    return instantsearch.widgets.panel(
+      {
+        templates: {
+          header: "<h3>" + header + "</h3>"
+        }
+      }
+    )
+  }
+
+  return {
+    "search": instantsearch.widgets.searchBox({
+      container: '#search-box',
+      placeholder: 'Search for games'
+    }),
+    "clear": instantsearch.widgets.clearRefinements({
+      container: '#clear-all',
+      templates: {
+        resetLabel: 'Clear all'
+      }
+    }),
+    "refine_categories": panel('Categories')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-categories',
+        collapsible: true,
+        attribute: 'categories',
+        operator: 'and',
+        showMore: true,
+      }
+    ),
+    "refine_mechanics": panel('Mechanics')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-mechanics',
+        collapsible: true,
+        attribute: 'mechanics',
+        operator: 'and',
+        showMore: true,
+      }
+    ),
+    "refine_players": panel('Number of players')(instantsearch.widgets.hierarchicalMenu)(
+      {
+        container: '#facet-players',
+        collapsible: true,
+        attributes: ['players.level1', 'players.level2'],
+        operator: 'or',
+        sortBy: function(a, b){ return parseInt(a.name) - parseInt(b.name); },
+      }
+    ),
+    "refine_weight": panel('Complexity')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-weight',
+        attribute: 'weight',
+        operator: 'or',
+        sortBy: function(a, b){ return WEIGHT_LABELS.indexOf(a.name) - WEIGHT_LABELS.indexOf(b.name); },
+      }
+    ),
+    "refine_playingtime": panel('Playing time')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-playing-time',
+        attribute: 'playing_time',
+        operator: 'or',
+        sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) - PLAYING_TIME_ORDER.indexOf(b.name); },
+      }
+    ),
+    "hits": instantsearch.widgets.hits({
       container: '#hits',
-      collapsible: true,
-      transformData: {
-        item: function(game){
+      transformItems: function(items) {
+        return items.map(function(game){
           players = [];
           game.players.forEach(function(num_players){
             match = num_players.level2.match(/^\d+\ >\ ([\w\ ]+)\ (?:with|allows)\ (\d+\+?)$/);
@@ -187,28 +160,52 @@ function init(SETTINGS) {
 
           game.has_expansions = (game.expansions.length > 0);
           return game;
-        },
+        });
       },
       templates: {
         empty: 'No results',
         item: document.getElementById('hits-template').innerHTML
-      },
-    })
-  );
-
-  search.addWidget(
-    instantsearch.widgets.stats({
+      }
+    }),
+    "stats": instantsearch.widgets.stats({
       container: '#stats'
-    })
-  );
-
-  search.addWidget(
-    instantsearch.widgets.pagination({
+    }),
+    "pagination": instantsearch.widgets.pagination({
       container: '#pagination',
       maxPages: 20,
-      showFirstLast: false
+      showFirst: false,
+      showLast: false
     })
-  );
+  }
+}
+
+
+function init(SETTINGS) {
+  const search = instantsearch({
+    indexName: SETTINGS.algolia.index_name,
+    searchClient: algoliasearch(
+      SETTINGS.algolia.app_id,
+      SETTINGS.algolia.api_key_search_only
+    ),
+    routing: true
+  });
+
+  search.on('render', on_render);
+
+  var widgets = get_widgets();
+
+  search.addWidgets([
+    widgets["search"],
+    widgets["clear"],
+    widgets["refine_categories"],
+    widgets["refine_mechanics"],
+    widgets["refine_players"],
+    widgets["refine_weight"],
+    widgets["refine_playingtime"],
+    widgets["hits"],
+    widgets["stats"],
+    widgets["pagination"],
+  ]);
 
   search.start();
 
