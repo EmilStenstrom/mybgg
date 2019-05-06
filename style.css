@@ -206,11 +206,17 @@ details > summary:first-of-type {
 		left: 12px;
 		top: calc(50% - 18px/2);
 	}
-	.ais-SearchBox-submitIcon {
-		fill: #bfc7d8;
-		height: 18px;
-		width: 18px;
+		.ais-SearchBox-submitIcon {
+			fill: #bfc7d8;
+			height: 18px;
+			width: 18px;
+		}
+	.ais-SearchBox-reset {
+		margin-left: -22px;
 	}
+		.ais-SearchBox-resetIcon {
+			fill: #bfc7d8;
+		}
 
 .facets .heading {
 	margin-top: 0;
