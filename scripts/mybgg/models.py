@@ -1,4 +1,3 @@
-import math
 from decimal import Decimal
 import html
 
@@ -56,4 +55,4 @@ class BoardGame:
             4: "Medium Heavy",
             5: "Heavy",
         }
-        return weight_mapping[math.ceil(Decimal(game_data["weight"]))]
+        return weight_mapping[round(Decimal(game_data["weight"]))]
