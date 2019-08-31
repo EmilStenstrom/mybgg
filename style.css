@@ -125,8 +125,13 @@ details > summary:first-of-type {
 
 .stats {
     display: inline-block;
+    margin-right: 1em;
+    flex-grow: 1;
 }
-
+.ref {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
 .properties {
     border-collapse: collapse;
 }
