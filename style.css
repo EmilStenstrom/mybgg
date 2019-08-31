@@ -12,8 +12,7 @@ a {
     color: #b71c1c;
 }
 strong {
-    background-color: #ffcdd2;
-    color: #c62828;
+    font-weight: 700;
 }
 .soft {
     color: #bbb;
@@ -126,24 +125,6 @@ body {
         filter: none;
         opacity: 1;
     }
-.properties {
-    border-collapse: collapse;
-}
-    .properties th, .properties td {
-        padding: 0 20px 10px 0;
-    }
-    .properties th {
-        text-align: left;
-        vertical-align: top;
-        white-space: nowrap;
-    }
-    .properties ul {
-        margin: 0;
-        padding: 0;
-    }
-    .properties li {
-        list-style: none;
-    }
 
 .hits {}
     .hits:after {
@@ -165,6 +146,10 @@ body {
             border: 1px solid rgba(0,0,0,0.1);
             border-width: 0 1px 1px 0;
         }
+        .ais-Highlight-highlighted {
+            background: #b71c1c;
+            color: white;
+        }
         .game-wrapper {
             position: relative;
         }
@@ -175,7 +160,7 @@ body {
                 margin: 0;
                 padding: 10px;
                 position: relative;
-                height: 150px;
+                height: 130px;
             }
                 .game img {
                     min-height: 100px;
@@ -187,19 +172,19 @@ body {
                 }
                 .game-details {
                     background: white;
-                    border: 1px solid rgba(0,0,0,0.3);
+                    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+                    border: 1px solid rgba(0,0,0,0.1);
                     border-radius: 5px;
-                    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
                     left: 10px;
-                    padding: 10px 15px;
                     position: absolute;
                     top: 10px;
-                    width: 200%;
+                    width: 350px;
                     z-index: 1;
                 }
                     .game-details .heading {
                         border-bottom: 1px solid rgba(0,0,0,0.1);
-                        margin: 0 0 0.5em;
+                        padding: 10px 25px 10px 15px;
+                        margin: 0;
                     }
                     .game-details .close {
                         cursor: pointer;
@@ -210,9 +195,40 @@ body {
                         right: 14px;
                         top: 0;
                     }
-                    .game-details .close:hover {
-                        color: red;
+                        .game-details .close:hover {
+                            color: red;
+                        }
+                    .game-details .properties, .game-details .description {
+                        margin: 10px 15px;
                     }
+                    .properties {
+                        font-size: 0.9em;
+                        border-collapse: collapse;
+                        display: grid;
+                        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    }
+                        .properties div {
+                            margin: 0 1em 1em 0;
+                        }
+                            .properties .expansions {
+                                grid-column: 1 / 3;
+                            }
+                        .properties dt {
+                            margin-bottom: 3px;
+                            font-weight: bold;
+                            text-transform: uppercase;
+                        }
+                        .properties dd {
+                            margin: 0;
+                            padding: 0;
+                        }
+                        .properties ul {
+                            margin: 0;
+                            padding: 0;
+                        }
+                            .properties li {
+                                list-style: none;
+                            }
 
 .facets .heading {
     margin-top: 0;
@@ -244,10 +260,7 @@ body {
         z-index: 1;
         display: none;
     }
-    .facet:hover .ais-Panel-body,
-    .facet:focus .ais-Panel-body,
-    .facet:focus-within .ais-Panel-body
-     {
+    .facet:hover .ais-Panel-body {
         display: block;
     }
     .facet a {

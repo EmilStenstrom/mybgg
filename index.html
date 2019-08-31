@@ -43,30 +43,52 @@
       </summary>
       <div class="game-details">
         <h2 class="heading">
-          {{# helpers.highlight }}{ "attribute": "name" }{{/ helpers.highlight }}
-          {{# tags }}<span class="soft">({{ tags }})</span>{{/ tags }}
+          <a href="https://boardgamegeek.com/boardgame/{{{ id }}}">
+            {{# helpers.highlight }}{ "attribute": "name" }{{/ helpers.highlight }}
+          </a>
         </h2>
-        <table class="properties">
-          <tr><th>Players</th><td>{{{ players }}}</td></tr>
-          <tr><th>Playing time</th><td>{{ playing_time }}</td></tr>
-          <tr><th>Complexity</th><td>{{ weight }}</td></tr>
-          <tr><th>Categories</th><td>{{ categories }}</td></tr>
-          <tr><th>Mechanics</th><td>{{ mechanics }}</td></tr>
-          <tr>
-              <th>BGG Link</th>
-              <td><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></td>
-          </tr>
+        <dl class="properties">
+          <div>
+            <dt>Players</dt>
+            <dd>{{{ players }}}</dd>
+          </div>
+          <div>
+            <dt>Playing time</dt>
+            <dd>{{ playing_time }}</dd>
+          </div>
+          <div>
+            <dt>Complexity</dt>
+            <dd>{{ weight }}</dd>
+          </div>
+          <div>
+            <dt>Tags</dt>
+            <dd>{{ tags }}</dd>
+          </div>
+          <div>
+            <dt>Categories</dt>
+            <dd>
+              {{# categories }}{{ categories }}{{/ categories }}
+              {{^ categories}}<em>No categories</em>{{/ categories }}
+            </dd>
+          </div>
+          <div>
+            <dt>Mechanics</dt>
+            <dd>
+              {{# mechanics }}{{ mechanics }}{{/ mechanics }}
+              {{^ mechanics}}<em>No mechanics</em>{{/ mechanics }}
+            </dd>
+          </div>
           {{# has_expansions }}
-          <tr>
-            <th>Expansions</th>
-            <td><ul>
+          <div class="expansions">
+            <dt>Expansions</dt>
+            <dd><ul>
               {{# expansions }}
                 <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
               {{/ expansions }}
-            </ul></td>
-          </tr>
+            </ul></dd>
+          </div>
           {{/ has_expansions }}
-        </table>
+        </dl>
         <p class="description">
           {{# helpers.highlight }}{ "attribute": "description" }{{/ helpers.highlight }}
         </p>

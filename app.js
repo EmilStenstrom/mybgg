@@ -147,12 +147,12 @@ function get_widgets() {
             type = match[1].toLowerCase();
             num = match[2];
 
-            type_to_string = {
-              'best': ' <span class="soft">(best)</span>',
-              'recommended': '',
-              'expansion': ' <span class="soft">(with exp)</span>'
+            type_callback = {
+              'best': function(num) { return '<strong>' + num + '</strong><span title="Best with">★</span>'; },
+              'recommended': function(num) { return num; },
+              'expansion': function(num) { return num + '<span title="With expansion">⊕</span>'; },
             };
-            players.push(num + type_to_string[type]);
+            players.push(type_callback[type](num));
 
             if (num.indexOf("+") > -1) {
               return;
