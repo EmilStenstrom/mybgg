@@ -150,25 +150,26 @@ body {
         margin: 0;
         padding: 0;
         list-style: none;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
         .ais-Hits-item {
-            float: left;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-width: 0 1px 1px 0;
         }
         .game-wrapper {
             position: relative;
         }
             .game {
-                align-items: center;
                 display: inline-flex;
-                flex-direction: column;
+                align-items: center;
                 justify-content: center;
                 margin: 0;
                 padding: 10px;
                 position: relative;
-                height: 140px;
-                width: 140px;
-                border: 1px solid rgba(0,0,0,0.1);
-                border-width: 0 1px 1px 0;
             }
             @media only screen and (max-width: 640px) {
                 .game {
