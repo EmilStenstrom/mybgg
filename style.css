@@ -120,7 +120,12 @@ body {
 .ref {
     opacity: 0.3;
     filter: grayscale(100%);
+    margin-top: 3px;
 }
+    .ref:hover {
+        filter: none;
+        opacity: 1;
+    }
 .properties {
     border-collapse: collapse;
 }
