@@ -70,12 +70,14 @@ body {
 .search-box {
     max-width: 300px;
     margin-right: 1em;
+    flex-grow: 1;
 }
     .ais-SearchBox {
         position: relative;
         white-space: nowrap;
         font-size: 14px;
         width: 100%;
+        min-width: 200px;
     }
     .ais-SearchBox-form {
         width: 100%;
@@ -115,6 +117,11 @@ body {
     display: inline-block;
     margin-right: 1em;
     flex-grow: 1;
+}
+@media screen and (max-width: 530px) {
+    .stats {
+        display: none;
+    }
 }
 .ref {
     opacity: 0.3;
@@ -246,10 +253,13 @@ body {
     }
 
 .facet {}
-    .facet .ais-Panel-header h3:after{
-        content: "▼";
-        padding-left: 3px;
+    .facet .ais-Panel-header {
+        white-space: nowrap;
     }
+        .facet .ais-Panel-header h3:after{
+            content: "▼";
+            padding-left: 3px;
+        }
     .facet .ais-Panel-body {
         background: #F8FAFC;
         box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
