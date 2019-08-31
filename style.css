@@ -235,6 +235,9 @@ details > summary:first-of-type {
         border-radius: 5px;
         font-size: 0.9em;
     }
+    .ais-ClearRefinements-button--disabled {
+        display: none;
+    }
 
 .facet {
     margin-bottom: 1em;
@@ -269,12 +272,6 @@ details > summary:first-of-type {
     }
     .ais-RefinementList-showMore:after {
         content: " »";
-    }
-    .ais-ClearRefinements-button {
-
-    }
-    .ais-ClearRefinements-button--disabled {
-        display: none;
     }
 
 .ais-Pagination {
