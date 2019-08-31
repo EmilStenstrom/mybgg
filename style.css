@@ -44,7 +44,7 @@ body {
         flex-basis: 200px;
     }
 a {
-    color: #3e82f7;
+    color: #b71c1c;
 }
 strong {
     background-color: #ffcdd2;
@@ -229,7 +229,7 @@ details > summary:first-of-type {
 }
     .ais-ClearRefinements-button {
         margin: 0.2em 0 1em;
-        background: #3e82f7;
+        background: #b71c1c;
         color: white;
         padding: 3px 8px;
         border-radius: 5px;
@@ -244,7 +244,7 @@ details > summary:first-of-type {
     }
     .facet label {
         cursor: pointer;
-        color: #3e82f7;
+        color: #b71c1c;
     }
     .ais-HierarchicalMenu-item, .ais-RefinementList-item {
         line-height: 2em;
@@ -293,5 +293,5 @@ details > summary:first-of-type {
     }
     .ais-Pagination-item--selected a {
         font-weight: bold;
-        border: 2px solid #3e82f7;
+        border: 2px solid #b71c1c;
     }
