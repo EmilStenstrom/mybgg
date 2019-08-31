@@ -1,294 +1,294 @@
 /* Main layout */
 body {
-	color: #606c76;
-	font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-	font-size: 14px;
-	font-weight: 300;
-	letter-spacing: .01em;
-	line-height: 1.2;
+    color: #606c76;
+    font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: .01em;
+    line-height: 1.2;
 }
 .wrapper {
-	display: flex;
-	flex-wrap: wrap;
-	margin: 0 auto;
-	padding: 0 0.5em;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    padding: 0 0.5em;
 }
-	.title {
-		flex-basis: 100%;
-		flex-grow: 1;
-		flex-shrink: 0;
-	}
-	.results {
-		flex-basis: 0;
-		flex-grow: 3;
-		flex-shrink: 0;
-	}
-	.facets {
-		flex-basis: 0;
-		flex-grow: 1;
-		flex-shrink: 0;
-		min-width: 200px;
-	}
-	/* Safari only override */
-	.results:not(:root:root) {
-		flex-basis: 200px;
-	}
-	.facets:not(:root:root) {
-		flex-basis: 200px;
-	}
+    .title {
+        flex-basis: 100%;
+        flex-grow: 1;
+        flex-shrink: 0;
+    }
+    .results {
+        flex-basis: 0;
+        flex-grow: 3;
+        flex-shrink: 0;
+    }
+    .facets {
+        flex-basis: 0;
+        flex-grow: 1;
+        flex-shrink: 0;
+        min-width: 200px;
+    }
+    /* Safari only override */
+    .results:not(:root:root) {
+        flex-basis: 200px;
+    }
+    .facets:not(:root:root) {
+        flex-basis: 200px;
+    }
 a {
-	color: #3e82f7;
+    color: #3e82f7;
 }
 strong {
-	background-color: #ffcdd2;
-	color: #c62828;
+    background-color: #ffcdd2;
+    color: #c62828;
 }
 .soft {
-	color: #bbb;
-	font-weight: 300;
+    color: #bbb;
+    font-weight: 300;
 }
 h3 {
-	font-size: 0.9em;
-	margin-bottom: 0.5em;
-	font-weight: normal;
-	text-transform: uppercase;
-	border-bottom: 1px solid #ddd;
-	padding-bottom: 5px;
+    font-size: 0.9em;
+    margin-bottom: 0.5em;
+    font-weight: normal;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
 }
 
 /* Reset default elements */
 details summary {
-	cursor: pointer;
+    cursor: pointer;
 }
 details summary::-webkit-details-marker {
-	display:none;
+    display:none;
 }
 details > summary:first-of-type {
-	list-style-type: none;
+    list-style-type: none;
 }
 
 /* Components */
 .properties {
-	border-collapse: collapse;
+    border-collapse: collapse;
 }
-	.properties th, .properties td {
-		padding: 0 20px 10px 0;
-	}
-	.properties th {
-		text-align: left;
-		vertical-align: top;
-		white-space: nowrap;
-	}
-	.properties ul {
-		margin: 0;
-		padding: 0;
-	}
-	.properties li {
-		list-style: none;
-	}
+    .properties th, .properties td {
+        padding: 0 20px 10px 0;
+    }
+    .properties th {
+        text-align: left;
+        vertical-align: top;
+        white-space: nowrap;
+    }
+    .properties ul {
+        margin: 0;
+        padding: 0;
+    }
+    .properties li {
+        list-style: none;
+    }
 
 .hits {
-	margin: 1em 0;
+    margin: 1em 0;
 }
-	.hits:after {
-		clear: both;
-		content: "";
-		display: table;
-	}
-	.ais-Hits-list {
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-		.ais-Hits-item {
-			float: left;
-		}
-		.game-wrapper {
-			position: relative;
-		}
-			.game {
-				align-items: center;
-				border: 1px solid rgba(0,0,0,0.1);
-				border-radius: 5px;
-				display: inline-flex;
-				flex-direction: column;
-				height: 150px;
-				justify-content: center;
-				margin: 0 10px 10px 0;
-				overflow: hidden;
-				position: relative;
-				width: 150px;
-			}
-			@media only screen and (max-width: 640px) {
-				.game {
-					height: 125px;
-					width: 125px;
-				}
-			}
-				.game .image {
-					background-position: top;
-					background-size: cover;
-					filter: blur(5px);
-					-webkit-filter: blur(5px);
-					height: 100%;
-					position: absolute;
-					width: 100%;
-					z-index: -1;
-				}
-				.game img {
-					box-shadow: 2px 2px 10px black;
-					margin: 1%;
-					max-height: 98%;
-					max-width: 98%;
-				}
-				.game-details {
-					background: white;
-					border: 1px solid rgba(0,0,0,0.3);
-					border-radius: 5px;
-					box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-					left: 10px;
-					padding: 10px 15px;
-					position: absolute;
-					top: 10px;
-					width: 200%;
-					z-index: 1;
-				}
-					.game-details .heading {
-						border-bottom: 1px solid rgba(0,0,0,0.1);
-						margin: 0 0 0.5em;
-					}
-					.game-details .close {
-						cursor: pointer;
-						font-size: 2em;
-						line-height: 1.35em;
-						pointer-events: all;
-						position: absolute;
-						right: 14px;
-						top: 0;
-					}
-					.game-details .close:hover {
-						color: red;
-					}
+    .hits:after {
+        clear: both;
+        content: "";
+        display: table;
+    }
+    .ais-Hits-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+        .ais-Hits-item {
+            float: left;
+        }
+        .game-wrapper {
+            position: relative;
+        }
+            .game {
+                align-items: center;
+                border: 1px solid rgba(0,0,0,0.1);
+                border-radius: 5px;
+                display: inline-flex;
+                flex-direction: column;
+                height: 150px;
+                justify-content: center;
+                margin: 0 10px 10px 0;
+                overflow: hidden;
+                position: relative;
+                width: 150px;
+            }
+            @media only screen and (max-width: 640px) {
+                .game {
+                    height: 125px;
+                    width: 125px;
+                }
+            }
+                .game .image {
+                    background-position: top;
+                    background-size: cover;
+                    filter: blur(5px);
+                    -webkit-filter: blur(5px);
+                    height: 100%;
+                    position: absolute;
+                    width: 100%;
+                    z-index: -1;
+                }
+                .game img {
+                    box-shadow: 2px 2px 10px black;
+                    margin: 1%;
+                    max-height: 98%;
+                    max-width: 98%;
+                }
+                .game-details {
+                    background: white;
+                    border: 1px solid rgba(0,0,0,0.3);
+                    border-radius: 5px;
+                    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+                    left: 10px;
+                    padding: 10px 15px;
+                    position: absolute;
+                    top: 10px;
+                    width: 200%;
+                    z-index: 1;
+                }
+                    .game-details .heading {
+                        border-bottom: 1px solid rgba(0,0,0,0.1);
+                        margin: 0 0 0.5em;
+                    }
+                    .game-details .close {
+                        cursor: pointer;
+                        font-size: 2em;
+                        line-height: 1.35em;
+                        pointer-events: all;
+                        position: absolute;
+                        right: 14px;
+                        top: 0;
+                    }
+                    .game-details .close:hover {
+                        color: red;
+                    }
 
 .search-box {
-	margin-bottom: 1em;
-	margin-right: 1em;
-	max-width: 300px;
+    margin-bottom: 1em;
+    margin-right: 1em;
+    max-width: 300px;
 }
-	.ais-SearchBox {
-		display: inline-block;
-		position: relative;
-		white-space: nowrap;
-		font-size: 14px;
-		width: 100%;
-	}
-	.ais-SearchBox-form {
-		width: 100%;
-	}
-	.ais-SearchBox-input {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		font: inherit;
-		background: #fff;
-		display: inline-block;
-		border: 1px solid #d4d8e3;
-		border-radius: 4px;
-		box-shadow: 0 1px 1px 0 rgba(85,95,110,.2);
-		padding: 10px 10px 10px 35px;
-		vertical-align: middle;
-		white-space: normal;
-		height: 100%;
-		width: 100%;
-	}
-	.ais-SearchBox-submit {
-		position: absolute;
-		left: 12px;
-		top: calc(50% - 18px/2);
-	}
-		.ais-SearchBox-submitIcon {
-			fill: #bfc7d8;
-			height: 18px;
-			width: 18px;
-		}
-	.ais-SearchBox-reset {
-		margin-left: -22px;
-	}
-		.ais-SearchBox-resetIcon {
-			fill: #bfc7d8;
-		}
+    .ais-SearchBox {
+        display: inline-block;
+        position: relative;
+        white-space: nowrap;
+        font-size: 14px;
+        width: 100%;
+    }
+    .ais-SearchBox-form {
+        width: 100%;
+    }
+    .ais-SearchBox-input {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        font: inherit;
+        background: #fff;
+        display: inline-block;
+        border: 1px solid #d4d8e3;
+        border-radius: 4px;
+        box-shadow: 0 1px 1px 0 rgba(85,95,110,.2);
+        padding: 10px 10px 10px 35px;
+        vertical-align: middle;
+        white-space: normal;
+        height: 100%;
+        width: 100%;
+    }
+    .ais-SearchBox-submit {
+        position: absolute;
+        left: 12px;
+        top: calc(50% - 18px/2);
+    }
+        .ais-SearchBox-submitIcon {
+            fill: #bfc7d8;
+            height: 18px;
+            width: 18px;
+        }
+    .ais-SearchBox-reset {
+        margin-left: -22px;
+    }
+        .ais-SearchBox-resetIcon {
+            fill: #bfc7d8;
+        }
 
 .facets .heading {
-	margin-top: 0;
+    margin-top: 0;
 }
 .facets .clear-all {
-	float: right;
+    float: right;
 }
-	.ais-ClearRefinements-button {
-		margin: 0.2em 0 1em;
-		background: #3e82f7;
-		color: white;
-		padding: 3px 8px;
-		border-radius: 5px;
-		font-size: 0.9em;
-	}
+    .ais-ClearRefinements-button {
+        margin: 0.2em 0 1em;
+        background: #3e82f7;
+        color: white;
+        padding: 3px 8px;
+        border-radius: 5px;
+        font-size: 0.9em;
+    }
 
 .facet {
-	margin-bottom: 1em;
+    margin-bottom: 1em;
 }
-	.facet a {
-		text-decoration: none;
-	}
-	.facet label {
-		cursor: pointer;
-		color: #3e82f7;
-	}
-	.ais-HierarchicalMenu-item, .ais-RefinementList-item {
-		line-height: 2em;
-	}
-	.ais-HierarchicalMenu-item--selected, .ais-RefinementList-item--selected {
-		font-weight: bold;
-	}
-	.ais-HierarchicalMenu-list--child {
-		font-weight: normal;
-	}
-	.ais-HierarchicalMenu-count, .ais-RefinementList-count {
-		padding: 5px 8px;
-		margin-left: 5px;
-		background: #efefef;
-		border-radius: 10px;
-	}
-	.ais-RefinementList-showMore {
-		color: gray;
-		cursor: pointer;
-		font-size: 0.8em;
-		margin-left: 2.3em;
-	}
-	.ais-RefinementList-showMore:after {
-		content: " »";
-	}
-	.ais-ClearRefinements-button {
+    .facet a {
+        text-decoration: none;
+    }
+    .facet label {
+        cursor: pointer;
+        color: #3e82f7;
+    }
+    .ais-HierarchicalMenu-item, .ais-RefinementList-item {
+        line-height: 2em;
+    }
+    .ais-HierarchicalMenu-item--selected, .ais-RefinementList-item--selected {
+        font-weight: bold;
+    }
+    .ais-HierarchicalMenu-list--child {
+        font-weight: normal;
+    }
+    .ais-HierarchicalMenu-count, .ais-RefinementList-count {
+        padding: 5px 8px;
+        margin-left: 5px;
+        background: #efefef;
+        border-radius: 10px;
+    }
+    .ais-RefinementList-showMore {
+        color: gray;
+        cursor: pointer;
+        font-size: 0.8em;
+        margin-left: 2.3em;
+    }
+    .ais-RefinementList-showMore:after {
+        content: " »";
+    }
+    .ais-ClearRefinements-button {
 
-	}
-	.ais-ClearRefinements-button--disabled {
-		display: none;
-	}
+    }
+    .ais-ClearRefinements-button--disabled {
+        display: none;
+    }
 
 .ais-Pagination {
-	margin: 1em 0 2em;
+    margin: 1em 0 2em;
 }
-	.ais-Pagination-item a, .ais-Pagination-item span {
-		padding: 5px 8px;
-		margin-left: 5px;
-		background: #efefef;
-		border-radius: 10px;
-		text-decoration: none;
-	}
-	.ais-Pagination-item--disabled a, .ais-Pagination-item--disabled span {
-		background: #fff;
-		border: 1px #efefef solid;
-	}
-	.ais-Pagination-item--selected a {
-		font-weight: bold;
-		border: 2px solid #3e82f7;
-	}
+    .ais-Pagination-item a, .ais-Pagination-item span {
+        padding: 5px 8px;
+        margin-left: 5px;
+        background: #efefef;
+        border-radius: 10px;
+        text-decoration: none;
+    }
+    .ais-Pagination-item--disabled a, .ais-Pagination-item--disabled span {
+        background: #fff;
+        border: 1px #efefef solid;
+    }
+    .ais-Pagination-item--selected a {
+        font-weight: bold;
+        border: 2px solid #3e82f7;
+    }
