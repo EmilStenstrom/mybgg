@@ -1,3 +1,4 @@
+import itertools
 import re
 
 from algoliasearch.search_client import SearchClient
@@ -47,7 +48,7 @@ class Indexer:
 
         return obj
 
-    def _facet_for_num_player(self, num, type_):
+    def _facets_for_num_player(self, num, type_):
         num_no_plus = num.replace("+", "")
         facet_types = {
             "best": {
@@ -64,7 +65,9 @@ class Indexer:
             },
         }
 
-        return facet_types[type_]
+        return ((facet_types[type_], facet_types["recommended"])
+            if type_ == "best"
+            else (facet_types[type_], ))
 
     def _smart_truncate(self, content, length=700, suffix='...'):
         if len(content) <= length:
@@ -103,10 +106,10 @@ class Indexer:
             game["objectID"] = f"bgg{game['id']}"
 
             # Turn players tuple into a hierarchical facet
-            game["players"] = [
-                self._facet_for_num_player(num, type_)
+            game["players"] = list(itertools.chain.from_iterable([
+                self._facets_for_num_player(num, type_)
                 for num, type_ in game["players"]
-            ]
+            ]))
 
             # Algolia has a limit of 10kb per item, so remove unnessesary data from expansions
             game["expansions"] = [

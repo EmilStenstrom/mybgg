@@ -177,10 +177,17 @@ function get_widgets() {
       transformItems: function(items) {
         return items.map(function(game){
           players = [];
+          prev_num = null;
           game.players.forEach(function(num_players){
             match = num_players.level2.match(/^\d+\ >\ ([\w\ ]+)\ (?:with|allows)\ (\d+\+?)$/);
             type = match[1].toLowerCase();
             num = match[2];
+
+            if (prev_num === num) {
+              // Already included as "best" for this number of players
+              return;
+            }
+            prev_num = num;
 
             type_callback = {
               'best': function(num) { return '<strong>' + num + '</strong><span title="Best with">★</span>'; },
