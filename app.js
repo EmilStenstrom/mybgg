@@ -20,6 +20,13 @@ function close_all(event){
 }
 
 function on_render() {
+  var games = document.querySelectorAll(".game");
+  games.forEach(function(game) {
+    Vibrant.from(game.querySelector("img")).getPalette(function(err, palette) {
+      game.setAttribute("style", "background: " + palette["LightMuted"].getHex());
+    });
+  })
+
   var summaries = document.querySelectorAll("summary");
   summaries.forEach(function(elem){
     elem.addEventListener("click", function(){

@@ -108,16 +108,16 @@ details > summary:first-of-type {
         }
             .game {
                 align-items: center;
-                border: 1px solid rgba(0,0,0,0.1);
-                border-radius: 5px;
                 display: inline-flex;
                 flex-direction: column;
-                height: 150px;
                 justify-content: center;
-                margin: 0 10px 10px 0;
-                overflow: hidden;
+                margin: 0;
+                padding: 10px;
                 position: relative;
-                width: 150px;
+                height: 140px;
+                width: 140px;
+                border: 1px solid rgba(0,0,0,0.1);
+                border-width: 0 1px 1px 0;
             }
             @media only screen and (max-width: 640px) {
                 .game {
@@ -125,21 +125,11 @@ details > summary:first-of-type {
                     width: 125px;
                 }
             }
-                .game .image {
-                    background-position: top;
-                    background-size: cover;
-                    filter: blur(5px);
-                    -webkit-filter: blur(5px);
-                    height: 100%;
-                    position: absolute;
-                    width: 100%;
-                    z-index: -1;
-                }
                 .game img {
-                    box-shadow: 2px 2px 10px black;
-                    margin: 1%;
-                    max-height: 98%;
-                    max-width: 98%;
+                    max-height: 100%;
+                    max-width: 100%;
+                    border-radius: 4px;
+                    border: 1px solid rgba(0,0,0,0.2);
                 }
                 .game-details {
                     background: white;
