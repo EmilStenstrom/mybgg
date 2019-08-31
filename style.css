@@ -176,12 +176,6 @@ body {
                 padding: 10px;
                 position: relative;
             }
-            @media only screen and (max-width: 640px) {
-                .game {
-                    height: 125px;
-                    width: 125px;
-                }
-            }
                 .game img {
                     max-height: 100%;
                     max-width: 100%;
