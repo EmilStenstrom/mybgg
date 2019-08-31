@@ -179,17 +179,16 @@ body {
                 }
                 .game-details {
                     background: white;
-                    box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+                    box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
                     border: 1px solid rgba(0,0,0,0.1);
-                    border-radius: 5px;
-                    left: 10px;
+                    border-radius: 3px;
+                    left: 8px;
                     position: absolute;
-                    top: 10px;
+                    top: 8px;
                     width: 350px;
                     z-index: 1;
                 }
                     .game-details .heading {
-                        border-bottom: 1px solid rgba(0,0,0,0.1);
                         padding: 10px 25px 10px 15px;
                         margin: 0;
                     }
@@ -206,7 +205,8 @@ body {
                             color: red;
                         }
                     .game-details .properties, .game-details .description {
-                        margin: 10px 15px;
+                        margin-left: 15px;
+                        margin-right: 15px;
                     }
                     .properties {
                         font-size: 0.9em;
@@ -236,6 +236,10 @@ body {
                             .properties li {
                                 list-style: none;
                             }
+
+                    .description {
+
+                    }
 
 .facets .heading {
     margin-top: 0;
