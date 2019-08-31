@@ -223,8 +223,7 @@ function init(SETTINGS) {
     }
 
     var title_tag = document.getElementsByTagName("title")[0];
-    var h1_tag = document.getElementsByTagName("h1")[0];
-    title_tag.innerHTML = h1_tag.innerHTML = title;
+    title_tag.innerHTML = title;
   }
   set_bgg_name();
 }
