@@ -1,7 +1,13 @@
+import io
 import re
 
+import colorgram
+import requests
 from algoliasearch.search_client import SearchClient
 
+# Allow colorgram to read truncated files
+from PIL import Image, ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class Indexer:
     def __init__(self, app_id, apikey, index_name, hits_per_page, sort_by):
@@ -99,7 +105,38 @@ class Indexer:
 
     def add_objects(self, collection):
         games = [Indexer.todict(game) for game in collection]
-        for game in games:
+        for i, game in enumerate(games):
+            if i != 0 && i % 25 == 0:
+                print(f"Indexed {i} of {len(games)} games...")
+
+            if game["image"]:
+                response = requests.get(game["image"])
+                if response.status_code == 200:
+                    image = Image.open(io.BytesIO(response.content))
+
+                    try_colors = 10
+                    colors = colorgram.extract(image, try_colors)
+                    for i in range(min(try_colors, len(colors))):
+                        color_r, color_g, color_b = colors[i].rgb.r, colors[i].rgb.g, colors[i].rgb.b
+
+                        # Don't return very light or dark colors
+                        luma = (
+                            0.2126 * color_r / 255.0 +
+                            0.7152 * color_g / 255.0 +
+                            0.0722 * color_b / 255.0
+                        )
+                        if (
+                            luma > 0.2 and  # Not too dark
+                            luma < 0.8     # Not too light
+                        ):
+                            break
+
+                    else:
+                        # As a fallback, use the first color
+                        color_r, color_g, color_b = colors[0].rgb.r, colors[0].rgb.g, colors[0].rgb.b
+
+                    game["color"] = f"{color_r}, {color_g}, {color_b}"
+
             game["objectID"] = f"bgg{game['id']}"
 
             # Turn players tuple into a hierarchical facet

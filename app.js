@@ -22,9 +22,8 @@ function close_all(event){
 function on_render() {
   var hits = document.querySelectorAll(".ais-Hits-item");
   hits.forEach(function(hit) {
-    Vibrant.from(hit.querySelector("img")).getPalette(function(err, palette) {
-      hit.setAttribute("style", "background: " + palette["LightMuted"].getHex());
-    });
+    color = hit.querySelector("img").getAttribute("data-maincolor");
+    hit.setAttribute("style", "background: rgba(" + color + ", 0.5)");
   })
 
   if ("ontouchstart" in window) {
