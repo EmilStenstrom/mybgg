@@ -70,7 +70,7 @@ class Indexer:
         if len(content) <= length:
             return content
         else:
-            return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+            return ' '.join(content[:length + 1].split(' ')[0:-1]) + suffix
 
     def _pick_long_paragraph(self, content):
         content = content.strip()
