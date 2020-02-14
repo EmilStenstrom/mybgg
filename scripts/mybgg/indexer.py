@@ -106,7 +106,7 @@ class Indexer:
     def add_objects(self, collection):
         games = [Indexer.todict(game) for game in collection]
         for i, game in enumerate(games):
-            if i != 0 && i % 25 == 0:
+            if i != 0 and i % 25 == 0:
                 print(f"Indexed {i} of {len(games)} games...")
 
             if game["image"]:
