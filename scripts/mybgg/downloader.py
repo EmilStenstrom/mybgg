@@ -20,10 +20,15 @@ class Downloader():
 
     def collection(self, user_name, extra_params):
         collection_data = []
+        plays_data = []
 
         if isinstance(extra_params, list):
             for params in extra_params:
                 collection_data += self.client.collection(
+                    user_name=user_name,
+                    **params,
+                )
+                plays_data += self.client.plays(
                     user_name=user_name,
                     **params,
                 )
@@ -32,10 +37,21 @@ class Downloader():
                 user_name=user_name,
                 **extra_params,
             )
+            plays_data = self.client.plays(
+                user_name=user_name,
+                **extra_params,
+            )
+
 
         game_list_data = self.client.game_list([game_in_collection["id"] for game_in_collection in collection_data])
         game_id_to_tags = {game["id"]: game["tags"] for game in collection_data}
         game_id_to_image = {game["id"]: game["image_version"] or game["image"] for game in collection_data}
+
+        game_id_to_players = {game["id"]: [] for game in collection_data}
+        for play in plays_data:
+            if play["game"]["gameid"] in game_id_to_players:
+                game_id_to_players[play["game"]["gameid"]].extend(play["players"])
+                game_id_to_players[play["game"]["gameid"]] = list(set(game_id_to_players[play["game"]["gameid"]]))
 
         games_data = list(filter(lambda x: x["type"] == "boardgame", game_list_data))
         expansions_data = list(filter(lambda x: x["type"] == "boardgameexpansion", game_list_data))
@@ -51,6 +67,7 @@ class Downloader():
                 game_data,
                 image=game_id_to_image[game_data["id"]],
                 tags=game_id_to_tags[game_data["id"]],
+                previous_players=game_id_to_players[game_data["id"]],
                 expansions=[
                     BoardGame(expansion_data)
                     for expansion_data in game_id_to_expansion[game_data["id"]]
