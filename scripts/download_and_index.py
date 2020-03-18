@@ -15,6 +15,7 @@ def main(args):
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"],
         extra_params=SETTINGS["boardgamegeek"]["extra_params"],
+        download_plays=SETTINGS["project"]["show_previous_players"] if "show_previous_players" in SETTINGS["project"] else False,
     )
     num_games = len(collection)
     num_expansions = sum([len(game.expansions) for game in collection])

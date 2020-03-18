@@ -244,8 +244,7 @@ function init(SETTINGS) {
   search.on('render', on_render);
 
   var widgets = get_widgets();
-
-  search.addWidgets([
+  var widgetsToDisplay = [
     widgets["search"],
     widgets["clear"],
     widgets["refine_categories"],
@@ -253,11 +252,14 @@ function init(SETTINGS) {
     widgets["refine_players"],
     widgets["refine_weight"],
     widgets["refine_playingtime"],
-    widgets["refine_previousplayers"],
     widgets["hits"],
     widgets["stats"],
     widgets["pagination"],
-  ]);
+  ]
+  if (SETTINGS.project.show_previous_players == true) {
+    widgetsToDisplay.push(widgets["refine_previousplayers"])
+  }
+  search.addWidgets(widgetsToDisplay);
 
   search.start();
 

@@ -1,7 +1,8 @@
 {
     "project": {
         "name": "mybgg",
-        "title": ""
+        "title": "",
+        "show_previous_players": false
     },
     "boardgamegeek": {
         "user_name": "YOUR_BGG_USERNAME",
