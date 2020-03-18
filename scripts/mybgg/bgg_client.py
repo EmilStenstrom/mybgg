@@ -27,10 +27,11 @@ class BGGClient:
         collection = self._collection_to_games(data)
         return collection
 
-    def plays(self, user_name, **kwargs):
-        params = kwargs.copy()
-        params["username"] = user_name
-        params["page"] = 1
+    def plays(self, user_name):
+        params = {
+            "username": user_name,
+            "page": 1,
+        }
         all_plays = []
 
         data = self._make_request("/plays?version=1", params)

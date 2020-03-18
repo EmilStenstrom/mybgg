@@ -30,7 +30,6 @@ class Downloader():
                 )
                 plays_data += self.client.plays(
                     user_name=user_name,
-                    **params,
                 )
         else:
             collection_data = self.client.collection(
@@ -39,7 +38,6 @@ class Downloader():
             )
             plays_data = self.client.plays(
                 user_name=user_name,
-                **extra_params,
             )
 
 
