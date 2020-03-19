@@ -30,7 +30,7 @@ class Indexer:
                 'weight',
                 'playing_time',
             ],
-            'customRanking': "asc(name)", #the default sort order for the main index
+            'customRanking': ['asc(name)'], #the default sort order for the main index
             'highlightPreTag': '<strong class="highlight">',
             'highlightPostTag': '</strong>',
             'hitsPerPage': hits_per_page,
