@@ -122,6 +122,15 @@ function get_widgets() {
       container: '#search-box',
       placeholder: 'Search for games'
     }),
+    "sort": instantsearch.widgets.sortBy({
+      container: '#sort-by',
+      items: [
+        { label: 'Name', value:'BGG'},
+        { label: 'Rank/Rating', value:'bgg_rank_ascending'},
+        { label: 'Number of Ratings', value:'bgg_numrated_descending'},
+        { label: 'Number of Owners', value:'bgg_numowned_descending'},
+      ],
+    }),
     "clear": instantsearch.widgets.clearRefinements({
       container: '#clear-all',
       templates: {
@@ -237,6 +246,7 @@ function init(SETTINGS) {
 
   search.addWidgets([
     widgets["search"],
+    widgets["sort"],
     widgets["clear"],
     widgets["refine_categories"],
     widgets["refine_mechanics"],
