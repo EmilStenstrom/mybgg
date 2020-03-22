@@ -231,8 +231,34 @@ function get_widgets(SETTINGS) {
 
 
 function init(SETTINGS) {
+
+  var configIndexName = ''
+  if (SETTINGS.algolia.sort_by == null) {
+    //If not specified, default to sort by name
+    configIndexName = SETTINGS.algolia.index_name
+  } else {
+    switch (SETTINGS.algolia.sort_by) {
+      case 'asc(name)':
+        configIndexName = SETTINGS.algolia.index_name
+        break
+      case 'asc(rank)':
+      case 'desc(rating)':
+        configIndexName = 'bgg_rank_ascending'
+        break
+      case 'desc(numrated)':
+        configIndexName = 'bgg_numrated_descending'
+        break
+      case 'desc(numowned)':
+        configIndexName = 'bgg_numowned_descending'
+        break
+      default:
+        console.error("The provided config value for algolia.sort_by was invalid: " + SETTINGS.algolia.sort_by)
+        break;
+    }
+  }
+
   const search = instantsearch({
-    indexName: SETTINGS.algolia.index_name,
+    indexName: configIndexName,
     searchClient: algoliasearch(
       SETTINGS.algolia.app_id,
       SETTINGS.algolia.api_key_search_only
