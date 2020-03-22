@@ -211,14 +211,16 @@ function get_widgets(SETTINGS) {
             }
           });
           game.players = players.join(", ");
-
           game.categories = game.categories.join(", ");
           game.mechanics = game.mechanics.join(", ");
-          game.previous_players = game.previous_players.join(", ");
           game.tags = game.tags.join(", ");
           game.description = game.description.trim();
-
           game.has_expansions = (game.expansions.length > 0);
+
+          if (SETTINGS.project.show_previous_players) {
+            game.previous_players = game.previous_players.join(", ");
+          }
+
           return game;
         });
       },
@@ -262,7 +264,7 @@ function init(SETTINGS) {
       console.error("The provided config value for algolia.sort_by was invalid: " + SETTINGS.algolia.sort_by)
       break;
   }
-  
+
   const search = instantsearch({
     indexName: configIndexName,
     searchClient: algoliasearch(
