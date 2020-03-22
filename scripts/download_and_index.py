@@ -30,7 +30,6 @@ def main(args):
             apikey=args.apikey,
             index_name=SETTINGS["algolia"]["index_name"],
             hits_per_page=hits_per_page,
-            sort_by=SETTINGS["algolia"].get("sort_by", "asc(name)"),
         )
         indexer.add_objects(collection)
         indexer.delete_objects_not_in(collection)

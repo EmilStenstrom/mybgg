@@ -69,6 +69,28 @@ body {
 .logo {
     margin-right: 1em;
 }
+.sort-by {
+    max-width: 150px;
+    margin-right: 1em;
+    margin-left: 0.3em;
+    flex-grow: 1;
+}
+    .ais-SortBy-select {
+        position: relative;
+        font-size: 14px;
+        width: 100%;
+        min-width: 150px;
+        appearance: none;
+        font: inherit;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 4px;
+        padding: 10px 2px 10px 5px;
+        vertical-align: middle;
+        white-space: normal;
+        height: 100%;
+        width: 100%;
+    }
 .search-box {
     max-width: 300px;
     margin-right: 1em;
