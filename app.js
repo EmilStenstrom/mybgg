@@ -90,7 +90,7 @@ function on_render() {
   });
 }
 
-function get_widgets() {
+function get_widgets(SETTINGS) {
   const WEIGHT_LABELS = [
     "Light",
     "Light Medium",
@@ -125,7 +125,7 @@ function get_widgets() {
     "sort": instantsearch.widgets.sortBy({
       container: '#sort-by',
       items: [
-        { label: 'Name', value:'BGG'},
+        { label: 'Name', value:SETTINGS.algolia.index_name},
         { label: 'Rank/Rating', value:'bgg_rank_ascending'},
         { label: 'Number of Ratings', value:'bgg_numrated_descending'},
         { label: 'Number of Owners', value:'bgg_numowned_descending'},
@@ -242,7 +242,7 @@ function init(SETTINGS) {
 
   search.on('render', on_render);
 
-  var widgets = get_widgets();
+  var widgets = get_widgets(SETTINGS);
 
   search.addWidgets([
     widgets["search"],
