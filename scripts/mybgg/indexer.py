@@ -10,7 +10,7 @@ from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class Indexer:
-        
+
     def __init__(self, app_id, apikey, index_name, hits_per_page):
         client = SearchClient.create(
             app_id=app_id,
@@ -30,18 +30,18 @@ class Indexer:
                 'weight',
                 'playing_time',
             ],
-            'customRanking': ['asc(name)'], #the default sort order for the main index
+            'customRanking': ['asc(name)'],
             'highlightPreTag': '<strong class="highlight">',
             'highlightPostTag': '</strong>',
             'hitsPerPage': hits_per_page,
         })
-        
+
         self._init_replicas(client, index)
 
         self.index = index
-    
+
     def _init_replicas(self, client, mainIndex):
-        
+
         mainIndex.set_settings({
             'replicas': [
                 'bgg_rank_ascending',
@@ -49,13 +49,13 @@ class Indexer:
                 'bgg_numowned_descending',
             ]
         })
-               
+
         replica_index = client.init_index('bgg_rank_ascending')
         replica_index.set_settings({'ranking': ['asc(rank)']})
-        
+
         replica_index = client.init_index('bgg_numrated_descending')
         replica_index.set_settings({'ranking': ['desc(usersrated)']})
-        
+
         replica_index = client.init_index('bgg_numowned_descending')
         replica_index.set_settings({'ranking': ['desc(numowned)']})
 
