@@ -253,7 +253,6 @@ function init(SETTINGS) {
       break;
   }
   
-
   const search = instantsearch({
     indexName: configIndexName,
     searchClient: algoliasearch(
