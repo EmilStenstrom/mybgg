@@ -42,6 +42,7 @@ class Downloader():
         game_list_data = self.client.game_list([game_in_collection["id"] for game_in_collection in collection_data])
         game_id_to_tags = {game["id"]: game["tags"] for game in collection_data}
         game_id_to_image = {game["id"]: game["image_version"] or game["image"] for game in collection_data}
+        game_id_to_numplays = {game["id"]: game["numplays"] for game in collection_data}
 
         game_id_to_players = {game["id"]: [] for game in collection_data}
         for play in plays_data:
@@ -63,6 +64,7 @@ class Downloader():
                 game_data,
                 image=game_id_to_image[game_data["id"]],
                 tags=game_id_to_tags[game_data["id"]],
+                numplays=game_id_to_numplays[game_data["id"]],
                 previous_players=game_id_to_players[game_data["id"]],
                 expansions=[
                     BoardGame(expansion_data)
