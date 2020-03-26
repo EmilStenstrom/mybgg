@@ -189,6 +189,21 @@ function get_widgets(SETTINGS) {
         showMore: true,
       }
     ),
+    "refine_numplays": panel('Total plays')(instantsearch.widgets.numericMenu)(
+      {
+        container: '#facet-numplays',
+        attribute: 'numplays',
+        items: [
+          { label: 'Any' }, 
+          { label: '0', end: 0 },
+          { label: '1', start: 1, end: 1 },
+          { label: '2-9', start: 2, end: 9 },
+          { label: '10-19', start: 10, end: 19 },
+          { label: '20-39', start: 20, end: 29 },
+          { label: '30+', start: 30 },
+        ]
+      }
+    ),
     "hits": instantsearch.widgets.hits({
       container: '#hits',
       transformItems: function(items) {
@@ -292,6 +307,9 @@ function init(SETTINGS) {
   ]
   if (SETTINGS.project.show_previous_players == true) {
     widgetsToDisplay.push(widgets["refine_previousplayers"])
+  }
+  if (SETTINGS.project.show_total_plays == true) {
+    widgetsToDisplay.push(widgets["refine_numplays"])
   }
   search.addWidgets(widgetsToDisplay);
 
