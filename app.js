@@ -199,7 +199,7 @@ function get_widgets(SETTINGS) {
           { label: '1', start: 1, end: 1 },
           { label: '2-9', start: 2, end: 9 },
           { label: '10-19', start: 10, end: 19 },
-          { label: '20-39', start: 20, end: 29 },
+          { label: '20-29', start: 20, end: 29 },
           { label: '30+', start: 30 },
         ]
       }
