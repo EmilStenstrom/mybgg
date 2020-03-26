@@ -3,7 +3,7 @@ import html
 
 
 class BoardGame:
-    def __init__(self, game_data, image="", tags=[], expansions=[]):
+    def __init__(self, game_data, image="", tags=[], numplays=0, previous_players=[], expansions=[]):
         self.id = game_data["id"]
         self.name = game_data["name"]
         self.description = html.unescape(game_data["description"])
@@ -16,8 +16,10 @@ class BoardGame:
         self.usersrated = self.calc_usersrated(game_data)
         self.numowned = self.calc_numowned(game_data)
         self.rating = self.calc_rating(game_data)
+        self.numplays = numplays
         self.image = image
         self.tags = tags
+        self.previous_players = previous_players
         self.expansions = expansions
 
     def calc_num_players(self, game_data, expansions):

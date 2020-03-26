@@ -180,6 +180,30 @@ function get_widgets(SETTINGS) {
         sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) - PLAYING_TIME_ORDER.indexOf(b.name); },
       }
     ),
+    "refine_previousplayers": panel('Previous players')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-previous-players',
+        attribute: 'previous_players',
+        operator: 'and',
+        searchable: true,
+        showMore: true,
+      }
+    ),
+    "refine_numplays": panel('Total plays')(instantsearch.widgets.numericMenu)(
+      {
+        container: '#facet-numplays',
+        attribute: 'numplays',
+        items: [
+          { label: 'Any' }, 
+          { label: '0', end: 0 },
+          { label: '1', start: 1, end: 1 },
+          { label: '2-9', start: 2, end: 9 },
+          { label: '10-19', start: 10, end: 19 },
+          { label: '20-29', start: 20, end: 29 },
+          { label: '30+', start: 30 },
+        ]
+      }
+    ),
     "hits": instantsearch.widgets.hits({
       container: '#hits',
       transformItems: function(items) {
@@ -202,13 +226,16 @@ function get_widgets(SETTINGS) {
             }
           });
           game.players = players.join(", ");
-
           game.categories = game.categories.join(", ");
           game.mechanics = game.mechanics.join(", ");
           game.tags = game.tags.join(", ");
           game.description = game.description.trim();
-
           game.has_expansions = (game.expansions.length > 0);
+
+          if (SETTINGS.project.show_previous_players) {
+            game.previous_players = game.previous_players.join(", ");
+          }
+
           return game;
         });
       },
@@ -252,7 +279,7 @@ function init(SETTINGS) {
       console.error("The provided config value for algolia.sort_by was invalid: " + SETTINGS.algolia.sort_by)
       break;
   }
-  
+
   const search = instantsearch({
     indexName: configIndexName,
     searchClient: algoliasearch(
@@ -265,8 +292,7 @@ function init(SETTINGS) {
   search.on('render', on_render);
 
   var widgets = get_widgets(SETTINGS);
-
-  search.addWidgets([
+  var widgetsToDisplay = [
     widgets["search"],
     widgets["sort"],
     widgets["clear"],
@@ -278,7 +304,14 @@ function init(SETTINGS) {
     widgets["hits"],
     widgets["stats"],
     widgets["pagination"],
-  ]);
+  ]
+  if (SETTINGS.project.show_previous_players == true) {
+    widgetsToDisplay.push(widgets["refine_previousplayers"])
+  }
+  if (SETTINGS.project.show_total_plays == true) {
+    widgetsToDisplay.push(widgets["refine_numplays"])
+  }
+  search.addWidgets(widgetsToDisplay);
 
   search.start();
 

@@ -29,6 +29,8 @@ class Indexer:
                 'players',
                 'weight',
                 'playing_time',
+                'searchable(previous_players)',
+                'numplays',
             ],
             'customRanking': ['asc(name)'],
             'highlightPreTag': '<strong class="highlight">',
