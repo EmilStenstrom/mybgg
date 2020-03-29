@@ -53,7 +53,7 @@
         <dl class="properties">
           <div>
             <dt>Players</dt>
-            <dd>{{{ players }}}</dd>
+            <dd>{{{ players_str }}}</dd>
           </div>
           <div>
             <dt>Playing time</dt>
@@ -65,20 +65,20 @@
           </div>
           <div>
             <dt>Tags</dt>
-            <dd>{{ tags }}</dd>
+            <dd>{{ tags_str }}</dd>
           </div>
           <div>
             <dt>Categories</dt>
             <dd>
-              {{# categories }}{{ categories }}{{/ categories }}
-              {{^ categories}}<em>No categories</em>{{/ categories }}
+              {{# categories_str }}{{ categories_str }}{{/ categories_str }}
+              {{^ categories_str}}<em>No categories</em>{{/ categories_str }}
             </dd>
           </div>
           <div>
             <dt>Mechanics</dt>
             <dd>
-              {{# mechanics }}{{ mechanics }}{{/ mechanics }}
-              {{^ mechanics}}<em>No mechanics</em>{{/ mechanics }}
+              {{# mechanics_str }}{{ mechanics_str }}{{/ mechanics_str }}
+              {{^ mechanics_str}}<em>No mechanics</em>{{/ mechanics_str }}
             </dd>
           </div>
           {{# has_expansions }}

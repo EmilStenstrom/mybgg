@@ -228,10 +228,10 @@ function get_widgets(SETTINGS) {
               return;
             }
           });
-          game.players = players.join(", ");
-          game.categories = game.categories.join(", ");
-          game.mechanics = game.mechanics.join(", ");
-          game.tags = game.tags.join(", ");
+          game.players_str = players.join(", ");
+          game.categories_str = game.categories.join(", ");
+          game.mechanics_str = game.mechanics.join(", ");
+          game.tags_str = game.tags.join(", ");
           game.description = game.description.trim();
           game.has_expansions = (game.expansions.length > 0);
 
