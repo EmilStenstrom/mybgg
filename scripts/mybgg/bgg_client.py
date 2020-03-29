@@ -119,7 +119,7 @@ class BGGClient:
                     xml.array(
                         xml.dictionary('players/player', [
                             xml.string(".", attribute="name")
-                        ], alias='players', hooks=xml.Hooks(after_parse=after_players_hook))
+                        ], required=False, alias='players', hooks=xml.Hooks(after_parse=after_players_hook))
                     )
 
                 ], required=False, alias="plays")
