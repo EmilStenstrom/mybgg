@@ -18,7 +18,7 @@ class Downloader():
                 debug=debug,
             )
 
-    def collection(self, user_name, extra_params, download_plays):
+    def collection(self, user_name, extra_params):
         collection_data = []
         plays_data = []
 
@@ -34,10 +34,9 @@ class Downloader():
                 **extra_params,
             )
 
-        if download_plays:
-            plays_data = self.client.plays(
-                user_name=user_name,
-            )
+        plays_data = self.client.plays(
+            user_name=user_name,
+        )
 
         game_list_data = self.client.game_list([game_in_collection["id"] for game_in_collection in collection_data])
         game_id_to_tags = {game["id"]: game["tags"] for game in collection_data}
