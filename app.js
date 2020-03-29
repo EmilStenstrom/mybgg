@@ -207,6 +207,9 @@ function get_widgets(SETTINGS) {
     "hits": instantsearch.widgets.hits({
       container: '#hits',
       transformItems: function(items) {
+        hide_facet_when_no_data('#facet-previous-players', items, 'previous_players');
+        hide_facet_when_no_data('#facet-numplays', items, 'numplays');
+
         return items.map(function(game){
           players = [];
           game.players.forEach(function(num_players){
@@ -253,6 +256,22 @@ function get_widgets(SETTINGS) {
   }
 }
 
+function hide_facet_when_no_data(facet_id, games, attr) {
+  var has_data_in_attr = false;
+  for (game of games) {
+    if (game[attr] != [] && game[attr] != "" && game[attr] != 0 && game[attr] != undefined) {
+      has_data_in_attr = true;
+      break;
+    }
+  }
+  var widget = document.querySelector(facet_id);
+  if (!has_data_in_attr) {
+    widget.style.display = 'none';
+  }
+  else {
+    widget.style.display = 'block';
+  }
+}
 
 function init(SETTINGS) {
 
