@@ -194,13 +194,13 @@ function get_widgets(SETTINGS) {
         container: '#facet-numplays',
         attribute: 'numplays',
         items: [
-          { label: 'Any' },
-          { label: '0', end: 0 },
-          { label: '1', start: 1, end: 1 },
-          { label: '2-9', start: 2, end: 9 },
-          { label: '10-19', start: 10, end: 19 },
-          { label: '20-29', start: 20, end: 29 },
-          { label: '30+', start: 30 },
+          { label: 'Any number of plays' },
+          { label: 'No plays', end: 0 },
+          { label: '1 play', start: 1, end: 1 },
+          { label: '2-9 plays', start: 2, end: 9 },
+          { label: '10-19 plays', start: 10, end: 19 },
+          { label: '20-29 plays', start: 20, end: 29 },
+          { label: '30+ plays', start: 30 },
         ]
       }
     ),
