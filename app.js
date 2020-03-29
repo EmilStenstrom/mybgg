@@ -234,7 +234,6 @@ function get_widgets(SETTINGS) {
           game.tags = game.tags.join(", ");
           game.description = game.description.trim();
           game.has_expansions = (game.expansions.length > 0);
-          game.previous_players = game.previous_players.join(", ");
 
           return game;
         });
