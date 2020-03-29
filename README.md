@@ -32,12 +32,8 @@ Using this project, you can set up your own site for searching and filtering you
       {
           "project": {
               "name": "mybgg",  // This is the name of your project. You can leave it as it is.
-              "title": "",  // This is the page title. If you leave this empty, a title will be
+              "title": ""  // This is the page title. If you leave this empty, a title will be
                            // created from your BGG username.
-              "show_previous_players": false, // If you want the ability to filter by players who have previous played this game
-                                              // (based on your logged plays), set this to true
-              "show_total_plays": false // If you want the ability to filter by the number of times you have logged
-                                        // plays for each game in your collection, set this to true
           },
           "boardgamegeek": {
               "user_name": "YOUR_BGG_USERNAME",  // The username on boardgamegeek that has your games
