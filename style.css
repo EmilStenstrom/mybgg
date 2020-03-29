@@ -313,16 +313,16 @@ body {
         cursor: pointer;
         color: #b71c1c;
     }
-    .ais-HierarchicalMenu-item, .ais-RefinementList-item {
+    .ais-HierarchicalMenu-item, .ais-RefinementList-item, .ais-NumericMenu-item {
         line-height: 2em;
     }
-    .ais-HierarchicalMenu-item--selected, .ais-RefinementList-item--selected {
+    .ais-HierarchicalMenu-item--selected, .ais-RefinementList-item--selected, .ais-NumericMenu-item--selected {
         font-weight: bold;
     }
     .ais-HierarchicalMenu-list--child {
         font-weight: normal;
     }
-    .ais-HierarchicalMenu-count, .ais-RefinementList-count {
+    .ais-HierarchicalMenu-count, .ais-RefinementList-count, .ais-NumericMenu-count {
         padding: 5px 8px;
         margin-left: 5px;
         background: #efefef;
