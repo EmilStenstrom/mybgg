@@ -42,7 +42,7 @@ class BGGClient:
             params["page"] += 1
             data = self._make_request("/plays?version=1", params)
             new_plays = self._plays_to_games(data)
-        
+
         return all_plays
 
     def game_list(self, game_ids):
@@ -107,7 +107,7 @@ class BGGClient:
     def _plays_to_games(self, data):
         def after_players_hook(_, status):
             return status["name"]
-        
+
         plays_processor = xml.dictionary("plays", [
             xml.array(
                 xml.dictionary('play', [
@@ -116,12 +116,12 @@ class BGGClient:
                         xml.string(".", attribute="name", alias="gamename"),
                         xml.integer(".", attribute="objectid", alias="gameid")
                     ], alias='game'),
-                        xml.array(
-                            xml.dictionary('players/player', [
-                                    xml.string(".", attribute="name")
-                            ], alias='players', hooks=xml.Hooks(after_parse=after_players_hook))
-                        )
-                    
+                    xml.array(
+                        xml.dictionary('players/player', [
+                            xml.string(".", attribute="name")
+                        ], alias='players', hooks=xml.Hooks(after_parse=after_players_hook))
+                    )
+
                 ], required=False, alias="plays")
             )
         ])

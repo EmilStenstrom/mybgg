@@ -34,7 +34,7 @@ class Downloader():
                 **extra_params,
             )
 
-        if (download_plays == True):
+        if download_plays:
             plays_data = self.client.plays(
                 user_name=user_name,
             )

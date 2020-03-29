@@ -194,7 +194,7 @@ function get_widgets(SETTINGS) {
         container: '#facet-numplays',
         attribute: 'numplays',
         items: [
-          { label: 'Any' }, 
+          { label: 'Any' },
           { label: '0', end: 0 },
           { label: '1', start: 1, end: 1 },
           { label: '2-9', start: 2, end: 9 },
