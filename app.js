@@ -265,7 +265,8 @@ function hide_facet_when_no_data(facet_id, games, attr) {
     }
   }
   var widget = document.querySelector(facet_id);
-  if (!has_data_in_attr) {
+  var widget_is_selected = document.querySelector(facet_id + " *[class$='-item--selected']");
+  if (!has_data_in_attr && !widget_is_selected) {
     widget.style.display = 'none';
   }
   else {
