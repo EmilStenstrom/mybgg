@@ -126,9 +126,9 @@ function get_widgets(SETTINGS) {
       container: '#sort-by',
       items: [
         {label: 'Name', value: SETTINGS.algolia.index_name},
-        {label: 'BGG Rank', value: 'bgg_rank_ascending'},
-        {label: 'Number of ratings', value: 'bgg_numrated_descending'},
-        {label: 'Number of owners', value: 'bgg_numowned_descending'}
+        {label: 'BGG Rank', value: SETTINGS.algolia.index_name + '_rank_ascending'},
+        {label: 'Number of ratings', value: SETTINGS.algolia.index_name + '_numrated_descending'},
+        {label: 'Number of owners', value: SETTINGS.algolia.index_name + '_numowned_descending'}
       ]
     }),
     "clear": instantsearch.widgets.clearRefinements({
@@ -283,13 +283,13 @@ function init(SETTINGS) {
       break
     case 'asc(rank)':
     case 'desc(rating)':
-      configIndexName = 'bgg_rank_ascending'
+      configIndexName = SETTINGS.algolia.index_name + '_rank_ascending'
       break
     case 'desc(numrated)':
-      configIndexName = 'bgg_numrated_descending'
+      configIndexName = SETTINGS.algolia.index_name + '_numrated_descending'
       break
     case 'desc(numowned)':
-      configIndexName = 'bgg_numowned_descending'
+      configIndexName = SETTINGS.algolia.index_name + '_numowned_descending'
       break
     default:
       console.error("The provided config value for algolia.sort_by was invalid: " + SETTINGS.algolia.sort_by)
