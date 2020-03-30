@@ -106,7 +106,7 @@ class BGGClient:
 
     def _plays_to_games(self, data):
         def after_players_hook(_, status):
-            return status["name"]
+            return status["name"] if "name" in status else "Unknown"
 
         plays_processor = xml.dictionary("plays", [
             xml.array(
@@ -118,13 +118,14 @@ class BGGClient:
                     ], alias='game'),
                     xml.array(
                         xml.dictionary('players/player', [
-                            xml.string(".", attribute="name")
+                            xml.string(".", attribute="name", required=False, default="Unknown")
                         ], required=False, alias='players', hooks=xml.Hooks(after_parse=after_players_hook))
                     )
 
                 ], required=False, alias="plays")
             )
         ])
+
         plays = xml.parse_from_string(plays_processor, data)
         plays = plays["plays"]
         return plays
