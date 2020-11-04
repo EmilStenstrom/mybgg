@@ -1,2 +1,5 @@
 *.sqlite
 __pycache__
+
+# private keys
+secret.json

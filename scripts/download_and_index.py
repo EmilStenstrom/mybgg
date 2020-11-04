@@ -6,6 +6,7 @@ from mybgg.indexer import Indexer
 
 def main(args):
     SETTINGS = json.load(open("config.json", "rb"))
+    SECRETS = json.load(open("secret.json", "rb"))
 
     downloader = Downloader(
         project_name=SETTINGS["project"]["name"],
@@ -23,11 +24,12 @@ def main(args):
     if not len(collection):
         assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
 
+    api_key = args.apikey if args.apikey else SECRETS["algolia"]["admin_api_key"]
     if not args.no_indexing:
         hits_per_page = SETTINGS["algolia"].get("hits_per_page", 48)
         indexer = Indexer(
             app_id=SETTINGS["algolia"]["app_id"],
-            apikey=args.apikey,
+            apikey=api_key,
             index_name=SETTINGS["algolia"]["index_name"],
             hits_per_page=hits_per_page,
         )
@@ -46,7 +48,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--apikey',
         type=str,
-        required=True,
+        # required=True,
         help='The admin api key for your algolia site'
     )
     parser.add_argument(
