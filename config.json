@@ -4,15 +4,15 @@
         "title": ""
     },
     "boardgamegeek": {
-        "user_name": "YOUR_BGG_USERNAME",
+        "user_name": "intermetzo",
         "extra_params": {
             "own": 1
         }
     },
     "algolia": {
-        "app_id": "YOUR_APP_ID",
-        "api_key_search_only": "YOUR_PUBLIC_API_KEY",
-        "index_name": "YOUR_INDEX_NAME",
+        "app_id": "0FGGWINWMN",
+        "api_key_search_only": "f6fdfea76ea1f0a59d326cdd70c864a5",
+        "index_name": "mybgg",
         "hits_per_page": 24
     }
 }
