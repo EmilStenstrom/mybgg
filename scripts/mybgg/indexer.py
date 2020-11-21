@@ -136,7 +136,7 @@ class Indexer:
             if game["image"]:
                 response = requests.get(game["image"])
                 if response.status_code == 200:
-                    image = Image.open(io.BytesIO(response.content))
+                    image = Image.open(io.BytesIO(response.content)).convert('RGBA')
 
                     try_colors = 10
                     colors = colorgram.extract(image, try_colors)
