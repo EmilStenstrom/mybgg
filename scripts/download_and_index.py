@@ -69,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--debug',
         action='store_true',
-        help="Print debug information, such as requests made and responsed recieved."
+        help="Print debug information, such as requests made and responses received."
     )
 
     args = parser.parse_args()
