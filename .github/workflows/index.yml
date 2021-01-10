@@ -22,4 +22,4 @@ jobs:
         pip install -r scripts/requirements.txt
     - name: Run script 
       run: |
-        python scripts/download_and_index.py --apikey {{secrets.APIKEY}}
+        python scripts/download_and_index.py --apikey ${{secrets.APIKEY}}
