@@ -2,6 +2,8 @@ name: Update Algolia index with BGG data
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ pr ]
 
 jobs:
   index:
