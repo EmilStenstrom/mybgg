@@ -1,0 +1,26 @@
+name: Update Algolia index with BGG data
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Runs every Monday at 00:00
+jobs:
+  index:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r scripts/requirements.txt
+    - name: Run script if secret is set
+      env:
+        APIKEY: ${{secrets.APIKEY}}
+      if: env.APIKEY != null
+      run: |
+        python scripts/download_and_index.py --apikey ${{env.APIKEY}}
