@@ -90,6 +90,13 @@ class BGGClient:
                     time.sleep(2)
                     return self._make_request(url, params=params, tries=tries + 1)
 
+            # Handle 429 Too Many Requests
+            if response.status_code == 429:
+                if tries < 3:
+                    logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
+                    time.sleep(30)
+                    return self._make_request(url, params=params, tries=tries + 1)
+
             raise BGGException(
                 f"BGG returned status code {response.status_code} when "
                 f"requesting {response.url}"
