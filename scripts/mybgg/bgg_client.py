@@ -98,8 +98,7 @@ class BGGClient:
                     return self._make_request(url, params=params, tries=tries + 1)
 
             raise BGGException(
-                f"BGG returned status code {response.status_code} when "
-                f"requesting {response.url}"
+                f"BGG returned status code {response.status_code} when requesting {response.url}"
             )
 
         tree = fromstring(response.text)
