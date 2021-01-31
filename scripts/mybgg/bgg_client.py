@@ -50,9 +50,9 @@ class BGGClient:
             return []
 
         # Split game_ids into smaller chunks to avoid "414 URI too long"
-        def chunks(l, n):
-            for i in range(0, len(l), n):
-                yield l[i:i + n]
+        def chunks(iterable, n):
+            for i in range(0, len(iterable), n):
+                yield iterable[i:i + n]
 
         games = []
         for game_ids_subset in chunks(game_ids, 100):
