@@ -4,14 +4,27 @@
 #
 #    pip-compile scripts/requirements.in
 #
-algoliasearch==2.4.0      # via -r scripts/requirements.in
-certifi==2020.12.5        # via requests
-chardet==4.0.0            # via requests
-colorgram.py==1.2.0       # via -r scripts/requirements.in
-declxml==1.1.3            # via -r scripts/requirements.in
-idna==2.10                # via requests
-pillow==8.0.1             # via colorgram.py
-requests-cache==0.5.2     # via -r scripts/requirements.in
-requests==2.25.1          # via algoliasearch, requests-cache
-typing==3.7.4.3           # via declxml
-urllib3==1.26.2           # via requests
+algoliasearch==2.4.0
+    # via -r requirements.in
+certifi==2020.12.5
+    # via requests
+chardet==4.0.0
+    # via requests
+colorgram.py==1.2.0
+    # via -r requirements.in
+declxml==1.1.3
+    # via -r requirements.in
+idna==2.10
+    # via requests
+pillow==8.1.1
+    # via colorgram.py
+requests-cache==0.5.2
+    # via -r requirements.in
+requests==2.25.1
+    # via
+    #   algoliasearch
+    #   requests-cache
+typing==3.7.4.3
+    # via declxml
+urllib3==1.26.2
+    # via requests
