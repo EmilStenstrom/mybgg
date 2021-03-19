@@ -26,5 +26,5 @@ requests==2.25.1
     #   requests-cache
 typing==3.7.4.3
     # via declxml
-urllib3==1.26.2
+urllib3==1.26.3
     # via requests
