@@ -66,7 +66,7 @@ class BGGClient:
 
         try:
             response = self.requester.get(BGGClient.BASE_URL + url, params=params)
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
             if tries < 3:
                 time.sleep(2)
                 return self._make_request(url, params=params, tries=tries + 1)
