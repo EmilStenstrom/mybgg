@@ -1,12 +1,13 @@
 import io
 import re
+import time
 
 import colorgram
 import requests
 from algoliasearch.search_client import SearchClient
-
 # Allow colorgram to read truncated files
 from PIL import Image, ImageFile
+
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 class Indexer:
@@ -149,6 +150,19 @@ class Indexer:
 
         return expansion_name
 
+    def fetch_image(self, url, tries=0):
+        try:
+            response = requests.get(url)
+        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
+            if tries < 3:
+                time.sleep(2)
+                return self.fetch_image(url, tries=tries + 1)
+
+        if response.status_code == 200:
+            return response.content
+
+        return None
+
     def add_objects(self, collection):
         games = [Indexer.todict(game) for game in collection]
         for i, game in enumerate(games):
@@ -156,9 +170,9 @@ class Indexer:
                 print(f"Indexed {i} of {len(games)} games...")
 
             if game["image"]:
-                response = requests.get(game["image"])
-                if response.status_code == 200:
-                    image = Image.open(io.BytesIO(response.content)).convert('RGBA')
+                image_data = self.fetch_image(game["image"])
+                if image_data:
+                    image = Image.open(io.BytesIO(image_data)).convert('RGBA')
 
                     try_colors = 10
                     colors = colorgram.extract(image, try_colors)
