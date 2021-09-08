@@ -16,14 +16,14 @@ declxml==1.1.3
     # via -r requirements.in
 idna==2.10
     # via requests
-pillow==8.2.0
+pillow==8.3.2
     # via colorgram.py
-requests-cache==0.5.2
-    # via -r requirements.in
 requests==2.25.1
     # via
     #   algoliasearch
     #   requests-cache
+requests-cache==0.5.2
+    # via -r requirements.in
 typing==3.7.4.3
     # via declxml
 urllib3==1.26.5
