@@ -4,15 +4,15 @@
         "title": ""
     },
     "boardgamegeek": {
-        "user_name": "YOUR_BGG_USERNAME",
+        "user_name": "JAMIT42",
         "extra_params": {
             "own": 1
         }
     },
     "algolia": {
-        "app_id": "YOUR_APP_ID",
-        "api_key_search_only": "YOUR_PUBLIC_API_KEY",
-        "index_name": "YOUR_INDEX_NAME",
-        "hits_per_page": 24
+        "app_id": "NGWCZTM3QT",
+        "api_key_search_only": "50d2d6f5814074ead414e5626cd5fad8",
+        "index_name": "Stay and Play Game Cafe",
+        "hits_per_page": 48
     }
 }
