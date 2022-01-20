@@ -89,9 +89,17 @@ class Indexer:
                 "level1": num_no_plus,
                 "level2": f"{num_no_plus} > Recommended with {num}",
             },
+            "supported": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > Supports with {num}",
+            },
             "expansion": {
                 "level1": num_no_plus,
                 "level2": f"{num_no_plus} > Expansion allows {num}",
+            },
+            "exp_supported": {
+                "level1": num_no_plus,
+                "level2": f"{num_no_plus} > ExpansionSupport allows {num}",
             },
         }
 

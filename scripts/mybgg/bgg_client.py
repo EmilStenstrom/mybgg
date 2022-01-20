@@ -275,7 +275,19 @@ class BGGClient:
                             attribute="value",
                             alias="rating"
                         ),
-                        xml.string("playingtime", attribute="value", alias="playing_time"),
+                        xml.string("playingtime", attribute="value", alias="playing_time", required=False),
+                        xml.integer(
+                            "minplayers",
+                            attribute="value",
+                            alias="min_players",
+                            required=False,
+                        ),
+                        xml.integer(
+                            "maxplayers",
+                            attribute="value",
+                            alias="max_players",
+                            required=False,
+                        ),
                     ],
                     required=False,
                     alias="items",

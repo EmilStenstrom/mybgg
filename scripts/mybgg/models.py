@@ -25,13 +25,29 @@ class BoardGame:
     def calc_num_players(self, game_data, expansions):
         num_players = game_data["suggested_numplayers"].copy()
 
+        for supported_num in range(game_data["min_players"], game_data["max_players"] + 1):
+            if supported_num > 0 and str(supported_num) not in [num for num, _ in num_players]:
+                num_players.append((str(supported_num), "supported"))
+
         # Add number of players from expansions
         for expansion in expansions:
-            for expansion_num, _ in expansion.players:
+            # First add all the recommended player counts from expansions, then look for additional counts that are just supported.
+            for expansion_num, support in expansion.players:
                 if expansion_num not in [num for num, _ in num_players]:
-                    num_players.append((expansion_num, "expansion"))
+                    if support != "supported":
+                        num_players.append((expansion_num, "expansion"))
+            for expansion_num, support in expansion.players:
+                if expansion_num not in [num for num, _ in num_players]:
+                    if support == "supported":
+                        num_players.append((expansion_num, "exp_supported"))
+
 
         num_players = sorted(num_players, key=lambda x: int(x[0].replace("+", "")))
+
+        # Remove "+ player counts if they are not the last in the list
+        # Also remove player counts >=14, except for the max player count (e.g. 1-100 suggested player counts will only list 1-13,100)
+        num_players[:-1] = [player for player in num_players[:-1] if player[0][-1] != "+" and int(player[0]) < 14]
+
         return num_players
 
     def calc_playing_time(self, game_data):
