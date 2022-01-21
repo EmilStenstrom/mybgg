@@ -29,6 +29,7 @@
       <div class="facet" id="facet-mechanics" tabindex="0"></div>
       <div class="facet" id="facet-previous-players" tabindex="0"></div>
       <div class="facet" id="facet-numplays" tabindex="0"></div>
+      <div class="facet" id="facet-age" tabindex="0"></div>
       <div class="clear-all" id="clear-all"></div>
     </aside>
     <main class="results">
@@ -62,6 +63,13 @@
           <div>
             <dt>Complexity</dt>
             <dd>{{ weight }}</dd>
+          </div>
+          <div>
+            <dt>Age (Community)</dt>
+            <dd>
+              {{# has_rec_age }} {{ minage }}+ ({{ community_rec_age }}+ ) {{/ has_rec_age }}
+              {{^ has_rec_age }} {{ minage }}+ (No Votes) {{/ has_rec_age }}
+            </dd>
           </div>
           <div>
             <dt>Tags</dt>

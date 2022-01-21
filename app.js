@@ -204,6 +204,23 @@ function get_widgets(SETTINGS) {
         ]
       }
     ),
+    "refine_age": panel('Min age')(instantsearch.widgets.numericMenu)(
+      {
+        container: '#facet-age',
+        attribute: 'minage',
+        items: [
+          { label: 'Any age' },
+          { label: '4+', end: 4 },
+          { label: '6+', end: 6 },
+          { label: '8+', end: 8 },
+          { label: '10+', end: 10 },
+          { label: '12+', end: 12 },
+          { label: '14+', end: 14 },
+          { label: '16+', end: 16 }
+          // { label: '18+', start: 18 },
+        ]
+      }
+    ),
     "hits": instantsearch.widgets.hits({
       container: '#hits',
       transformItems: function(items) {
@@ -236,6 +253,8 @@ function get_widgets(SETTINGS) {
           game.tags_str = game.tags.join(", ");
           game.description = game.description.trim();
           game.has_expansions = (game.expansions.length > 0);
+          game.community_rec_age = game.suggested_age.toFixed();
+          game.has_rec_age = game.community_rec_age > 0;
 
           return game;
         });
@@ -323,7 +342,8 @@ function init(SETTINGS) {
     widgets["stats"],
     widgets["pagination"],
     widgets["refine_previousplayers"],
-    widgets["refine_numplays"]
+    widgets["refine_numplays"],
+    widgets["refine_age"]
   ]);
 
   search.start();

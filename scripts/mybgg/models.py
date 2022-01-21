@@ -16,6 +16,8 @@ class BoardGame:
         self.usersrated = self.calc_usersrated(game_data)
         self.numowned = self.calc_numowned(game_data)
         self.rating = self.calc_rating(game_data)
+        self.minage = game_data["min_age"]
+        self.suggested_age = self.calc_suggested_age(game_data)
         self.numplays = numplays
         self.image = image
         self.tags = tags
@@ -98,3 +100,19 @@ class BoardGame:
             5: "Heavy",
         }
         return weight_mapping[round(Decimal(game_data["weight"] or 0))]
+
+    def calc_suggested_age(self, game_data):
+
+        sum = 0
+        total_votes = 0
+        suggested_age = 0
+
+        for player_age in game_data["suggested_playerages"]:
+            count = player_age["numvotes"]
+            sum += int(player_age["age"]) * count
+            total_votes += count
+
+        if total_votes > 0:
+            suggested_age = round(sum / total_votes, 2)
+
+        return suggested_age

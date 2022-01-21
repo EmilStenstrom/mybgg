@@ -196,6 +196,12 @@ class BGGClient:
                 for players in numplayers
             ]
 
+        def age_conversion(_, age_result):
+            return int(age_result[:2])
+
+        def suggested_playerage(_, playerages):
+            return [ages for ages in playerages if ages["numvotes"] > 0]
+
         def log_item(_, item):
             logger.debug("Successfully parsed: {} (id: {}).".format(item["name"], item["id"]))
             return item
@@ -287,6 +293,15 @@ class BGGClient:
                             attribute="value",
                             alias="max_players",
                             required=False,
+                        ),
+                        xml.array(
+                            xml.dictionary("poll[@name='suggested_playerage']/results/result", [
+                                xml.string(".", attribute="value", alias="age",
+                                           hooks=xml.Hooks(after_parse=age_conversion)),
+                                xml.integer(".", attribute="numvotes"),
+                            ], required=False),
+                            alias="suggested_playerages",
+                            hooks=xml.Hooks(after_parse=suggested_playerage),
                         ),
                     ],
                     required=False,
