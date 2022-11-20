@@ -276,6 +276,7 @@ class BGGClient:
                             alias="rating"
                         ),
                         xml.string("playingtime", attribute="value", alias="playing_time"),
+                        xml.string("minage", attribute="value", alias="min_age"),
                     ],
                     required=False,
                     alias="items",

@@ -30,6 +30,7 @@ class Indexer:
                 'players',
                 'weight',
                 'playing_time',
+                'min_age',
                 'searchable(previous_players)',
                 'numplays',
             ],
