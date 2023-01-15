@@ -144,9 +144,16 @@ class BGGClient:
             xml.array(
                 xml.dictionary('item', [
                     xml.integer(".", attribute="objectid", alias="id"),
+                    xml.integer(".", attribute="collid", alias="collection_id"),
                     xml.string("name"),
                     xml.string("thumbnail", required=False, alias="image"),
                     xml.string("version/item/thumbnail", required=False, alias="image_version"),
+                    xml.string("version/item/name",  required=False, alias="version_name"),
+                    xml.integer("version/yearpublished", attribute="value", alias="version_year", required=False),
+                    xml.integer("version/item/link[@type='boardgamepublisher']", attribute="objectid", required=False, alias="publisher_id"),
+                    xml.string("comment", required=False, alias="comment"),
+                    xml.string("wishlistcomment", required=False, alias="wishlist_comment"),
+                    xml.string("status", attribute="lastmodified", alias="last_modified"),
                     xml.dictionary("status", [
                         xml.string(".", attribute="fortrade"),
                         xml.string(".", attribute="own"),
@@ -164,6 +171,7 @@ class BGGClient:
         collection = xml.parse_from_string(game_in_collection_processor, data)
         collection = collection["items"]
         return collection
+
 
     def _games_list_to_games(self, data):
         def numplayers_to_result(_, results):
@@ -196,6 +204,15 @@ class BGGClient:
                 for players in numplayers
             ]
 
+        def age_conversion(_, age_result):
+            return int(age_result[:2])
+
+        def suggested_playerage(_, playerages):
+
+            suggested_ages = [ages for ages in playerages if ages["numvotes"] > 0]
+
+            return suggested_ages
+
         def log_item(_, item):
             logger.debug("Successfully parsed: {} (id: {}).".format(item["name"], item["id"]))
             return item
@@ -207,7 +224,16 @@ class BGGClient:
                     [
                         xml.integer(".", attribute="id"),
                         xml.string(".", attribute="type"),
+                        xml.string("image", required=False),
                         xml.string("name[@type='primary']", attribute="value", alias="name"),
+                        xml.array(
+                            xml.string(
+                                "name",
+                                attribute="value",
+                                required=False
+                            ),
+                            alias="alternate_names"
+                        ),
                         xml.string("description"),
                         xml.array(
                             xml.string(
@@ -216,6 +242,16 @@ class BGGClient:
                                 required=False
                             ),
                             alias="categories",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgamefamily']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name")
+                                ],
+                                required=False
+                            ),
+                            alias="families",
                         ),
                         xml.array(
                             xml.string(
@@ -236,6 +272,82 @@ class BGGClient:
                             alias="expansions",
                         ),
                         xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgamecompilation']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="contained",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgameimplementation']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="reimplements",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgameintegration']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="integrates",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgamedesigner']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="designers",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgameartist']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="artists",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgamepublisher']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.string(".", attribute="value", alias="name"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="publishers",
+                        ),
+                        xml.array(
+                            xml.dictionary(
+                                "link[@type='boardgameaccessory']", [
+                                    xml.integer(".", attribute="id"),
+                                    xml.boolean(".", attribute="inbound", required=False),
+                                ],
+                                required=False
+                            ),
+                            alias="accessories",
+                        ),
+                        xml.array(
                             xml.dictionary("poll[@name='suggested_numplayers']/results", [
                                 xml.string(".", attribute="numplayers"),
                                 xml.array(
@@ -245,7 +357,8 @@ class BGGClient:
                                     ], required=False),
                                     hooks=xml.Hooks(after_parse=numplayers_to_result)
                                 )
-                            ]),
+                            ],
+                            required=False),
                             alias="suggested_numplayers",
                             hooks=xml.Hooks(after_parse=suggested_numplayers),
                         ),
@@ -260,10 +373,24 @@ class BGGClient:
                             required=False,
                             alias="rank"
                         ),
+                        xml.array(
+                            xml.dictionary("statistics/ratings/ranks/rank", [
+                                xml.string(".", attribute="friendlyname"),
+                                xml.string(".", attribute="value"),
+                                xml.string(".", attribute="id"),
+                            ],
+                                required=False),
+                            alias="other_ranks",
+                        ),
                         xml.string(
                             "statistics/ratings/usersrated",
                             attribute="value",
                             alias="usersrated"
+                        ),
+                        xml.string(
+                            "statistics/ratings/average",
+                            attribute="value",
+                            alias="average"
                         ),
                         xml.string(
                             "statistics/ratings/owned",
@@ -275,8 +402,34 @@ class BGGClient:
                             attribute="value",
                             alias="rating"
                         ),
-                        xml.string("playingtime", attribute="value", alias="playing_time"),
-                        xml.string("minage", attribute="value", alias="min_age"),
+                        xml.string("playingtime", attribute="value", alias="playing_time", required=False),
+                        xml.integer("yearpublished", attribute="value", alias="year"),
+                        xml.integer(
+                            "minage",
+                            attribute="value",
+                            alias="min_age",
+                            required=False,
+                        ),
+                        xml.integer(
+                            "minplayers",
+                            attribute="value",
+                            alias="min_players",
+                            required=False,
+                        ),
+                        xml.integer(
+                            "maxplayers",
+                            attribute="value",
+                            alias="max_players",
+                            required=False,
+                        ),
+                        xml.array(
+                            xml.dictionary("poll[@name='suggested_playerage']/results/result", [
+                                        xml.string(".", attribute="value", alias="age", hooks=xml.Hooks(after_parse=age_conversion)),
+                                        xml.integer(".", attribute="numvotes"),
+                                    ], required=False),
+                            alias="suggested_playerages",
+                            hooks=xml.Hooks(after_parse=suggested_playerage),
+                        ),
                     ],
                     required=False,
                     alias="items",
@@ -294,7 +447,7 @@ class CacheBackendSqlite:
             cache_name=path,
             backend="sqlite",
             expire_after=ttl,
-            extension="",
+        # extension="",
             fast_save=True,
             allowable_codes=(200,)
         )

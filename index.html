@@ -5,9 +5,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=0.7">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.1.0/dist/algoliasearch-lite.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.3.1/dist/instantsearch.production.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.1.1/themes/reset-min.css">
+  <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4/dist/algoliasearch-lite.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4/dist/instantsearch.production.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7/themes/reset-min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,700&amp;display=swap">
 </head>
@@ -27,9 +27,14 @@
       <div class="facet" id="facet-weight" tabindex="0"></div>
       <div class="facet" id="facet-categories" tabindex="0"></div>
       <div class="facet" id="facet-mechanics" tabindex="0"></div>
-      <div class="facet" id="facet-min-age" tabindex="0"></div>
+      <!-- <div class="facet" id="facet-min-age" tabindex="0"></div> -->
       <div class="facet" id="facet-previous-players" tabindex="0"></div>
       <div class="facet" id="facet-numplays" tabindex="0"></div>
+      <div class="facet" id="facet-publishers" tabindex="0"></div>
+      <div class="facet" id="facet-designers" tabindex="0"></div>
+      <div class="facet" id="facet-artists" tabindex="0"></div>
+      <div class="facet" id="facet-age" tabindex="0"></div>
+      <div class="facet" id="facet-year" tabindex="0"></div>
       <div class="clear-all" id="clear-all"></div>
     </aside>
     <main class="results">
@@ -51,7 +56,21 @@
             {{# helpers.highlight }}{ "attribute": "name" }{{/ helpers.highlight }}
           </a>
         </h2>
+        {{# version_name }}
+        <h3>
+          <br/>
+          ( {{ version_name }} )
+        </h3>
+        {{/ version_name }}
         <dl class="properties">
+          <div>
+            <dt>BGG Rank</dt>
+            <dd>{{{ rank }}}</dd>
+          </div>
+          <div>
+            <dt>Rating (Users)</dt>
+            <dd>{{ average_str }} ({{ usersrated }}) </dd>
+          </div>
           <div>
             <dt>Players</dt>
             <dd>{{{ players_str }}}</dd>
@@ -62,12 +81,31 @@
           </div>
           <div>
             <dt>Complexity</dt>
-            <dd>{{ weight }}</dd>
+            <dd>{{ weight }} ({{weight_rating}})</dd>
           </div>
           <div>
+            <dt>Age (Community)</dt>
+            <dd>
+              {{# has_rec_age }} {{ min_age }}+ ({{ community_rec_age }}+ ) {{/ has_rec_age }}
+              {{^ has_rec_age }} {{ min_age }}+ (No Votes) {{/ has_rec_age }}
+            </dd>
+          </div>
+          <div>
+            <dt>Year</dt>
+            <dd>{{ year }}</dd>
+          </div>
+          <div>
+            <dt>Other Rankings</dt>
+            <dd>
+              {{#other_ranks }}
+                <li>{{ friendlyname }} #{{ value }}</li>
+              {{/other_ranks }}
+            </dd>
+          </div>
+          <!-- <div>
             <dt>Tags</dt>
             <dd>{{ tags_str }}</dd>
-          </div>
+          </div> -->
           <div>
             <dt>Categories</dt>
             <dd>
@@ -83,8 +121,18 @@
             </dd>
           </div>
           <div>
-            <dt>Min age</dt>
-            <dd>{{ min_age }}</dd>
+            <dt>Family</dt>
+            <dd>
+              {{# families_str }}{{ families_str }}{{/ families_str }}
+              {{^ families_str }}<em>No families</em>{{/ families_str }}
+            </dd>
+          </div>
+          <div>
+            <dt>Designers</dt>
+            <dd>
+              {{# designers }}<a href="https://boardgamegeek.com/boardgamedesigner/{{{ id }}}">{{ name }}</a><br/>{{/ designers }}
+              {{^ designers }}<em>Unknown Designer</em>{{/ designers }}
+            </dd>
           </div>
           {{# has_expansions }}
           <div class="expansions">
@@ -96,7 +144,77 @@
             </ul></dd>
           </div>
           {{/ has_expansions }}
+          {{# has_contained }}
+          <div class="expansions">
+            <dt>Contains</dt>
+            <dd>
+              <ul>
+                {{# contained }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ contained }}
+              </ul>
+            </dd>
+          </div>
+          {{/ has_contained }}
+          {{# has_accessories }}
+          <div class="expansions">
+            <dt>Accessories</dt>
+            <dd>
+              <ul>
+                {{# accessories }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ accessories }}
+              </ul>
+            </dd>
+          </div>
+          {{/ has_accessories }}
+          {{# has_integrates }}
+          <div class="expansions">
+            <dt>Integrates With</dt>
+            <dd>
+              <ul>
+                {{# integrates }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ integrates }}
+              </ul>
+            </dd>
+          </div>
+          {{/ has_integrates }}
+          {{# has_reimplements }}
+          <div class="expansions">
+            <dt>Reimplements</dt>
+            <dd>
+              <ul>
+                {{# reimplements }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ reimplements }}
+              </ul>
+            </dd>
+          </div>
+          {{/ has_reimplements }}
+          {{# has_reimplemented }}
+          <div class="expansions">
+            <dt>Reimplemented By</dt>
+            <dd>
+              <ul>
+                {{# reimplementedby }}
+                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ reimplementedby }}
+              </ul>
+            </dd>
+          </div>
+          {{/ has_reimplemented }}
         </dl>
+        {{# comment }}
+        <p class="description">
+          Comment: {{ comment }}
+        </p>
+        {{/ comment }}
+        {{# wishlist_comment }}
+        <p class="description">
+          Wishlist Comment: {{ wishlist_comment }}
+        </p>
+        {{/ wishlist_comment }}
         <p class="description">
           {{# helpers.highlight }}{ "attribute": "description" }{{/ helpers.highlight }}
         </p>

@@ -9,7 +9,7 @@ Using this project, you can set up your own site for searching and filtering you
 ## Requirements
 
 * [GitHub](https://github.com) account (free). We will serve the site using GitHub Pages.
-* [Boardgamegeek](https://boardgamegeek.com) account (free). We will fetch all your games and game metadata from here.
+* [BoardGameGeek](https://boardgamegeek.com) account (free). We will fetch all your games and game metadata from here.
 * [Algolia](https://algolia.com) account (free). Used for creating and searching with lightning speed.
 * Computer (not free) with Python 3.6+ installed.
 
@@ -21,7 +21,7 @@ Using this project, you can set up your own site for searching and filtering you
       Forking a project is pretty much copying it to your own GitHub account. On the top of this page, to the right, is a button called Fork. Click it and accept all the defaults. You now have a copy of this project you can make changes to.
    </details>
 
-2. **Update the config.json-file** with your account details for Boardgamegeek and Algolia. Commit and push this file to your forked repository.
+2. **Update the config.json-file** with your account details for BoardGameGeek and Algolia. Commit and push this file to your forked repository.
    <details>
       <summary>Details</summary>
 
@@ -59,7 +59,7 @@ Using this project, you can set up your own site for searching and filtering you
       }
       ```
 
-      * Your're all set. If you cloned your project from github, you can commit your change my typing:
+      * You're all set. If you cloned your project from GitHub, you can commit your change by typing:
 
       ```
       git commit -m "Update config.json"
@@ -78,7 +78,7 @@ Using this project, you can set up your own site for searching and filtering you
       * The mybgg project comes with a requirements.txt file, that specifies which version of things it needs. So go to the project, and type the above command there. Everything you need should be installed.
    </details>
 
-4. **Download your games from boardgamegeek and send them to algolia**:<br>
+4. **Download your games from BoardGameGeek and send them to algolia**:<br>
    ```python scripts/download_and_index.py --apikey YOUR_ALGOLIA_ADMIN_API_KEY```
 
    (_Note that this API KEY is NOT the same as the one you put in config.json. Never share your admin api key publicly_)
@@ -88,8 +88,8 @@ Using this project, you can set up your own site for searching and filtering you
 
       * This step requires that you have (at least) Python 3.6 installed. You can download it from https://python.org if you need to.
       * Python could be installed as either "python", or "python3.6". Try the other version if the first doesn't work for you. You'll probably get "Invalid syntax"-errors if you run the script with the wrong version.
-      * The Algolia API key needed here can be found under the "API Keys" menu option, when logged in to Algolias dashboard. Pick the one called "Admin API Key", since this one will need permission to add games to your index. Never share this key publicly, since it can be used to delete your whole search index. Don't commit it to your project!
-      * Running this command might give strange errors from time to time. It seems the boardgamegeek API is somewhat shaking. Just trying to run the command again usually works. If you get other errors, please post an issue here: https://github.com/EmilStenstrom/mybgg/issues
+      * The Algolia API key needed here can be found under the "API Keys" menu option, when logged in to the Algolia dashboard. Pick the one called "Admin API Key", since this one will need permission to add games to your index. Never share this key publicly, since it can be used to delete your whole search index. Don't commit it to your project!
+      * Running this command might give strange errors from time to time. It seems the BoardGameGeek API is somewhat shaky. Just trying to run the command again usually works. If you get other errors, please post an issue here: https://github.com/EmilStenstrom/mybgg/issues
    </details>
 
 5. **Enable GitHub Pages** on your forked repository by going into _Settings ->

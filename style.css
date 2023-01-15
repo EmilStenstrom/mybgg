@@ -197,8 +197,8 @@ body {
                 height: 130px;
             }
                 .game img {
-                    min-height: 100px;
-                    min-width: 100px;
+                    /* min-height: 100px;
+                    min-width: 100px; */
                     max-height: 100%;
                     max-width: 100%;
                     border-radius: 4px;

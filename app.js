@@ -128,13 +128,16 @@ function get_widgets(SETTINGS) {
         {label: 'Name', value: SETTINGS.algolia.index_name},
         {label: 'BGG Rank', value: SETTINGS.algolia.index_name + '_rank_ascending'},
         {label: 'Number of ratings', value: SETTINGS.algolia.index_name + '_numrated_descending'},
-        {label: 'Number of owners', value: SETTINGS.algolia.index_name + '_numowned_descending'}
+        {label: 'Number of owners', value: SETTINGS.algolia.index_name + '_numowned_descending'},
+        {label: 'Last modified date', value: SETTINGS.algolia.index_name + '_lastmod_descending'}
       ]
     }),
     "clear": instantsearch.widgets.clearRefinements({
       container: '#clear-all',
       templates: {
-        resetLabel: 'Clear all'
+        resetLabel({ hasRefinements }, { html }) {
+          return html`<span>${hasRefinements ? 'Clear all' : ''}</span>`;
+        }
       }
     }),
     "refine_categories": panel('Categories')(instantsearch.widgets.refinementList)(
@@ -144,6 +147,8 @@ function get_widgets(SETTINGS) {
         attribute: 'categories',
         operator: 'and',
         showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false
       }
     ),
     "refine_mechanics": panel('Mechanics')(instantsearch.widgets.refinementList)(
@@ -153,6 +158,41 @@ function get_widgets(SETTINGS) {
         attribute: 'mechanics',
         operator: 'and',
         showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false
+      }
+    ),
+    "refine_designers": panel('Designers')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-designers',
+        collapsible: true,
+        attribute: 'designers.name',
+        operator: 'and',
+        showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false
+      }
+    ),
+    "refine_publishers": panel('Publishers')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-publishers',
+        collapsible: true,
+        attribute: 'publishers.name',
+        operator: 'and',
+        showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false
+      }
+    ),
+    "refine_artists": panel('Artists')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-artists',
+        collapsible: true,
+        attribute: 'artists.name',
+        operator: 'and',
+        showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false
       }
     ),
     "refine_players": panel('Number of players')(instantsearch.widgets.hierarchicalMenu)(
@@ -180,22 +220,22 @@ function get_widgets(SETTINGS) {
         sortBy: function(a, b){ return PLAYING_TIME_ORDER.indexOf(a.name) - PLAYING_TIME_ORDER.indexOf(b.name); },
       }
     ),
-    "refine_min_age": panel('Min age')(instantsearch.widgets.numericMenu)(
-      {
-        container: '#facet-min-age',
-        attribute: 'min_age',
-        items: [
-          { label: 'Any age' },
-          { label: '< 5 years', end: 4 },
-          { label: '< 7 years', end: 6 },
-          { label: '< 9 years', end: 8 },
-          { label: '< 11 years', end: 10 },
-          { label: '< 13 years', end: 12 },
-          { label: '< 15 years', end: 14 },
-          { label: '15+', start: 15 },
-        ]
-      }
-    ),
+    // "refine_min_age": panel('Min age')(instantsearch.widgets.numericMenu)(
+    //   {
+    //     container: '#facet-min-age',
+    //     attribute: 'min_age',
+    //     items: [
+    //       { label: 'Any age' },
+    //       { label: '< 5 years', end: 4 },
+    //       { label: '< 7 years', end: 6 },
+    //       { label: '< 9 years', end: 8 },
+    //       { label: '< 11 years', end: 10 },
+    //       { label: '< 13 years', end: 12 },
+    //       { label: '< 15 years', end: 14 },
+    //       { label: '15+', start: 15 },
+    //     ]
+    //   }
+    // ),
     "refine_previousplayers": panel('Previous players')(instantsearch.widgets.refinementList)(
       {
         container: '#facet-previous-players',
@@ -220,6 +260,46 @@ function get_widgets(SETTINGS) {
         ]
       }
     ),
+    "refine_year": panel('Year')(instantsearch.widgets.refinementList)(
+      {
+        container: '#facet-year',
+        collapsible: true,
+        attribute: 'year',
+        operator: 'or',
+        showMore: true,
+        searchable: true,
+        searchableIsAlwaysActive: false,
+        sortBy: function(a, b){ return parseInt(b.name) - parseInt(a.name); },
+      }
+    ),
+    // "refine_age": panel('Min age')(instantsearch.widgets.numericMenu)(
+    //   {
+    //     container: '#facet-age',
+    //     attribute: 'minage',
+    //     items: [
+    //       { label: 'Any age' },
+    //       { label: '4+', end: 4 },
+    //       { label: '6+', end: 6 },
+    //       { label: '8+', end: 8 },
+    //       { label: '10+', end: 10 },
+    //       { label: '12+', end: 12 },
+    //       { label: '14+', end: 14 },
+    //       { label: '16+', end: 16 }
+    //       // { label: '18+', start: 18 },
+    //       // { label: '21+', start: 21 }
+    //     ]
+    //   }
+    // ),
+    "refine_age": panel('Min age')(instantsearch.widgets.rangeSlider)(
+      {
+        container: '#facet-age',
+        attribute: 'min_age',
+        // max: 18,
+        // min: 0,
+        step: 1,
+        pips: false
+      }
+    ),
     "hits": instantsearch.widgets.hits({
       container: '#hits',
       transformItems: function(items) {
@@ -234,9 +314,11 @@ function get_widgets(SETTINGS) {
             num = match[2];
 
             type_callback = {
-              'best': function(num) { return '<strong>' + num + '</strong><span title="Best with">★</span>'; },
+              'best': function(num) { return '<span title="Best with"><strong>' + num + '</strong>★</span>'; },
               'recommended': function(num) { return num; },
-              'expansion': function(num) { return num + '<span title="With expansion">⊕</span>'; },
+              'expansion': function(num) { return '<span title="With expansion">' + num + '⊕</span>'; },
+              'supports': function(num) { return '<span title="Supported"><em>' + num + '~</em></span>'; },
+              'expansionsupport': function(num) { return '<span title="Supported With expansion"><em>' + num + '⊕~</em></span>'; }
             };
             players.push(type_callback[type](num));
 
@@ -244,12 +326,23 @@ function get_widgets(SETTINGS) {
               return;
             }
           });
+
           game.players_str = players.join(", ");
           game.categories_str = game.categories.join(", ");
           game.mechanics_str = game.mechanics.join(", ");
+          game.families_str = game.families.map(e => e.name).join(", ");
           game.tags_str = game.tags.join(", ");
           game.description = game.description.trim();
           game.has_expansions = (game.expansions.length > 0);
+          game.has_accessories = (game.accessories.length > 0);
+          game.has_contained = (game.contained.length > 0);
+          game.has_integrates = (game.integrates.length > 0);
+          game.has_reimplements = (game.reimplements.length > 0);
+          game.has_reimplemented = (game.reimplementedby.length > 0);
+          game.average_str = game.average.toFixed(2);
+          game.community_rec_age = game.suggested_age.toFixed();
+          game.has_rec_age = game.community_rec_age > 0;
+          game.weight_rating = game.weightRating.toFixed(2);
 
           return game;
         });
@@ -307,6 +400,9 @@ function init(SETTINGS) {
     case 'desc(numowned)':
       configIndexName = SETTINGS.algolia.index_name + '_numowned_descending'
       break
+    case 'desc(lastmod)':
+      configIndexName = SETTINGS.algolia.index_name + '_lastmod_descending'
+      break
     default:
       console.error("The provided config value for algolia.sort_by was invalid: " + SETTINGS.algolia.sort_by)
       break;
@@ -333,12 +429,17 @@ function init(SETTINGS) {
     widgets["refine_players"],
     widgets["refine_weight"],
     widgets["refine_playingtime"],
-    widgets["refine_min_age"],
+    widgets["refine_designers"],
+    widgets["refine_publishers"],
+    widgets["refine_artists"],
+    // widgets["refine_min_age"],
+    widgets["refine_age"],
     widgets["hits"],
     widgets["stats"],
     widgets["pagination"],
     widgets["refine_previousplayers"],
-    widgets["refine_numplays"]
+    widgets["refine_numplays"],
+    widgets["refine_year"]
   ]);
 
   search.start();
