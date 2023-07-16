@@ -13,6 +13,7 @@
         "app_id": "72ASVEUMXH",
         "api_key_search_only": "7621119347b3549f55c191c5406c5794",
         "index_name": "mybgg",
-        "hits_per_page": 24
+        "hits_per_page": 48,
+        "sort_by": "asc(name)"
     }
 }
