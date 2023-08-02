@@ -63,7 +63,7 @@ if __name__ == '__main__':
         action='store_true',
         help=(
             "Enable a cache for all BGG calls. This makes script run very "
-            "fast the second time it's run. Bug doesn't fetch new data från BGG."
+            "fast the second time it's run."
         )
     )
     parser.add_argument(
