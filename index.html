@@ -89,11 +89,16 @@
           {{# has_expansions }}
           <div class="expansions">
             <dt>Expansions</dt>
-            <dd><ul>
-              {{# expansions }}
-                <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
-              {{/ expansions }}
-            </ul></dd>
+            <dd>
+              <ul>
+                {{# expansions }}
+                  <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
+                {{/ expansions }}
+              </ul>
+              {{# has_more_expansions }}
+                <a href="{{ has_more_expansions_url }}">... see all expansions</a>
+              {{/ has_more_expansions }}
+            </dd>
           </div>
           {{/ has_expansions }}
         </dl>

@@ -219,6 +219,9 @@ class Indexer:
                 }
                 for expansion in game["expansions"]
             ]
+            # Limit the number of expansions to 10 to keep the size down
+            game["has_more_expansions"] = len(game["expansions"]) > 10
+            game["expansions"] = game["expansions"][:10]
 
             # Make sure description is not too long
             game["description"] = self._prepare_description(game["description"])

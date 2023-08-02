@@ -1,18 +1,19 @@
 {
     "project": {
         "name": "mybgg",
-        "title": ""
+        "title": "Emil's boardgames"
     },
     "boardgamegeek": {
-        "user_name": "YOUR_BGG_USERNAME",
+        "user_name": "todd degani",
         "extra_params": {
             "own": 1
         }
     },
     "algolia": {
-        "app_id": "YOUR_APP_ID",
-        "api_key_search_only": "YOUR_PUBLIC_API_KEY",
-        "index_name": "YOUR_INDEX_NAME",
-        "hits_per_page": 24
+        "app_id": "JS9TM39YJZ",
+        "api_key_search_only": "0afdcd4e518ebd867fa3d2484bbfd0de",
+        "index_name": "mybgg",
+        "hits_per_page": 48,
+        "sort_by": "desc(numrated)"
     }
 }

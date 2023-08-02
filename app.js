@@ -250,6 +250,26 @@ function get_widgets(SETTINGS) {
           game.tags_str = game.tags.join(", ");
           game.description = game.description.trim();
           game.has_expansions = (game.expansions.length > 0);
+          game.has_more_expansions = (game.has_more_expansions);
+
+          if (game.has_more_expansions) {
+            game_prefix = game.name.indexOf(":")? game.name.substring(0, game.name.indexOf(":")) : game.name;
+            expansions_url_data = {
+              searchstr: game_prefix,
+              searchfield: "title",
+              objecttype: "thing",
+              subtype: "boardgameexpansion",
+            };
+            has_more_expansions_url = (
+              "https://boardgamegeek.com/collection/user/" +
+              encodeURIComponent(SETTINGS.boardgamegeek.user_name) +
+              "?" +
+              (Object.keys(expansions_url_data).map(function(key){
+                return key + "=" + expansions_url_data[key];
+              })).join("&")  // Don't encode game_prefix, because bgg redirects indefinately then...
+            );
+            game.has_more_expansions_url = has_more_expansions_url;
+          }
 
           return game;
         });
