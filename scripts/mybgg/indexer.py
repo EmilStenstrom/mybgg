@@ -210,7 +210,6 @@ class Indexer:
             attribute_map = {
                 "id": lambda x: x,
                 "name": lambda x: self._remove_game_name_prefix(x, game["name"]),
-                "players": lambda x: x or None,
             }
             game["expansions"] = [
                 {
