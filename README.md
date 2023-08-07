@@ -59,7 +59,7 @@ Using this project, you can set up your own site for searching and filtering you
       }
       ```
 
-      * Your're all set. If you cloned your project from github, you can commit your change my typing:
+      * Your're all set. If you cloned your project from github, you can commit your change by typing:
 
       ```
       git commit -m "Update config.json"
