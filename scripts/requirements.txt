@@ -4,7 +4,7 @@
 #
 #    pip-compile scripts/requirements.in
 #
-algoliasearch==2.4.0
+algoliasearch==3.0.0
     # via -r requirements.in
 attrs==23.2.0
     # via
