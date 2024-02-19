@@ -30,7 +30,7 @@ requests==2.31.0
     # via
     #   algoliasearch
     #   requests-cache
-requests-cache==1.1.1
+requests-cache==1.2.0
     # via -r requirements.in
 six==1.16.0
     # via url-normalize
