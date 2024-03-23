@@ -31,4 +31,4 @@ jobs:
         APIKEY: ${{secrets.APIKEY}}
       if: env.APIKEY != null
       run: |
-        python scripts/download_and_index.py --apikey ${{env.APIKEY}}
+        python scripts/download_and_index.py --apikey ${{env.APIKEY}} --debug
