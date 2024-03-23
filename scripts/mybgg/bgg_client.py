@@ -84,8 +84,8 @@ class BGGClient:
                     time.sleep(5)
                     return self._make_request(url, params=params, tries=tries + 1)
 
-            # Handle 504 Gateway Timeout
-            if response.status_code == 540:
+            # Handle 504 Gateway Timeout and 502 Bad Gateway
+            if response.status_code in (540, 502):
                 if tries < 3:
                     time.sleep(2)
                     return self._make_request(url, params=params, tries=tries + 1)
