@@ -22,7 +22,7 @@ declxml==1.1.3
     # via -r requirements.in
 idna==2.10
     # via requests
-pillow==10.2.0
+pillow==10.3.0
     # via colorgram-py
 platformdirs==4.1.0
     # via requests-cache
