@@ -63,43 +63,29 @@ class BGGClient:
         return games
 
     def _make_request(self, url, params={}, tries=0):
-
         try:
             response = self.requester.get(BGGClient.BASE_URL + url, params=params)
-        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
+            response.raise_for_status()  # This will raise an exception for 4xx and 5xx status codes
+        except (
+            requests.exceptions.HTTPError,
+            requests.exceptions.ConnectionError,
+            requests.exceptions.ChunkedEncodingError
+        ):
             if tries < 3:
                 time.sleep(2)
                 return self._make_request(url, params=params, tries=tries + 1)
-
-            raise BGGException("BGG API closed the connection prematurely, please try again...")
+            else:
+                raise BGGException("BGG API closed the connection prematurely, please try again...")
+        except requests.exceptions.TooManyRequests:
+            if tries < 3:
+                logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
+                time.sleep(30)
+                return self._make_request(url, params=params, tries=tries + 1)
+            else:
+                raise BGGException(f"BGG returned status code {response.status_code} when requesting {response.url}")
 
         logger.debug("REQUEST: " + response.url)
         logger.debug("RESPONSE: \n" + prettify_if_xml(response.text))
-
-        if response.status_code != 200:
-
-            # Handle 202 Accepted
-            if response.status_code == 202:
-                if tries < 10:
-                    time.sleep(5)
-                    return self._make_request(url, params=params, tries=tries + 1)
-
-            # Handle 504 Gateway Timeout and 502 Bad Gateway
-            if response.status_code in (540, 502):
-                if tries < 3:
-                    time.sleep(2)
-                    return self._make_request(url, params=params, tries=tries + 1)
-
-            # Handle 429 Too Many Requests
-            if response.status_code == 429:
-                if tries < 3:
-                    logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
-                    time.sleep(30)
-                    return self._make_request(url, params=params, tries=tries + 1)
-
-            raise BGGException(
-                f"BGG returned status code {response.status_code} when requesting {response.url}"
-            )
 
         tree = fromstring(response.text)
         if tree.tag == "errors":
