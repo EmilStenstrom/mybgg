@@ -26,7 +26,7 @@ pillow==10.3.0
     # via colorgram-py
 platformdirs==4.1.0
     # via requests-cache
-requests==2.31.0
+requests==2.32.0
     # via
     #   algoliasearch
     #   requests-cache
