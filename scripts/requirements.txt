@@ -38,7 +38,7 @@ typing==3.7.4.3
     # via declxml
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.18
+urllib3==1.26.19
     # via
     #   requests
     #   requests-cache
