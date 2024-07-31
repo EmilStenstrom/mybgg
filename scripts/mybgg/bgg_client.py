@@ -56,7 +56,7 @@ class BGGClient:
                 yield iterable[i:i + n]
 
         games = []
-        for game_ids_subset in chunks(game_ids, 100):
+        for game_ids_subset in chunks(game_ids, 20):
             url = "/thing/?stats=1&id=" + ",".join([str(id_) for id_ in game_ids_subset])
             data = self._make_request(url)
             games += self._games_list_to_games(data)
