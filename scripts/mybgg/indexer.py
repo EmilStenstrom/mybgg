@@ -4,7 +4,7 @@ import time
 
 import colorgram
 import requests
-from algoliasearch.search_client import SearchClient
+from algoliasearch.search.client import SearchClient
 from PIL import Image, ImageFile
 
 # Allow colorgram to read truncated files
