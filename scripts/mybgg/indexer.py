@@ -154,10 +154,11 @@ class Indexer:
     def fetch_image(self, url, tries=0):
         try:
             response = requests.get(url)
-        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError):
+        except (requests.exceptions.ConnectionError, requests.exceptions.ChunkedEncodingError) as e:
             if tries < 3:
                 time.sleep(2)
                 return self.fetch_image(url, tries=tries + 1)
+            raise e
 
         if response.status_code == 200:
             return response.content
