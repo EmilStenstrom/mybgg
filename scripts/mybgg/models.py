@@ -93,3 +93,27 @@ class BoardGame:
             5: "Heavy",
         }
         return weight_mapping[round(Decimal(game_data["weight"] or 0))]
+
+    def todict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "categories": self.categories,
+            "mechanics": self.mechanics,
+            "players": self.players,
+            "weight": self.weight,
+            "playing_time": self.playing_time,
+            "min_age": self.min_age,
+            "rank": self.rank,
+            "usersrated": self.usersrated,
+            "numowned": self.numowned,
+            "rating": self.rating,
+            "numplays": self.numplays,
+            "image": self.image,
+            "tags": self.tags,
+            "previous_players": self.previous_players,
+            "expansions": self.expansions,
+            # Add the color field, ensuring it's handled if not present
+            "color": getattr(self, 'color', None)
+        }

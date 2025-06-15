@@ -5,7 +5,14 @@ import logging
 import os
 from typing import List, Dict, Any
 from .models import BoardGame
+import io
+import time # Added for fetch_image retry
+import colorgram
+import requests
+from PIL import Image, ImageFile
 
+# Allow colorgram to read truncated files
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +54,7 @@ class SqliteIndexer:
                 tags TEXT,        -- JSON array
                 previous_players TEXT,  -- JSON array
                 expansions TEXT,  -- JSON array
-                colors TEXT       -- JSON array for image colors
+                color TEXT       -- Changed from colors to color (singular)
             )
         ''')
 
@@ -66,6 +73,21 @@ class SqliteIndexer:
         conn.close()
         logger.info(f"Initialized SQLite database: {self.db_path}")
 
+    def fetch_image(self, url, tries=0): # Copied from indexer.py
+        try:
+            response = requests.get(url)
+            response.raise_for_status() # Raise an exception for bad status codes
+        except (requests.exceptions.RequestException, requests.exceptions.ChunkedEncodingError) as e:
+            logger.warning(f"Failed to fetch image {url} (try {tries + 1}): {e}")
+            if tries < 2: # Max 3 tries (0, 1, 2)
+                time.sleep(2)
+                return self.fetch_image(url, tries=tries + 1)
+            return None # Return None after max retries
+
+        if response.status_code == 200:
+            return response.content
+        return None
+
     def add_objects(self, collection: List[BoardGame]):
         """Add BoardGame objects to the SQLite database."""
         conn = sqlite3.connect(self.db_path)
@@ -74,68 +96,116 @@ class SqliteIndexer:
         # Clear existing data
         cursor.execute('DELETE FROM games')
 
-        for game in collection:
-            # Convert complex fields to JSON strings
-            categories_json = json.dumps(game.categories)
-            mechanics_json = json.dumps(game.mechanics)
-            players_json = json.dumps(game.players)
-            tags_json = json.dumps(game.tags)
-            previous_players_json = json.dumps(game.previous_players)
-            expansions_json = json.dumps([self._expansion_to_dict(exp) for exp in game.expansions])
+        for game_obj in collection: # Renamed game to game_obj to avoid conflict with game dict
+            game = game_obj.todict() # Convert BoardGame object to dictionary
 
-            # Extract colors from image (simplified - you may want to implement color extraction)
-            colors_json = json.dumps([])  # Placeholder for now
+            # Convert complex fields to JSON strings
+            categories_json = json.dumps(game.get('categories', []))
+            mechanics_json = json.dumps(game.get('mechanics', []))
+            players_json = json.dumps(game.get('players', []))
+            tags_json = json.dumps(game.get('tags', []))
+            previous_players_json = json.dumps(game.get('previous_players', []))
+            expansions_list = game.get('expansions', [])
+            expansions_json = json.dumps([self._expansion_to_dict(exp) for exp in expansions_list if exp])
+
+
+            color_str = None
+            if game.get("image"):
+                image_data = self.fetch_image(game["image"])
+                if image_data:
+                    try:
+                        pil_image = Image.open(io.BytesIO(image_data)).convert('RGBA')
+                        num_colors_to_try = 10
+                        extracted_colors = colorgram.extract(pil_image, num_colors_to_try)
+
+                        if extracted_colors:
+                            selected_color_rgb = None
+                            for i in range(min(num_colors_to_try, len(extracted_colors))):
+                                c = extracted_colors[i].rgb
+                                luma = (
+                                    0.2126 * c.r / 255.0 +
+                                    0.7152 * c.g / 255.0 +
+                                    0.0722 * c.b / 255.0
+                                )
+                                if 0.2 < luma < 0.8:  # Not too dark, not too light
+                                    selected_color_rgb = c
+                                    break
+
+                            if not selected_color_rgb: # Fallback to the first color
+                                selected_color_rgb = extracted_colors[0].rgb
+
+                            color_str = f"{selected_color_rgb.r}, {selected_color_rgb.g}, {selected_color_rgb.b}"
+                        else:
+                            logger.warning(f"Colorgram could not extract colors for image: {game['image']}")
+                    except Exception as e:
+                        logger.error(f"Error processing image for color extraction {game['image']}: {e}")
+
+            if not color_str: # Default color if extraction fails or no image
+                color_str = "255, 255, 255" # White
 
             cursor.execute('''
                 INSERT INTO games (
                     id, name, description, categories, mechanics, players,
                     weight, playing_time, min_age, rank, usersrated, numowned,
-                    rating, numplays, image, tags, previous_players, expansions, colors
+                    rating, numplays, image, tags, previous_players, expansions, color
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
-                game.id, game.name, game.description, categories_json, mechanics_json,
-                players_json, str(game.weight) if game.weight is not None else None, game.playing_time, game.min_age,
-                str(game.rank) if game.rank is not None else None,
-                str(game.usersrated) if game.usersrated is not None else None,
-                str(game.numowned) if game.numowned is not None else None,
-                str(game.rating) if game.rating is not None else None,
-                game.numplays, game.image, tags_json, previous_players_json,
-                expansions_json, colors_json
+                game.get('id'), game.get('name'), game.get('description'), categories_json, mechanics_json,
+                players_json, str(game.get('weight')) if game.get('weight') is not None else None,
+                game.get('playing_time'), game.get('min_age'),
+                str(game.get('rank')) if game.get('rank') is not None else None,
+                str(game.get('usersrated')) if game.get('usersrated') is not None else None,
+                str(game.get('numowned')) if game.get('numowned') is not None else None,
+                str(game.get('rating')) if game.get('rating') is not None else None,
+                game.get('numplays'), game.get('image'), tags_json, previous_players_json,
+                expansions_json, color_str
             ))
         conn.commit()
         conn.close()
         logger.info(f"Added {len(collection)} games to SQLite database")
 
-        # Create gzipped version
+        # Create gzipped version and remove the original .sqlite file
         self._create_gzipped_version()
-
-    def _expansion_to_dict(self, expansion) -> Dict[str, Any]:
-        """Convert expansion object to dictionary for JSON serialization."""
-        if hasattr(expansion, '__dict__'):
-            return {
-                'id': getattr(expansion, 'id', None),
-                'name': getattr(expansion, 'name', ''),
-                'players': getattr(expansion, 'players', []),
-                # Add other expansion fields as needed
-            }
-        return {}
+        if os.path.exists(self.db_path):
+            os.remove(self.db_path)
+            logger.info(f"Removed uncompressed database: {self.db_path}")
 
     def _create_gzipped_version(self):
         """Create a gzipped version of the SQLite database."""
-        with open(self.db_path, 'rb') as f_in:
-            with gzip.open(self.db_path_gz, 'wb') as f_out:
-                f_out.writelines(f_in)
+        if not os.path.exists(self.db_path):
+            logger.error(f"Database file {self.db_path} does not exist. Cannot create gzipped version.")
+            return
 
-        # Get file sizes for logging
-        original_size = os.path.getsize(self.db_path)
-        compressed_size = os.path.getsize(self.db_path_gz)
-        compression_ratio = (1 - compressed_size / original_size) * 100
+        try:
+            with open(self.db_path, 'rb') as f_in,\
+                 gzip.open(self.db_path_gz, 'wb') as f_out:
+                f_out.write(f_in.read())
+            logger.info(f"Created gzipped database: {self.db_path_gz}")
+        except Exception as e:
+            logger.error(f"Error creating gzipped database: {e}")
 
-        logger.info(f"Created gzipped database: {self.db_path_gz}")
-        logger.info(f"Original size: {original_size:,} bytes")
-        logger.info(f"Compressed size: {compressed_size:,} bytes")
-        logger.info(f"Compression ratio: {compression_ratio:.1f}%")
-
-    def delete_objects_not_in(self, collection: List[BoardGame]):
-        """This method is not needed for SQLite since we replace all data each time."""
-        pass
+    def _expansion_to_dict(self, expansion) -> Dict[str, Any]:
+        """Convert expansion object to dictionary for JSON serialization."""
+        # Ensure expansion is a dict or can be converted
+        if isinstance(expansion, dict):
+            return {
+                'id': expansion.get('id'),
+                'name': expansion.get('name', ''),
+                'players': expansion.get('players', []),
+            }
+        if hasattr(expansion, 'todict'): # If it\'s an object with todict method
+             exp_dict = expansion.todict()
+             return {
+                'id': exp_dict.get('id'),
+                'name': exp_dict.get('name', ''),
+                'players': exp_dict.get('players', []),
+            }
+        if hasattr(expansion, '__dict__'): # Fallback for simple objects
+            exp_vars = vars(expansion)
+            return {
+                'id': exp_vars.get('id'),
+                'name': exp_vars.get('name', ''),
+                'players': exp_vars.get('players', []),
+            }
+        logger.warning(f"Cannot convert expansion to dict: {expansion}")
+        return {}

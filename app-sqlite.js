@@ -65,7 +65,7 @@ function loadAllGames() {
   const stmt = db.prepare(`
     SELECT id, name, description, categories, mechanics, players, weight,
            playing_time, min_age, rank, usersrated, numowned, rating,
-           numplays, image, tags, previous_players, expansions
+           numplays, image, tags, previous_players, expansions, color
     FROM games
     ORDER BY name
   `);
@@ -223,24 +223,24 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
   if (!container) return;
 
   // Use <details> and <summary> for collapse/expand
+  // Refactored class names: facet-group -> filter-dropdown, panel-body -> filter-dropdown-content
+  // Removed .panel-container wrapper
   container.outerHTML = `
-    <details class="facet-group" id="${facetId}">
+    <details class="filter-dropdown" id="${facetId}">
       <summary>${title}</summary>
-      <div class="panel-container"> <!-- ADDED WRAPPER -->
-        <div class="panel-body">
-          ${items.map(item => {
-            const value = typeof item === 'object' ? `${item.min}-${item.max}` : item;
-            const label = typeof item === 'object' ? item.label : item;
-            const checked = (isRadio && (typeof item === 'object' ? item.default : false)) ? 'checked' : '';
-            const inputType = isRadio ? 'radio' : 'checkbox';
-            return `
-              <label class="filter-item">
-                <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
-                <span>${label}</span>
-              </label>
-            `;
-          }).join('')}
-        </div>
+      <div class="filter-dropdown-content">
+        ${items.map(item => {
+          const value = typeof item === 'object' ? `${item.min}-${item.max}` : item;
+          const label = typeof item === 'object' ? item.label : item;
+          const checked = (isRadio && (typeof item === 'object' ? item.default : false)) ? 'checked' : '';
+          const inputType = isRadio ? 'radio' : 'checkbox';
+          return `
+            <label class="filter-item">
+              <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
+              <span>${label}</span>
+            </label>
+          `;
+        }).join('')}
       </div>
     </details>
   `;
@@ -260,27 +260,27 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 
     // JavaScript to handle overlay positioning for this specific filter when opened
     newContainer.addEventListener('toggle', function(event) {
-      const panelBody = this.querySelector('.panel-body');
+      const dropdownContent = this.querySelector('.filter-dropdown-content'); // Changed from .panel-body
       const summaryElement = this.querySelector('summary');
-      if (!panelBody || !summaryElement) return;
+      if (!dropdownContent || !summaryElement) return;
 
       if (this.open) {
         // Position the dropdown as fixed below the summary
         const rect = summaryElement.getBoundingClientRect();
-        panelBody.style.position = 'fixed';
-        panelBody.style.top = `${rect.bottom}px`;
-        panelBody.style.left = `${rect.left}px`;
-        panelBody.style.zIndex = '1050';
-        panelBody.style.minWidth = `${rect.width}px`;
-        panelBody.style.display = 'flex';
+        dropdownContent.style.position = 'fixed';
+        dropdownContent.style.top = `${rect.bottom}px`;
+        dropdownContent.style.left = `${rect.left}px`;
+        dropdownContent.style.zIndex = '1050';
+        dropdownContent.style.minWidth = `${rect.width}px`;
+        dropdownContent.style.display = 'flex'; // Keep flex for column layout if needed
       } else {
         // Restore default styles
-        panelBody.style.position = '';
-        panelBody.style.top = '';
-        panelBody.style.left = '';
-        panelBody.style.zIndex = '';
-        panelBody.style.minWidth = '';
-        panelBody.style.display = '';
+        dropdownContent.style.position = '';
+        dropdownContent.style.top = '';
+        dropdownContent.style.left = '';
+        dropdownContent.style.zIndex = '';
+        dropdownContent.style.minWidth = '';
+        dropdownContent.style.display = ''; // Revert to default (or 'none' if that was the original closed state)
       }
     });
 
@@ -486,12 +486,12 @@ function updateResults() {
 }
 
 function renderGameCard(game) {
+  // Refactored: game-wrapper -> game-card. Removed div.game, summary will handle image layout.
+  // The game.color field will be used by on_render to set the background.
   return `
-    <details class="game-wrapper">
+    <details class="game-card" data-color="${game.color || '255,255,255'}">
       <summary>
-        <div class="game">
-          <img src="${game.image}" alt="${game.name}" data-maincolor="128,128,128">
-        </div>
+        <img src="${game.image}" alt="${game.name}">
       </summary>
       <div class="game-details">
         <h2 class="heading">
@@ -553,12 +553,11 @@ function updateStats() {
   const totalGames = filteredGames.length;
   const totalAllGames = allGames.length;
 
-  let statsText = `${totalGames.toLocaleString()} games`;
+  let statsText = `${totalGames.toLocaleString()}`;
   if (totalGames !== totalAllGames) {
     statsText += ` of ${totalAllGames.toLocaleString()}`;
   }
-
-  statsContainer.textContent = statsText;
+  statsContainer.textContent = `${statsText} games`;
 }
 
 function updatePagination() {
@@ -627,18 +626,15 @@ function debounce(func, wait) {
 // Event handlers for collapsible panels
 function on_render() {
   // Apply background colors based on image (simplified version)
-  const hits = document.querySelectorAll(".game img");
-  hits.forEach(function(img) {
-    const gameWrapper = img.closest('.game-wrapper');
-    if (gameWrapper) {
-      const color = img.getAttribute("data-maincolor") || "128,128,128";
-      gameWrapper.style.background = `rgba(${color}, 0.1)`;
-    }
+  // Refactored: .game img -> .game-card > summary img, .game-wrapper -> .game-card
+  const gameCards = document.querySelectorAll(".game-card");
+  gameCards.forEach(function(card) {
+    const color = card.getAttribute("data-color") || "255,255,255"; // Default to white if no color
+    card.style.backgroundColor = `rgba(${color}, 0.5)`; // Apply to game-card itself
   });
 
   // Setup collapsible details
   setupGameDetails();
-  setupPanelToggles();
 }
 
 function setupGameDetails() {
@@ -676,20 +672,6 @@ function setupGameDetails() {
 
     elem.addEventListener("click", function(event) {
       event.stopPropagation();
-    });
-  });
-}
-
-function setupPanelToggles() {
-  const toggles = document.querySelectorAll('.panel-toggle');
-  toggles.forEach(toggle => {
-    toggle.addEventListener('click', function() {
-      const panel = this.closest('.panel');
-      const body = panel.querySelector('.panel-body');
-      const isCollapsed = body.style.display === 'none';
-
-      body.style.display = isCollapsed ? 'block' : 'none';
-      this.textContent = isCollapsed ? '−' : '+';
     });
   });
 }
