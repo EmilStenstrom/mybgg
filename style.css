@@ -42,6 +42,7 @@ details > summary:first-of-type {
 body {
     margin: 0;
     padding: 0;
+    position: relative; /* Added for overlay positioning context */
 }
 .search {
     background: #F1F5F8;
@@ -51,19 +52,89 @@ body {
 }
 .wrapper {
     padding: 1em;
+    position: relative; /* Added for z-index stacking */
 }
     .facets {
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: flex-start; /* Align items to the top */
         padding-bottom: 1em;
-        overflow: auto;
+        overflow-x: auto; /* Allow horizontal scrolling for collapsed filters */
+        overflow-y: visible; /* Allow expanded content to show */
         scrollbar-width: none; /* Hide scrollbar i Fx */
+        position: relative; /* For z-index stacking context */
+        z-index: 10; /* Ensure filters can overlay results */
+        flex-wrap: nowrap; /* Prevent wrapping of filter groups */
+        background-color: #F8FAFC; /* Match body background */
+        padding-top: 0.5em; /* Add some space above */
     }
-        .facets > * {
-            padding-right: 2em;
+        .facets > details { /* Target details elements directly */
+            margin-right: 1em; /* Spacing between filter groups */
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff; /* Background for the summary part */
+            position: relative; /* For absolute dropdown positioning */
+            padding: 0; /* Ensure no padding on the details element itself that could change on open */
         }
 
+        .facets > details summary {
+            padding: 0.5em 1em; /* Padding for the text within the summary */
+            cursor: pointer;
+            font-weight: bold;
+            list-style: none; /* Remove default marker */
+            border: none; /* Ensure no border is added to summary on open/close */
+            margin: 0; /* Ensure no margin is added to summary on open/close */
+        }
+
+        .facets > details summary::-webkit-details-marker {
+            display: none; /* Hide default marker in WebKit */
+        }
+
+        /* .facets > details[open] {
+            /* The <details> element itself should not be absolutely positioned.
+               It remains in the flow. Styles here could affect the summary when open, if needed.
+               For example, to ensure its summary part stays above other elements if there's overlap before panel opens. */
+            /* z-index: 50; /* Example, if needed for summary stacking context */
+        /* } */
+
+        /* .facets > details[open] summary {
+            /* Optional: style for summary when details is open, e.g., different background or border */
+            /* border-bottom: 1px solid #eee; */
+        /* } */
+
+        /* NEW/MODIFIED: Styles for the .panel-body when its parent <details> is open */
+        .facets > details[open] > .panel-container > .panel-body,
+        .facets > details[open] > .panel-body {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 250px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1050;
+            padding: 1em;
+        }
+
+        .facets > details[open] > .panel-container > .panel-body.panel-body-visible {
+            visibility: visible; /* Make visible after JS positions it */
+        }
+
+        /* NEW: Styles for the panel-container when details is open */
+        /* This rule is mostly for conceptual clarity, JS handles the direct styling for fixed positioning */
+        /* .facets > details[open] > .panel-container {
+            /* display: block; /* JS will set this */
+            /* position: fixed; /* JS will set this */
+            /* z-index: 1050; /* JS will set this */
+            /* No specific background or border here, those are on panel-body */
+        /* } */
+
+        .facets > details .panel-body { /* Existing rule for panel-body default state */
+            display: flex;
+            flex-direction: column;
+        }
 
 /* Components */
 .logo {
@@ -160,7 +231,7 @@ body {
         opacity: 1;
     }
 
-.hits {}
+
     .hits:after {
         clear: both;
         content: "";
@@ -270,7 +341,7 @@ body {
 .facets .heading {
     margin-top: 0;
 }
-.facets .clear-all {}
+
     .ais-ClearRefinements-button {
         background: #b71c1c;
         color: white;
@@ -282,7 +353,7 @@ body {
         display: none;
     }
 
-.facet {}
+
     .facet .ais-Panel-header {
         white-space: nowrap;
     }
@@ -359,3 +430,196 @@ body {
         font-weight: bold;
         border: 2px solid #b71c1c;
     }
+
+/* SQLite-specific styles */
+.loading {
+    text-align: center;
+    padding: 2em;
+    font-size: 1.2em;
+    color: #888;
+}
+
+.error {
+    text-align: center;
+    padding: 2em;
+    color: #d32f2f;
+    background: #ffeaea;
+    border: 1px solid #ffcdd2;
+    border-radius: 4px;
+    margin: 1em;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2em;
+    color: #888;
+    font-style: italic;
+}
+
+/* Panel styles for filters */
+.panel {
+    margin-bottom: 1em;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.5em 0;
+}
+
+.panel-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-body {
+    display: block;
+}
+
+.filter-item {
+    display: block;
+    padding: 0.3em 0;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.filter-item input {
+    margin-right: 0.5em;
+}
+
+.filter-item:hover {
+    background: rgba(183, 28, 28, 0.05);
+}
+
+/* Search input styling */
+#search-input {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+/* Sort select styling */
+#sort-select {
+    padding: 0.3em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+/* Clear button styling */
+.clear-button {
+    background: #b71c1c;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    width: 100%;
+}
+
+.clear-button:hover {
+    background: #8e0000;
+}
+
+/* Pagination styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    margin: 2em 0;
+    flex-wrap: wrap;
+}
+
+.pagination button {
+    padding: 0.5em 0.8em;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.pagination button:hover {
+    background: #f5f5f5;
+}
+
+.pagination button.current {
+    background: #b71c1c;
+    color: white;
+    border-color: #b71c1c;
+}
+
+.pagination span {
+    padding: 0.5em;
+    color: #888;
+}
+
+/* Highlight search terms */
+.highlight {
+    background: yellow;
+    font-weight: bold;
+}
+
+/* Game metadata styling */
+.metadata {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+}
+
+.metadata div {
+    margin-bottom: 0.3em;
+    font-size: 0.9em;
+}
+
+.metadata strong {
+    color: #333;
+    margin-right: 0.5em;
+}
+
+/* Game grid styling */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5em;
+  margin: 0 auto;
+  padding: 1em 0;
+}
+
+.game-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 0.5em;
+  transition: box-shadow 0.2s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.game-wrapper:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+.game img {
+  max-width: 100%;
+  max-height: 180px;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}

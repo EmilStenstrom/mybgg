@@ -5,11 +5,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=0.7">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.1.0/dist/algoliasearch-lite.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.3.1/dist/instantsearch.production.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@7.1.1/themes/reset-min.css">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,700&amp;display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
 </head>
 <body>
   <header class="search">
@@ -18,7 +17,7 @@
     <label>Sort by:</label>
     <div class="sort-by" id="sort-by"></div>
     <div class="stats" id="stats"></div>
-    <a class="ref" href="https://www.algolia.com"><img src="search-by-algolia.png" width="130" height="18"></a>
+    <div class="ref">Powered by SQLite</div>
   </header>
   <article class="wrapper">
     <aside class="facets">
@@ -33,82 +32,13 @@
       <div class="clear-all" id="clear-all"></div>
     </aside>
     <main class="results">
-      <div class="hits" id="hits"></div>
+      <div class="hits" id="hits">
+        <div class="loading">Loading database...</div>
+      </div>
       <div id="pagination"></div>
     </main>
   </article>
 
-  <script type="text/html" id="hits-template">
-    <details class="game-wrapper">
-      <summary>
-        <div class="game">
-          <img src="{{{ image }}}" data-maincolor="{{{ color }}}" alt="{{{ name }}}">
-        </div>
-      </summary>
-      <div class="game-details">
-        <h2 class="heading">
-          <a href="https://boardgamegeek.com/boardgame/{{{ id }}}">
-            {{# helpers.highlight }}{ "attribute": "name" }{{/ helpers.highlight }}
-          </a>
-        </h2>
-        <dl class="properties">
-          <div>
-            <dt>Players</dt>
-            <dd>{{{ players_str }}}</dd>
-          </div>
-          <div>
-            <dt>Playing time</dt>
-            <dd>{{ playing_time }}</dd>
-          </div>
-          <div>
-            <dt>Complexity</dt>
-            <dd>{{ weight }}</dd>
-          </div>
-          <div>
-            <dt>Tags</dt>
-            <dd>{{ tags_str }}</dd>
-          </div>
-          <div>
-            <dt>Categories</dt>
-            <dd>
-              {{# categories_str }}{{ categories_str }}{{/ categories_str }}
-              {{^ categories_str}}<em>No categories</em>{{/ categories_str }}
-            </dd>
-          </div>
-          <div>
-            <dt>Mechanics</dt>
-            <dd>
-              {{# mechanics_str }}{{ mechanics_str }}{{/ mechanics_str }}
-              {{^ mechanics_str}}<em>No mechanics</em>{{/ mechanics_str }}
-            </dd>
-          </div>
-          <div>
-            <dt>Min age</dt>
-            <dd>{{ min_age }}</dd>
-          </div>
-          {{# has_expansions }}
-          <div class="expansions">
-            <dt>Expansions</dt>
-            <dd>
-              <ul>
-                {{# expansions }}
-                  <li><a href="https://boardgamegeek.com/boardgame/{{{ id }}}">{{ name }}</a></li>
-                {{/ expansions }}
-              </ul>
-              {{# has_more_expansions }}
-                <a href="{{ has_more_expansions_url }}">... see all expansions</a>
-              {{/ has_more_expansions }}
-            </dd>
-          </div>
-          {{/ has_expansions }}
-        </dl>
-        <p class="description">
-          {{# helpers.highlight }}{ "attribute": "description" }{{/ helpers.highlight }}
-        </p>
-      </div>
-    </details>
-  </script>
-
-  <script src="app.js"></script>
+  <script src="app-sqlite.js"></script>
 </body>
 </html>

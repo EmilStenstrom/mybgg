@@ -1,8 +1,9 @@
-import os
 import json
+import sys
 
 from mybgg.downloader import Downloader
-from mybgg.indexer import Indexer
+from mybgg.sqlite_indexer import SqliteIndexer
+from mybgg.github_integration import setup_github_integration
 from setup_logging import setup_logging
 
 def main(args):
@@ -17,6 +18,16 @@ def main(args):
         user_name=SETTINGS["boardgamegeek"]["user_name"],
         extra_params=SETTINGS["boardgamegeek"]["extra_params"],
     )
+
+    # Deduplicate collection based on game ID
+    seen_ids = set()
+    unique_collection = []
+    for game in collection:
+        if game.id not in seen_ids:
+            unique_collection.append(game)
+            seen_ids.add(game.id)
+    collection = unique_collection
+
     num_games = len(collection)
     num_expansions = sum([len(game.expansions) for game in collection])
     print(f"Imported {num_games} games and {num_expansions} expansions from boardgamegeek.")
@@ -24,20 +35,30 @@ def main(args):
     if not len(collection):
         assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
 
-    if not args.no_indexing:
-        hits_per_page = SETTINGS["algolia"].get("hits_per_page", 48)
-        indexer = Indexer(
-            app_id=SETTINGS["algolia"]["app_id"],
-            apikey=args.apikey,
-            index_name=SETTINGS["algolia"]["index_name"],
-            hits_per_page=hits_per_page,
-        )
-        indexer.add_objects(collection)
-        indexer.delete_objects_not_in(collection)
+    # Create SQLite database
+    sqlite_path = "mybgg.sqlite"
+    indexer = SqliteIndexer(sqlite_path)
+    indexer.add_objects(collection)
+    print(f"Created SQLite database with {num_games} games and {num_expansions} expansions.")
 
-        print(f"Indexed {num_games} games and {num_expansions} expansions in algolia, and removed everything else.")
+    # Upload to GitHub if not disabled
+    if not args.no_upload:
+        try:
+            github_manager = setup_github_integration(SETTINGS)
+
+            # Upload the gzipped SQLite file
+            gzip_path = f"{sqlite_path}.gz"
+            snapshot_tag = SETTINGS["github"].get("snapshot_tag", "snapshot")
+            asset_name = SETTINGS["github"].get("snapshot_asset", "mybgg.sqlite.gz")
+
+            download_url = github_manager.upload_snapshot(gzip_path, snapshot_tag, asset_name)
+            print(f"Successfully uploaded to GitHub: {download_url}")
+
+        except Exception as e:
+            print(f"Error uploading to GitHub: {e}")
+            sys.exit(1)
     else:
-        print("Skipped indexing.")
+        print("Skipped GitHub upload.")
 
 
 if __name__ == '__main__':
@@ -45,20 +66,13 @@ if __name__ == '__main__':
 
     setup_logging()
 
-    parser = argparse.ArgumentParser(description='Download and index some boardgames')
+    parser = argparse.ArgumentParser(description='Download and create SQLite snapshot of boardgames')
     parser.add_argument(
-        '--apikey',
-        type=str,
-        required=True,
-        help='The admin api key for your algolia site'
-    )
-    parser.add_argument(
-        '--no_indexing',
+        '--no_upload',
         action='store_true',
         help=(
-            "Skip indexing in algolia. This is useful during development"
-            ", when you want to fetch data från BGG over and over again, "
-            "and don't want to use up your indexing quota with Algolia."
+            "Skip uploading to GitHub. This is useful during development"
+            ", when you want to test the SQLite creation without uploading."
         )
     )
     parser.add_argument(
