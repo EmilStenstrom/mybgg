@@ -302,7 +302,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 function setupClearAllButton() {
   const clearContainer = document.getElementById('clear-all');
   clearContainer.innerHTML = `
-    <button id="clear-filters" class="clear-button">Clear all filters</button>
+    <button id="clear-filters" class="clear-button">Clear filters</button>
   `;
 
   document.getElementById('clear-filters').addEventListener('click', clearAllFilters);

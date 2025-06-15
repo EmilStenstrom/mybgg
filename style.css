@@ -53,46 +53,54 @@ body {
     .facets { /* Container for all filter dropdowns */
         display: flex;
         flex-direction: row;
-        align-items: flex-start;
+        align-items: stretch; /* Ensures all items have the same height */
         padding-bottom: 1em;
-        overflow-x: auto;
-        overflow-y: visible;
-        scrollbar-width: none;
         position: relative;
         z-index: 10;
         flex-wrap: nowrap;
         background-color: #F8FAFC;
-        padding-top: 0.5em;
+        gap: 1em; /* Added for spacing between items */
     }
         /* Styling for each filter dropdown <details> element */
         .filter-dropdown {
-            margin-right: 1em;
+            /* margin-right: 1em; Removed, gap on parent handles spacing */
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #fff;
             position: relative;
             padding: 0;
+            display: flex; /* To allow summary to stretch and control its alignment */
+            flex-direction: column; /* Stack summary and content */
+            flex-grow: 1; /* Added to make dropdowns share container width */
         }
 
         .filter-dropdown > summary {
             padding: 0.5em 1em;
-            font-weight: bold;
             list-style: none;
             border: none;
             margin: 0;
+            height: 100%; /* Make summary fill the details tag height */
+            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            display: flex;
+            align-items: center; /* Vertically center text */
+            justify-content: center; /* Horizontally center text */
+            text-align: center; /* Fallback for text alignment */
         }
 
         /* No specific style for summary::-webkit-details-marker needed here as it's globally reset */
 
         /* Styles for the .filter-dropdown-content when its parent <details> is open */
         .filter-dropdown[open] > .filter-dropdown-content {
-            /* JS will set position:fixed, top, left, z-index, min-width, display:flex */
-            /* These are base styles for when it's an overlay */
+            position: absolute; /* Take out of normal flow */
+            top: 100%;      /* Position below the parent <details> element */
+            left: 0;
+            z-index: 50;    /* Ensure it's above other facets/elements */
             background-color: #fff;
-            border: 1px solid #ccc; /* Different from summary border */
+            border: 1px solid #ccc;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             padding: 1em;
-            /* display: flex; flex-direction: column; are in the base rule below */
+            min-width: 200px; /* Sensible default, JS might override */
+            /* JS may also set display:flex, z-index, min-width, or change to position:fixed */
         }
 
         /* Base style for the filter dropdown content area */
@@ -101,6 +109,20 @@ body {
             flex-direction: column;
             /* Default state (closed) is handled by <details> not being [open] */
             /* JS might set display: '' or display: 'flex' on toggle */
+        }
+
+        /* Styles for the clear-all button */
+        .clear-all {
+            border: 1px solid #b71c1c; /* Adjusted border to match background */
+            border-radius: 4px;
+            background-color: #b71c1c; /* Standard red color for clear/danger actions */
+            color: white;
+            display: flex;
+            align-items: center; /* Vertically center text */
+            justify-content: center; /* Horizontally center text */
+            text-align: center; /* Fallback for text alignment */
+            flex-grow: 1; /* Make it share container width */
+            cursor: pointer;
         }
 
 /* Components */
@@ -316,11 +338,10 @@ body {
 .clear-button {
     background: #b71c1c;
     color: white;
-    border: none;
+    border: 2px solid #b71c1c;
     padding: 0.5em 1em;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
     width: 100%;
     box-sizing: border-box;
 }
