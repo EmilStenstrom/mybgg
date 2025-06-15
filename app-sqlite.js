@@ -115,7 +115,7 @@ function setupSearchBox() {
 function setupSorting() {
   const sortContainer = document.getElementById('sort-by');
   sortContainer.innerHTML = `
-    <select id="sort-select">
+    <select id="sort-select" name="sort-by">
       <option value="name">Name (A-Z)</option>
       <option value="rank">BGG Rank</option>
       <option value="rating">Rating</option>

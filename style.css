@@ -122,6 +122,7 @@ body {
 .stats {
     display: inline-block;
     margin-right: 1em;
+    text-align: right;
     flex-grow: 1;
 }
 @media screen and (max-width: 530px) {
@@ -129,47 +130,35 @@ body {
         display: none;
     }
 }
-.ref {
-    opacity: 0.3;
-    filter: grayscale(100%);
-    margin-top: 3px;
-}
-    .ref:hover, .ref:focus-within {
-        filter: none;
-        opacity: 1;
-    }
 
 /* Game Grid & Cards */
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjusted minmax for typical card size */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusted minmax for typical card size */
   gap: 0;
   margin: 0 auto;
   padding: 0;
 }
 
 .game-card { /* Formerly .game-wrapper */
-  /* background: #fff; */ /* Default background removed, JS will set it based on game.color */
   border-radius: 0;
   box-shadow: none;
   padding: 0;
-  transition: none;
   position: relative;
   display: flex; /* For summary and game-details alignment */
   flex-direction: column; /* Stack summary and details */
   align-items: center; /* Center content like image in summary */
-  /* border: 1px solid rgba(0,0,0,0.1); */ /* Optional: if cards need a border */
-  /* border-width: 0 1px 1px 0; */ /* From old .ais-Hits-item, if desired */
+  border: 1px solid rgba(0,0,0,0.1);
+  border-width: 0 1px 1px 0;
 }
 
 .game-card > summary {
   display: flex; /* To center the image */
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 180px; /* Fixed height for the image area */
+  height: 130px; /* Fixed height for the image area */
   margin: 0;
-  padding: 0; /* Padding is on the image itself */
+  padding: 10px;
   position: relative; /* For any potential absolute children if needed */
   list-style: none; /* Remove marker if not already done by global reset */
 }
@@ -181,17 +170,11 @@ body {
 .game-card > summary > img { /* Formerly .game img */
   display: block;
   margin: 0; /* Centering handled by summary flex */
-  padding: 10px; /* Padding around the image */
-  max-width: calc(100% - 20px); /* Max width considering padding */
-  max-height: calc(100% - 20px); /* Max height considering padding */
-  width: auto;
-  height: auto;
-  border-radius: 0;
-  box-shadow: none;
-  object-fit: none; /* Prevent upscaling */
+  max-width: 100%; /* Max width considering padding */
+  max-height: 100%; /* Max height considering padding */
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 5px;
   image-rendering: auto; /* Or pixelated for sharper 1x on 2x screens if desired */
-  transform: scale(0.9);
-  transform-origin: center;
 }
 
 .game-details { /* Content shown when game-card is open */
