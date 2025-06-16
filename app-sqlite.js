@@ -94,12 +94,29 @@ function loadAllGames() {
   console.log(`Loaded ${allGames.length} games`);
 }
 
+// Global flag to prevent multiple event listeners
+let moreButtonListenerAdded = false;
+
 function initializeUI() {
   setupSearchBox();
   setupFilters();
   setupSorting();
   updateResults();
   updateStats();
+}
+
+// Direct onclick handler for more buttons
+function handleMoreButtonClick(button) {
+  const teaserText = button.closest('.teaser-text');
+  if (!teaserText) return;
+
+  const fullText = teaserText.getAttribute('data-full-text');
+
+  if (button.textContent === '...more') {
+    teaserText.innerHTML = escapeHtml(fullText) + ' <button class="more-button" onclick="handleMoreButtonClick(this)">less</button>';
+  } else {
+    teaserText.innerHTML = getTeaserText(fullText, true);
+  }
 }
 
 function setupSearchBox() {
@@ -486,36 +503,71 @@ function updateResults() {
 }
 
 function renderGameCard(game) {
-  // Refactored: game-wrapper -> game-card. Removed div.game, summary will handle image layout.
-  // The game.color field will be used by on_render to set the background.
+  // Get the actual complexity rating as a decimal
+  const complexityScore = getComplexityScore(game.weight);
+
   return `
     <details class="game-card" data-color="${game.color || '255,255,255'}">
       <summary>
         <img src="${game.image}" alt="${game.name}">
       </summary>
-      <div class="game-details">
-        <h2 class="heading">
-          <a href="https://boardgamegeek.com/boardgame/${game.id}">
-            ${highlightText(game.name, getCurrentSearchQuery())}
+      <div class="game-details collector-card">
+        <!-- Zone 1: Hero Strip -->
+        <div class="hero-strip" style="background-image: url('${game.image}');">
+          <div class="hero-content">
+            <h1 class="game-title">
+              ${highlightText(game.name, getCurrentSearchQuery())}
+            </h1>
+          </div>
+        </div>
+
+        <!-- Zone 2: Quick Stats Bar -->
+        <div class="quick-stats">
+          ${game.rank ? `<div class="stat"><div class="stat-icon">#</div><div class="stat-value">BGG ${game.rank}</div></div>` : ''}
+          ${game.rating ? `<div class="stat"><div class="stat-icon">⭐</div><div class="stat-value">${game.rating.toFixed(1)}</div></div>` : ''}
+          ${game.players.length > 0 ? `<div class="stat"><div class="stat-icon">👥</div><div class="stat-value">${formatPlayerCountShort(game.players)}</div></div>` : ''}
+          ${game.playing_time ? `<div class="stat"><div class="stat-icon">⏱</div><div class="stat-value">${game.playing_time}</div></div>` : ''}
+          ${complexityScore ? `<div class="stat"><div class="complexity-gauge-small">${renderComplexityGaugeSmall(complexityScore)}</div><div class="stat-value">${complexityScore.toFixed(1)}/5</div></div>` : ''}
+          ${game.min_age ? `<div class="stat"><div class="stat-icon">👶</div><div class="stat-value">${game.min_age}+</div></div>` : ''}
+        </div>
+
+        <!-- Zone 3: Teaser Paragraph -->
+        <div class="teaser-section">
+          <div class="teaser-text" data-full-text="${escapeHtml(game.description || '')}">
+            ${game.description ? getTeaserText(game.description, true) : 'No description available.'}
+          </div>
+        </div>
+
+        <!-- Zone 4: Tag Chips -->
+        <div class="tag-chips">
+          ${game.mechanics.slice(0, 4).map(mech => `<span class="tag-chip mechanics">${mech}</span>`).join('')}
+          ${game.categories.slice(0, 4).map(cat => `<span class="tag-chip categories">${cat}</span>`).join('')}
+        </div>
+
+        <!-- Zone 5: Bottom Info - Tags (owned), My rating, Times played -->
+        <div class="bottom-info">
+          <div class="info-item">
+            <label>Owned</label>
+            <div class="owned-status">✅ Yes</div>
+          </div>
+          <div class="info-item">
+            <label>My rating</label>
+            <div class="star-rating">
+              ${renderStarRating(game.rating)}
+            </div>
+          </div>
+          <div class="info-item">
+            <label>Times played</label>
+            <div class="play-count">${game.numplays || 0}</div>
+          </div>
+        </div>
+
+        <!-- BGG Link Footer -->
+        <div class="bgg-link-section">
+          <a href="https://boardgamegeek.com/boardgame/${game.id}" target="_blank" class="bgg-link">
+            🎲 View on BoardGameGeek
           </a>
-        </h2>
-
-        <section class="description">
-          ${game.description ? truncateText(game.description, 300) : 'No description available.'}
-        </section>
-
-        <section class="metadata">
-          ${game.categories.length > 0 ? `<div><strong>Categories:</strong> ${game.categories.join(', ')}</div>` : ''}
-          ${game.mechanics.length > 0 ? `<div><strong>Mechanics:</strong> ${game.mechanics.join(', ')}</div>` : ''}
-          ${game.players.length > 0 ? `<div><strong>Players:</strong> ${formatPlayerCount(game.players)}</div>` : ''}
-          ${game.weight ? `<div><strong>Complexity:</strong> ${game.weight}</div>` : ''}
-          ${game.playing_time ? `<div><strong>Playing time:</strong> ${game.playing_time}</div>` : ''}
-          ${game.min_age ? `<div><strong>Min age:</strong> ${game.min_age}+</div>` : ''}
-          ${game.rank ? `<div><strong>BGG Rank:</strong> ${game.rank}</div>` : ''}
-          ${game.rating ? `<div><strong>Rating:</strong> ${game.rating.toFixed(1)}/10</div>` : ''}
-          ${game.numplays !== undefined ? `<div><strong>Times played:</strong> ${game.numplays}</div>` : ''}
-          ${game.previous_players.length > 0 ? `<div><strong>Played with:</strong> ${game.previous_players.join(', ')}</div>` : ''}
-        </section>
+        </div>
       </div>
     </details>
   `;
@@ -526,6 +578,84 @@ function formatPlayerCount(players) {
     const suffix = type === 'best' ? ' (best)' : type === 'recommended' ? ' (rec.)' : '';
     return count + suffix;
   }).join(', ');
+}
+
+function formatPlayerCountShort(players) {
+  // Return just the range for quick stats, e.g., "2-4"
+  if (players.length === 0) return '';
+  const counts = players.map(([count]) => count);
+  const numbers = counts.map(c => parseInt(c.replace('+', ''))).filter(n => !isNaN(n));
+  if (numbers.length === 0) return counts[0];
+  const min = Math.min(...numbers);
+  const max = Math.max(...numbers);
+  return min === max ? `${min}` : `${min}-${max}`;
+}
+
+function getTeaserText(description, hasMore = false) {
+  if (!description) return '';
+  const sentences = description.split(/[.!?]+/);
+  const teaser = sentences.slice(0, 2).join('. ');
+  const needsMore = description.length > 200 || sentences.length > 2;
+  const truncated = teaser.length > 200 ? teaser.substring(0, 200) + '...' : teaser + (sentences.length > 2 ? '...' : '');
+
+  if (hasMore && needsMore) {
+    return truncated + ' <button class="more-button" onclick="handleMoreButtonClick(this)">...more</button>';
+  }
+  return truncated;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function renderComplexityGauge(weight) {
+  const weights = ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'];
+  const index = weights.indexOf(weight);
+  if (index === -1) return '<div class="gauge-unknown">?</div>';
+
+  const percentage = ((index + 1) / 5) * 100;
+  return `
+    <div class="radial-gauge">
+      <div class="gauge-circle" style="--percentage: ${percentage}%">
+        <span class="gauge-text">${index + 1}/5</span>
+      </div>
+    </div>
+  `;
+}
+
+function getComplexityScore(weight) {
+  const weightMap = {
+    'Light': 1.5,
+    'Light Medium': 2.2,
+    'Medium': 3.0,
+    'Medium Heavy': 3.8,
+    'Heavy': 4.5
+  };
+  return weightMap[weight] || null;
+}
+
+function renderComplexityGaugeSmall(score) {
+  const percentage = (score / 5) * 100;
+  return `
+    <div class="complexity-gauge-small">
+      <div class="gauge-circle-small" style="--percentage: ${percentage}%"></div>
+    </div>
+  `;
+}
+
+function renderStarRating(rating) {
+  if (!rating) return '<div class="no-rating">Not rated</div>';
+
+  const stars = Math.round(rating / 2); // Convert 10-point to 5-star scale
+  return `
+    <div class="star-display">
+      ${Array.from({length: 5}, (_, i) =>
+        `<span class="star ${i < stars ? 'filled' : ''}">${i < stars ? '★' : '☆'}</span>`
+      ).join('')}
+    </div>
+  `;
 }
 
 function highlightText(text, query) {
@@ -674,6 +804,7 @@ function setupGameDetails() {
       event.stopPropagation();
     });
   });
+
 }
 
 function closeAllDetails() {
