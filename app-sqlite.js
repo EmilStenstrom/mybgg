@@ -103,7 +103,7 @@ function initializeUI() {
   setupSorting();
   updateResults();
   updateStats();
-  
+
   // Handle window resize to reposition open popups
   window.addEventListener('resize', function() {
     const openDetails = document.querySelector('details[open] .game-details');
@@ -264,7 +264,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
           const checked = (isRadio && (typeof item === 'object' ? item.default : false)) ? 'checked' : '';
           const inputType = isRadio ? 'radio' : 'checkbox';
           return `
-            <label class="filter-item">
+            <label class="filter-item" style="white-space: nowrap;">
               <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
               <span>${label}</span>
             </label>
@@ -287,29 +287,58 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       }
     });
 
-    // JavaScript to handle overlay positioning for this specific filter when opened
+    // MODIFIED: JavaScript to handle overlay positioning for this specific filter when opened
+    const scrollHandler = () => {
+      if (!newContainer.open) {
+        window.removeEventListener('scroll', scrollHandler);
+        window.removeEventListener('resize', scrollHandler);
+        return;
+      }
+      const dropdownContent = newContainer.querySelector('.filter-dropdown-content');
+      const summaryElement = newContainer.querySelector('summary');
+      if (!dropdownContent || !summaryElement) return;
+
+      const rect = summaryElement.getBoundingClientRect();
+      const availableHeight = window.innerHeight - rect.bottom - 10; // 10px margin
+      dropdownContent.style.maxHeight = `${Math.min(availableHeight, 385)}px`;
+    };
+
     newContainer.addEventListener('toggle', function(event) {
-      const dropdownContent = this.querySelector('.filter-dropdown-content'); // Changed from .panel-body
+      const dropdownContent = this.querySelector('.filter-dropdown-content');
       const summaryElement = this.querySelector('summary');
       if (!dropdownContent || !summaryElement) return;
 
       if (this.open) {
-        // Position the dropdown as fixed below the summary
-        const rect = summaryElement.getBoundingClientRect();
-        dropdownContent.style.position = 'fixed';
-        dropdownContent.style.top = `${rect.bottom}px`;
-        dropdownContent.style.left = `${rect.left}px`;
+        // Use absolute positioning to keep the dropdown attached to the summary
+        this.style.position = 'relative';
+        dropdownContent.style.position = 'absolute';
+        dropdownContent.style.top = `${summaryElement.offsetHeight}px`;
+        dropdownContent.style.left = '0';
         dropdownContent.style.zIndex = '1050';
-        dropdownContent.style.minWidth = `${rect.width}px`;
-        dropdownContent.style.display = 'flex'; // Keep flex for column layout if needed
+        dropdownContent.style.minWidth = `${summaryElement.offsetWidth}px`;
+        dropdownContent.style.display = 'flex';
+        dropdownContent.style.overflowY = 'auto';
+
+        // Set max-height and update on scroll
+        scrollHandler(); // Initial call
+        window.addEventListener('scroll', scrollHandler, { passive: true });
+        window.addEventListener('resize', scrollHandler, { passive: true });
+
       } else {
         // Restore default styles
+        this.style.position = '';
         dropdownContent.style.position = '';
         dropdownContent.style.top = '';
         dropdownContent.style.left = '';
         dropdownContent.style.zIndex = '';
         dropdownContent.style.minWidth = '';
-        dropdownContent.style.display = ''; // Revert to default (or 'none' if that was the original closed state)
+        dropdownContent.style.display = '';
+        dropdownContent.style.maxHeight = '';
+        dropdownContent.style.overflowY = '';
+
+        // Clean up listeners
+        window.removeEventListener('scroll', scrollHandler);
+        window.removeEventListener('resize', scrollHandler);
       }
     });
 
@@ -813,7 +842,7 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
         currentAbsoluteTop = margin;
     }
   }
-  
+
   // 4. Handle Height Constraints and Scrolling if Popup is Taller than Viewport
   const availableViewportHeight = viewportHeight - 2 * margin;
   if (popupRect.height > availableViewportHeight) {
