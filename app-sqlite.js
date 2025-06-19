@@ -103,6 +103,18 @@ function initializeUI() {
   setupSorting();
   updateResults();
   updateStats();
+  
+  // Handle window resize to reposition open popups
+  window.addEventListener('resize', function() {
+    const openDetails = document.querySelector('details[open] .game-details');
+    if (openDetails) {
+      const trigger = openDetails.closest('details').querySelector('summary');
+      if (trigger) {
+        // On resize, use space-based positioning (no click event)
+        positionPopupInViewport(openDetails, trigger);
+      }
+    }
+  });
 }
 
 // Direct onclick handler for more buttons
@@ -753,6 +765,80 @@ function debounce(func, wait) {
   };
 }
 
+// Function to position popup based on click position within tile
+function positionPopupInViewport(popup, trigger, clickEvent = null) {
+  const triggerRect = trigger.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const margin = 8; // Margin from viewport edges
+
+  // Reset temporary styles that might affect dimensions, to get natural popup size
+  popup.style.height = '';
+  popup.style.overflowY = '';
+  // Note: We get popupRect once, assuming its content defines its natural size.
+  const popupRect = popup.getBoundingClientRect();
+
+  console.log('Positioning popup (using natural dimensions):', {
+    triggerRect,
+    popupRect,
+    clickEvent: clickEvent ? { x: clickEvent.clientX, y: clickEvent.clientY } : 'none' // clickEvent currently unused
+  });
+
+  // 1. Calculate Desired Absolute Positions for Centering
+  let desiredAbsoluteLeft = triggerRect.left + (triggerRect.width - popupRect.width) / 2;
+  let desiredAbsoluteTop = triggerRect.top + (triggerRect.height - popupRect.height) / 2;
+
+  // Initialize current absolute positions with desired centered positions
+  let currentAbsoluteLeft = desiredAbsoluteLeft;
+  let currentAbsoluteTop = desiredAbsoluteTop;
+
+  // 2. Adjust Horizontal Position to Stay Within Viewport
+  if (currentAbsoluteLeft < margin) {
+    currentAbsoluteLeft = margin;
+  } else if (currentAbsoluteLeft + popupRect.width > viewportWidth - margin) {
+    currentAbsoluteLeft = viewportWidth - margin - popupRect.width;
+    // If popup is wider than viewport, ensure it's still pinned to the left margin
+    if (currentAbsoluteLeft < margin) {
+        currentAbsoluteLeft = margin;
+    }
+  }
+
+  // 3. Adjust Vertical Position to Stay Within Viewport
+  if (currentAbsoluteTop < margin) {
+    currentAbsoluteTop = margin;
+  } else if (currentAbsoluteTop + popupRect.height > viewportHeight - margin) {
+    currentAbsoluteTop = viewportHeight - margin - popupRect.height;
+    // If popup is taller than viewport, ensure it's still pinned to the top margin
+    if (currentAbsoluteTop < margin) {
+        currentAbsoluteTop = margin;
+    }
+  }
+  
+  // 4. Handle Height Constraints and Scrolling if Popup is Taller than Viewport
+  const availableViewportHeight = viewportHeight - 2 * margin;
+  if (popupRect.height > availableViewportHeight) {
+    popup.style.height = availableViewportHeight + 'px';
+    popup.style.overflowY = 'auto';
+    // If made scrollable due to viewport height constraint, always align its top with the viewport's top margin.
+    currentAbsoluteTop = margin;
+  } else {
+    // Ensure styles are reset if not scrollable (already done at the start, but good for clarity)
+    // popup.style.height = ''; // Already reset
+    // popup.style.overflowY = ''; // Already reset
+  }
+
+  // Convert final absolute positions to style values (relative to the trigger's containing block)
+  // Assuming popup.style.left and popup.style.top are relative to triggerRect's origin.
+  const finalLeftStyle = currentAbsoluteLeft - triggerRect.left;
+  const finalTopStyle = currentAbsoluteTop - triggerRect.top;
+
+  console.log('Final style positions (relative to trigger):', { left: finalLeftStyle, top: finalTopStyle });
+
+  // Apply the calculated position and styles
+  popup.style.left = finalLeftStyle + 'px';
+  popup.style.top = finalTopStyle + 'px';
+}
+
 // Event handlers for collapsible panels
 function on_render() {
   // Apply background colors based on image (simplified version)
@@ -770,15 +856,24 @@ function on_render() {
 function setupGameDetails() {
   const summaries = document.querySelectorAll("summary");
   summaries.forEach(function(elem) {
-    function conditionalClose() {
+    function conditionalClose(event) {
       closeAllDetails();
       if (!elem.parentElement.hasAttribute("open")) {
         const gameDetails = elem.parentElement.querySelector(".game-details");
-        if (gameDetails) gameDetails.focus();
+        if (gameDetails) {
+          gameDetails.focus();
+          // Position the popup based on click position within tile
+          requestAnimationFrame(() => {
+            positionPopupInViewport(gameDetails, elem, event);
+          });
+        }
       }
     }
     elem.addEventListener("click", conditionalClose);
-    elem.addEventListener("keypress", conditionalClose);
+    elem.addEventListener("keypress", function(event) {
+      // For keyboard navigation, don't pass click event
+      conditionalClose();
+    });
   });
 
   const gameDetails = document.querySelectorAll(".game-details");
