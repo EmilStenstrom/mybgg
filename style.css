@@ -215,20 +215,221 @@ body {
   image-rendering: auto; /* Or pixelated for sharper 1x on 2x screens if desired */
 }
 
-.game-details { /* Content shown when game-card is open */
-    background: white;
-    box-shadow: 1px 1px 5px rgba(0,0,0,0.2);
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 5px;
-    left: 8px; /* Default position - will be overridden by JS */
-    position: absolute; /* Overlay within the card */
-    top: 8px; /* Default position - will be overridden by JS */
-    width: 350px; /* Or make it more responsive */
-    z-index: 100; /* Above other cards/grid items */
-    padding: 0; /* Remove default padding, zones will handle their own */
-    overflow: hidden; /* Clean edges */
+/* New Card Design Styles */
+.game-details {
+    box-shadow: 1px 1px 15px rgba(0,0,0,0.3);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    left: 8px;
+    position: absolute;
+    top: 8px;
+    width: 400px;
+    z-index: 100;
+    padding: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
+    font-family: 'Roboto', sans-serif;
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+}
+
+.cover-image {
+    height: 40px;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.cover-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.title-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.game-title {
+    margin: 0 0 8px 0;
+    font-size: 1.4em;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: 0.9em;
+    font-weight: 400;
+    opacity: 0.85; /* Slightly less prominent than the title */
+}
+
+.close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.9em;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #555;
+    font-weight: 500;
+}
+
+.stat-item .material-symbols-outlined {
+    font-size: 18px;
+    color: #666;
+}
+
+.description-section {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    line-height: 1.5;
+    color: #444;
+}
+
+.teaser-text {
+    font-size: 0.95em;
+}
+
+.tags-section {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.bottom-info {
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.owned-status {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #28a745;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.owned-status .material-symbols-outlined {
+    color: #28a745;
+    font-size: 16px;
+}
+
+.rating-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.plays-section {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.plays-section .material-symbols-outlined {
+    color: #666;
+    font-size: 16px;
+}
+
+.bgg-footer {
+    padding: 12px 16px;
+    text-align: center;
+    background: #f8f9fa;
+}
+
+.bgg-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.bgg-link:hover {
+    text-decoration: underline;
+}
+
+/* Star rating styles */
+.star-rating {
+    display: inline-flex;
+    align-items: center;
+}
+
+.star-rating .star {
+    color: #ffc107;
+    font-size: 16px;
+}
+
+.star-rating .star.empty {
+    color: #e0e0e0;
+}
+
+/* More button styles */
+.more-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-size: inherit;
+    text-decoration: underline;
+    padding: 0;
+    margin-left: 4px;
+}
+
+.more-button:hover {
+    color: #0056b3;
 }
 
 /* Collector Card Styling */
@@ -238,56 +439,56 @@ body {
     overflow-y: auto; /* Allow scrolling if needed */
     display: flex !important;
     flex-direction: column;
-    display: flex;
-    flex-direction: column;
 }
+
+/* New close button for game details card */
+.close-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10; /* Above hero content */
+    padding: 0;
+    transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+    background: rgba(0,0,0,0.6);
+}
+
+.close-button .material-symbols-outlined {
+    font-size: 20px;
+}
+
 
 /* Zone 1: Hero Strip */
 .hero-strip {
     height: 90px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
     flex-shrink: 0; /* Prevent shrinking */
-}
-
-.hero-strip::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: inherit;
-    background-size: inherit;
-    background-position: inherit;
-    background-repeat: inherit;
-    filter: blur(4px); /* Blur only the background */
-    z-index: 1;
-}
-
-.hero-strip::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%);
-    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hero-content {
-    position: absolute;
-    bottom: 8px;
-    left: 12px;
-    right: 12px;
+    position: relative; /* No longer needs to be absolute */
+    z-index: 3;
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    z-index: 3; /* Above the blur and gradient */
+    align-items: center;
+    text-align: center;
+    padding: 0 12px; /* Add horizontal padding */
 }
 
 .game-title {
@@ -297,7 +498,7 @@ body {
     color: white;
     text-shadow: 0 2px 4px rgba(0,0,0,0.9);
     line-height: 1.2;
-    text-align: center;
+    /* text-align: center; */ /* Handled by parent */
 }
 
 .game-title a {
@@ -349,6 +550,14 @@ body {
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9em;
+    line-height: 1; /* For better icon alignment */
+}
+
+/* Icon alignment for BGG link */
+.bgg-link .material-symbols-outlined {
+    vertical-align: -0.2em; /* Fine-tune vertical alignment */
+    margin-right: 4px;
+    font-size: 1.2em; /* Slightly larger than text */
 }
 
 /* Zone 2: Quick Stats Bar */
@@ -494,7 +703,17 @@ body {
     text-transform: uppercase;
     color: #666;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
 }
+
+/* Style for icons inside the bottom info labels */
+.info-item label .material-symbols-outlined {
+    font-size: 2em;
+}
+
 
 /* Play Count */
 .play-count {
