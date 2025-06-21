@@ -294,7 +294,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
             const indentation = level > 0 ? `style="padding-left: ${level * 20}px;"` : '';
             const countHtml = `<span class="facet-count" style="background-color: #f0f0f0; border-radius: 10px; padding: 0 8px; font-size: 12px; color: #333; margin-left: auto;">${count}</span>`;
             const checked = isDefault ? 'checked' : '';
-            
+
             const isSubOption = level > 0;
             const parentValue = isSubOption ? value.split('-')[0] : value;
             const labelStyle = `white-space: nowrap; display: ${isSubOption ? 'none' : 'flex'}; align-items: center; width: 100%;`;
@@ -336,7 +336,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
         if (attributeName === 'players') {
           const selectedValue = event.target.value;
           const mainValue = selectedValue.split('-')[0];
-    
+
           const allPlayerLabels = newContainer.querySelectorAll('label.filter-item[data-level]');
           allPlayerLabels.forEach(label => {
             const level = parseInt(label.dataset.level, 10);
@@ -416,10 +416,40 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
   }
 }
 
+function updateClearButtonVisibility(filters) {
+  const clearButton = document.getElementById('clear-filters');
+  if (!clearButton) return;
+
+  const {
+    query,
+    selectedCategories,
+    selectedMechanics,
+    selectedPlayerFilter,
+    selectedWeight,
+    selectedPlayingTime,
+    selectedPreviousPlayers,
+    selectedMinAge,
+    selectedNumPlays
+  } = filters;
+
+  const isAnyFilterActive =
+    (query && query !== '') ||
+    (selectedCategories && selectedCategories.length > 0) ||
+    (selectedMechanics && selectedMechanics.length > 0) ||
+    (selectedPlayerFilter && selectedPlayerFilter !== 'any') ||
+    (selectedWeight && selectedWeight.length > 0) ||
+    (selectedPlayingTime && selectedPlayingTime.length > 0) ||
+    (selectedPreviousPlayers && selectedPreviousPlayers.length > 0) ||
+    selectedMinAge !== null ||
+    selectedNumPlays !== null;
+
+  clearButton.style.display = isAnyFilterActive ? 'block' : 'none';
+}
+
 function setupClearAllButton() {
   const clearContainer = document.getElementById('clear-all');
   clearContainer.innerHTML = `
-    <button id="clear-filters" class="clear-button">Clear filters</button>
+    <button id="clear-filters" class="clear-button" style="display: none;">Clear filters</button>
   `;
 
   document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
@@ -477,6 +507,18 @@ function applyFilters(searchQuery = null) {
   const selectedPreviousPlayers = getSelectedValues('previous_players');
   const selectedMinAge = getSelectedRange('min_age');
   const selectedNumPlays = getSelectedRange('numplays');
+
+  updateClearButtonVisibility({
+    query,
+    selectedCategories,
+    selectedMechanics,
+    selectedPlayerFilter,
+    selectedWeight,
+    selectedPlayingTime,
+    selectedPreviousPlayers,
+    selectedMinAge,
+    selectedNumPlays
+  });
 
   filteredGames = allGames.filter(game => {
     // Text search
