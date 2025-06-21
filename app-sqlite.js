@@ -136,7 +136,7 @@ function handleMoreButtonClick(button) {
 
   const fullText = teaserText.getAttribute('data-full-text');
 
-  if (button.textContent === '...more') {
+  if (button.textContent === 'more') {
     teaserText.innerHTML = escapeHtml(fullText) + ' <button class="more-button" onclick="handleMoreButtonClick(this)">less</button>';
   } else {
     teaserText.innerHTML = getTeaserText(fullText, true);
@@ -774,16 +774,16 @@ function renderGameCard(game) {
             <h1 class="game-title">${highlightText(game.name, getCurrentSearchQuery())}</h1>
             <div class="subtitle">${formatPlayerCountShort(game.players)} players · ${game.playing_time || 'Unknown time'}</div>
           </div>
-          <button class="close-btn" onclick="this.closest('details').open = false">×</button>
+          <button class="close-button"><span class="material-symbols-rounded">close</span></button>
         </div>
 
         <!-- Stats Bar -->
         <div class="stats-bar">
-          ${game.rank ? `<div class="stat-item"><span class="material-symbols-outlined">leaderboard</span> ${game.rank}</div>` : ''}
-          ${game.rating ? `<div class="stat-item"><span class="material-symbols-outlined">star</span> ${game.rating.toFixed(1)}</div>` : ''}
-          ${game.playing_time ? `<div class="stat-item"><span class="material-symbols-outlined">schedule</span> ${game.playing_time}</div>` : ''}
-          ${game.players.length > 0 ? `<div class="stat-item"><span class="material-symbols-outlined">groups</span> ${formatPlayerCountShort(game.players)}</div>` : ''}
-          ${game.min_age ? `<div class="stat-item"><span class="material-symbols-outlined">child_care</span> ${game.min_age}+</div>` : ''}
+          ${game.rank ? `<div class="stat-item"><span class="material-symbols-rounded">leaderboard</span> ${game.rank}</div>` : ''}
+          ${game.rating ? `<div class="stat-item"><span class="material-symbols-rounded">star</span> ${game.rating.toFixed(1)}</div>` : ''}
+          ${game.playing_time ? `<div class="stat-item"><span class="material-symbols-rounded">schedule</span> ${game.playing_time}</div>` : ''}
+          ${game.players.length > 0 ? `<div class="stat-item"><span class="material-symbols-rounded">groups</span> ${formatPlayerCountShort(game.players)}</div>` : ''}
+          ${game.min_age ? `<div class="stat-item"><span class="material-symbols-rounded">child_care</span> ${game.min_age}+</div>` : ''}
         </div>
 
         <!-- Description Section -->
@@ -801,12 +801,11 @@ function renderGameCard(game) {
         <!-- Bottom Info Section -->
         <div class="bottom-info">
           <div class="info-group">
-            <span class="owned-status"><span class="material-symbols-outlined">check_circle</span> Owned</span>
             <div class="rating-section">
               ${renderStarRating(game.rating)} Rate
             </div>
             <div class="plays-section">
-              <span class="material-symbols-outlined">play_arrow</span> ${game.numplays || 0} plays
+              <span class="material-symbols-rounded">play_arrow</span> ${game.numplays || 0} plays
             </div>
           </div>
         </div>
@@ -863,7 +862,7 @@ function getTeaserText(description, hasMore = false) {
   const truncated = teaser.length > 200 ? teaser.substring(0, 200) + '...' : teaser + (sentences.length > 2 ? '...' : '');
 
   if (hasMore && needsMore) {
-    return truncated + ' <button class="more-button" onclick="handleMoreButtonClick(this)">...more</button>';
+    return truncated + ' <button class="more-button" onclick="handleMoreButtonClick(this)">more</button>';
   }
   return truncated;
 }
@@ -879,8 +878,8 @@ function renderComplexityGaugeSmall(complexityScore) {
   const empty = 5 - filled;
   return `
     <div class="complexity-gauge-small">
-      ${'★'.repeat(filled).split('').map((s, i) => `<span class="star material-symbols-outlined filled" style="color: #f39c12;" aria-hidden="true">${s}</span>`).join('')}
-      ${'☆'.repeat(empty).split('').map((s, i) => `<span class="star material-symbols-outlined" style="color: #ccc;" aria-hidden="true">${s}</span>`).join('')}
+      ${'★'.repeat(filled).split('').map((s, i) => `<span class="star material-symbols-rounded filled" style="color: #f39c12;" aria-hidden="true">${s}</span>`).join('')}
+      ${'☆'.repeat(empty).split('').map((s, i) => `<span class="star material-symbols-rounded" style="color: #ccc;" aria-hidden="true">${s}</span>`).join('')}
     </div>
   `;
 }
@@ -903,7 +902,7 @@ function renderStarRating(rating) {
   return `
     <div class="star-display">
       ${Array.from({length: 5}, (_, i) =>
-        `<span class="star material-symbols-outlined ${i < stars ? 'filled' : ''}">${i < stars ? 'star' : 'star_border'}</span>`
+        `<span class="star material-symbols-rounded ${i < stars ? 'filled' : ''}">${i < stars ? 'star' : 'star_border'}</span>`
       ).join('')}
     </div>
   `;
@@ -1094,10 +1093,11 @@ function on_render() {
   const gameCards = document.querySelectorAll(".game-card");
   gameCards.forEach(function(card) {
     const color = card.getAttribute("data-color") || "255,255,255"; // Default to white if no color
-    
+    const textColor = getTextColorForBg(color);
+
     // Apply semi-transparent color to the game card tile
     card.style.backgroundColor = `rgba(${color}, 0.5)`;
-    
+
     const gameDetails = card.querySelector(".game-details");
     if (gameDetails) {
       // Reset background for the main details container to default (white)
@@ -1107,13 +1107,44 @@ function on_render() {
       const cardHeader = card.querySelector(".card-header");
       if (cardHeader) {
         cardHeader.style.backgroundColor = `rgb(${color})`;
-        const textColor = getTextColorForBg(color);
         cardHeader.style.color = textColor;
 
         // Also apply to close button if it's inside the header
-        const closeBtn = cardHeader.querySelector('.close-btn');
+        const closeBtn = cardHeader.querySelector('.close-button');
         if (closeBtn) {
             closeBtn.style.color = textColor;
+        }
+      }
+
+      // Apply a light version of the game color to the stats bar and its icons
+      const statsBar = card.querySelector(".stats-bar");
+      if (statsBar) {
+        statsBar.style.backgroundColor = `rgba(${color}, 0.1)`;
+        const statIcons = statsBar.querySelectorAll(".material-symbols-rounded");
+        statIcons.forEach(icon => {
+            icon.style.color = `rgb(${color})`;
+        });
+      }
+
+      // Apply game color to the play icon and filled stars
+      const bottomInfo = card.querySelector(".bottom-info");
+      if(bottomInfo) {
+        const playIcon = bottomInfo.querySelector(".plays-section .material-symbols-rounded");
+        if(playIcon) playIcon.style.color = `rgb(${color})`;
+
+        const stars = bottomInfo.querySelectorAll(".rating-section .star.filled");
+        stars.forEach(star => {
+            star.style.color = `rgb(${color})`;
+        });
+      }
+
+      // Apply a light version of the game color to the footer and its link
+      const bggFooter = card.querySelector(".bgg-footer");
+      if (bggFooter) {
+        bggFooter.style.backgroundColor = `rgb(${color})`;
+        const bggLink = bggFooter.querySelector(".bgg-link");
+        if(bggLink) {
+            bggLink.style.color = textColor;
         }
       }
     }
@@ -1145,22 +1176,16 @@ function setupGameDetails() {
   const gameDetails = document.querySelectorAll(".game-details");
   gameDetails.forEach(function(elem) {
     let closeButton = elem.querySelector('.close-button');
-    if (!closeButton) {
-      closeButton = document.createElement("button");
-      closeButton.className = "close-button";
-      closeButton.setAttribute("tabindex", "0");
-      closeButton.setAttribute("aria-label", "Close");
-      closeButton.innerHTML = `<span class="material-symbols-outlined">close</span>`;
-      elem.insertBefore(closeButton, elem.firstChild);
-    }
 
     function closeDetails(event) {
       elem.parentElement.removeAttribute("open");
       event.stopPropagation();
     }
 
-    closeButton.addEventListener("click", closeDetails);
-    closeButton.addEventListener("keypress", closeDetails);
+    if (closeButton) {
+      closeButton.addEventListener("click", closeDetails);
+      closeButton.addEventListener("keypress", closeDetails);
+    }
 
     elem.addEventListener("click", function(event) {
       event.stopPropagation();
