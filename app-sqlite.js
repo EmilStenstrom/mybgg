@@ -284,9 +284,6 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
   const container = document.getElementById(facetId);
   if (!container) return;
 
-  // Use <details> and <summary> for collapse/expand
-  // Refactored class names: facet-group -> filter-dropdown, panel-body -> filter-dropdown-content
-  // Removed .panel-container wrapper
   container.outerHTML = `
     <details class="filter-dropdown" id="${facetId}">
       <summary>${title}</summary>
@@ -297,8 +294,13 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
             const indentation = level > 0 ? `style="padding-left: ${level * 20}px;"` : '';
             const countHtml = `<span class="facet-count" style="background-color: #f0f0f0; border-radius: 10px; padding: 0 8px; font-size: 12px; color: #333; margin-left: auto;">${count}</span>`;
             const checked = isDefault ? 'checked' : '';
+            
+            const isSubOption = level > 0;
+            const parentValue = isSubOption ? value.split('-')[0] : value;
+            const labelStyle = `white-space: nowrap; display: ${isSubOption ? 'none' : 'flex'}; align-items: center; width: 100%;`;
+
             return `
-              <label class="filter-item" style="white-space: nowrap; display: flex; align-items: center; width: 100%;">
+              <label class="filter-item" data-level="${level}" data-parent-value="${parentValue}" style="${labelStyle}">
                 <div ${indentation} class="checkbox-label-wrapper" style="display: flex; align-items: center;">
                   <input type="radio" name="${attributeName}" value="${value}" ${checked}>
                   <span style="margin-left: 4px;">${label}</span>
@@ -324,20 +326,33 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
     </details>
   `;
 
-  // Add event listener to the new details element
   const newContainer = document.getElementById(facetId);
   if (newContainer) {
     if (newContainer.tagName === 'DETAILS') {
-      newContainer.open = false; // Ensure all filters start collapsed
+      newContainer.open = false;
     }
     newContainer.addEventListener('change', (event) => {
-      // If it's a details element, the change event is on the input inside
       if (event.target.tagName === 'INPUT') {
+        if (attributeName === 'players') {
+          const selectedValue = event.target.value;
+          const mainValue = selectedValue.split('-')[0];
+    
+          const allPlayerLabels = newContainer.querySelectorAll('label.filter-item[data-level]');
+          allPlayerLabels.forEach(label => {
+            const level = parseInt(label.dataset.level, 10);
+            if (level > 0) {
+              if (label.dataset.parentValue === mainValue) {
+                label.style.display = 'flex';
+              } else {
+                label.style.display = 'none';
+              }
+            }
+          });
+        }
         handleFilterChange(attributeName, event.target.value, event.target.checked, isRadio);
       }
     });
 
-    // MODIFIED: JavaScript to handle overlay positioning for this specific filter when opened
     const scrollHandler = () => {
       if (!newContainer.open) {
         window.removeEventListener('scroll', scrollHandler);
@@ -349,7 +364,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       if (!dropdownContent || !summaryElement) return;
 
       const rect = summaryElement.getBoundingClientRect();
-      const availableHeight = window.innerHeight - rect.bottom - 10; // 10px margin
+      const availableHeight = window.innerHeight - rect.bottom - 10;
       dropdownContent.style.maxHeight = `${Math.min(availableHeight, 385)}px`;
     };
 
@@ -359,7 +374,6 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       if (!dropdownContent || !summaryElement) return;
 
       if (this.open) {
-        // Use absolute positioning to keep the dropdown attached to the summary
         this.style.position = 'relative';
         dropdownContent.style.position = 'absolute';
         dropdownContent.style.top = `${summaryElement.offsetHeight}px`;
@@ -369,13 +383,11 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
         dropdownContent.style.display = 'flex';
         dropdownContent.style.overflowY = 'auto';
 
-        // Set max-height and update on scroll
-        scrollHandler(); // Initial call
+        scrollHandler();
         window.addEventListener('scroll', scrollHandler, { passive: true });
         window.addEventListener('resize', scrollHandler, { passive: true });
 
       } else {
-        // Restore default styles
         this.style.position = '';
         dropdownContent.style.position = '';
         dropdownContent.style.top = '';
@@ -386,19 +398,16 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
         dropdownContent.style.maxHeight = '';
         dropdownContent.style.overflowY = '';
 
-        // Clean up listeners
         window.removeEventListener('scroll', scrollHandler);
         window.removeEventListener('resize', scrollHandler);
       }
     });
 
-    // Ensure clicking the summary when open closes the dropdown
     const summary = newContainer.querySelector('summary');
     if (summary) {
       summary.addEventListener('click', function(e) {
         const details = this.parentElement;
         if (details.open) {
-          // Prevent default so it doesn't immediately re-open
           e.preventDefault();
           details.open = false;
         }
