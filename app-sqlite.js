@@ -417,8 +417,8 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 }
 
 function updateClearButtonVisibility(filters) {
-  const clearButton = document.getElementById('clear-filters');
-  if (!clearButton) return;
+  const clearContainer = document.getElementById('clear-all');
+  if (!clearContainer) return;
 
   const {
     query,
@@ -443,14 +443,15 @@ function updateClearButtonVisibility(filters) {
     selectedMinAge !== null ||
     selectedNumPlays !== null;
 
-  clearButton.style.display = isAnyFilterActive ? 'block' : 'none';
+  clearContainer.style.display = isAnyFilterActive ? 'flex' : 'none';
 }
 
 function setupClearAllButton() {
   const clearContainer = document.getElementById('clear-all');
   clearContainer.innerHTML = `
-    <button id="clear-filters" class="clear-button" style="display: none;">Clear filters</button>
+    <button id="clear-filters" class="clear-button">Clear filters</button>
   `;
+  clearContainer.style.display = 'none';
 
   document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
 }

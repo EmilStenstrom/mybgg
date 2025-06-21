@@ -128,10 +128,10 @@ body {
             background: #b71c1c;
             color: white;
             border: none;
-            padding: 0.5em 1em;
             border-radius: 4px;
             cursor: pointer;
             box-sizing: border-box;
+            height: 100%; /* Make it fill the parent */
             width: 100%; /* Make it fill the parent */
         }
 
