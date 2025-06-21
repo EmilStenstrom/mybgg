@@ -101,8 +101,20 @@ function initializeUI() {
   setupSearchBox();
   setupFilters();
   setupSorting();
+
+  const initialState = getFiltersFromURL();
+  updateUIFromState(initialState);
+  applyFiltersAndSort(initialState);
   updateResults();
   updateStats();
+
+  window.addEventListener('popstate', (event) => {
+    const state = event.state || getFiltersFromURL();
+    updateUIFromState(state);
+    applyFiltersAndSort(state);
+    updateResults();
+    updateStats();
+  });
 
   // Handle window resize to reposition open popups
   window.addEventListener('resize', function() {
@@ -446,6 +458,137 @@ function updateClearButtonVisibility(filters) {
   clearContainer.style.display = isAnyFilterActive ? 'flex' : 'none';
 }
 
+// =============================================================================
+// URL State Management
+// =============================================================================
+
+function getFiltersFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    const minAgeParam = params.get('min_age');
+    const numPlaysParam = params.get('numplays');
+
+    return {
+        query: params.get('q') || '',
+        selectedCategories: params.get('categories')?.split(',').filter(Boolean) || [],
+        selectedMechanics: params.get('mechanics')?.split(',').filter(Boolean) || [],
+        selectedPlayerFilter: params.get('players') || 'any',
+        selectedWeight: params.get('weight')?.split(',').filter(Boolean) || [],
+        selectedPlayingTime: params.get('playing_time')?.split(',').filter(Boolean) || [],
+        selectedPreviousPlayers: params.get('previous_players')?.split(',').filter(Boolean) || [],
+        selectedMinAge: minAgeParam ? { min: Number(minAgeParam.split('-')[0]), max: Number(minAgeParam.split('-')[1]) } : null,
+        selectedNumPlays: numPlaysParam ? { min: Number(numPlaysParam.split('-')[0]), max: Number(numPlaysParam.split('-')[1]) } : null,
+        sortBy: params.get('sort') || 'name',
+        page: Number(params.get('page')) || 1
+    };
+}
+
+function getFiltersFromUI() {
+    const query = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
+    const selectedCategories = getSelectedValues('categories');
+    const selectedMechanics = getSelectedValues('mechanics');
+    const selectedPlayerFilter = document.querySelector('input[name="players"]:checked')?.value || 'any';
+    const selectedWeight = getSelectedValues('weight');
+    const selectedPlayingTime = getSelectedValues('playing_time');
+    const selectedPreviousPlayers = getSelectedValues('previous_players');
+    const selectedMinAge = getSelectedRange('min_age');
+    const selectedNumPlays = getSelectedRange('numplays');
+    const sortBy = document.getElementById('sort-select')?.value || 'name';
+
+    return {
+        query,
+        selectedCategories,
+        selectedMechanics,
+        selectedPlayerFilter,
+        selectedWeight,
+        selectedPlayingTime,
+        selectedPreviousPlayers,
+        selectedMinAge,
+        selectedNumPlays,
+        sortBy,
+        page: currentPage
+    };
+}
+
+function updateURLWithFilters(filters) {
+    const params = new URLSearchParams();
+
+    if (filters.query) params.set('q', filters.query);
+    if (filters.selectedCategories?.length) params.set('categories', filters.selectedCategories.join(','));
+    if (filters.selectedMechanics?.length) params.set('mechanics', filters.selectedMechanics.join(','));
+    if (filters.selectedPlayerFilter && filters.selectedPlayerFilter !== 'any') params.set('players', filters.selectedPlayerFilter);
+    if (filters.selectedWeight?.length) params.set('weight', filters.selectedWeight.join(','));
+    if (filters.selectedPlayingTime?.length) params.set('playing_time', filters.selectedPlayingTime.join(','));
+    if (filters.selectedPreviousPlayers?.length) params.set('previous_players', filters.selectedPreviousPlayers.join(','));
+    if (filters.selectedMinAge) params.set('min_age', `${filters.selectedMinAge.min}-${filters.selectedMinAge.max}`);
+    if (filters.selectedNumPlays) params.set('numplays', `${filters.selectedNumPlays.min}-${filters.selectedNumPlays.max}`);
+    if (filters.sortBy && filters.sortBy !== 'name') params.set('sort', filters.sortBy);
+    if (filters.page && filters.page > 1) params.set('page', filters.page);
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    history.replaceState(filters, '', newUrl);
+}
+
+function updateUIFromState(state) {
+    document.getElementById('search-input').value = state.query;
+
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+    const checkboxFilters = {
+        'categories': state.selectedCategories,
+        'mechanics': state.selectedMechanics,
+        'weight': state.selectedWeight,
+        'playing_time': state.selectedPlayingTime,
+        'previous_players': state.selectedPreviousPlayers,
+    };
+
+    for (const name in checkboxFilters) {
+        const values = checkboxFilters[name];
+        if (values?.length) {
+            values.forEach(value => {
+                const cb = document.querySelector(`input[type="checkbox"][name="${name}"][value="${CSS.escape(value)}"]`);
+                if (cb) cb.checked = true;
+            });
+        }
+    }
+
+    const playerRadio = document.querySelector(`input[name="players"][value="${state.selectedPlayerFilter}"]`);
+    if (playerRadio) playerRadio.checked = true;
+
+    if (state.selectedPlayerFilter && state.selectedPlayerFilter !== 'any') {
+        const mainValue = state.selectedPlayerFilter.split('-')[0];
+        const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
+        allPlayerLabels.forEach(label => {
+            const level = parseInt(label.dataset.level, 10);
+            if (level > 0) {
+                label.style.display = label.dataset.parentValue === mainValue ? 'flex' : 'none';
+            }
+        });
+    }
+
+    const minAgeValue = state.selectedMinAge ? `${state.selectedMinAge.min}-${state.selectedMinAge.max}` : '0-100';
+    const minAgeRadio = document.querySelector(`input[name="min_age"][value="${minAgeValue}"]`);
+    if (minAgeRadio) minAgeRadio.checked = true;
+
+    const numPlaysValue = state.selectedNumPlays ? `${state.selectedNumPlays.min}-${state.selectedNumPlays.max}` : '0-9999';
+    const numPlaysRadio = document.querySelector(`input[name="numplays"][value="${numPlaysValue}"]`);
+    if (numPlaysRadio) numPlaysRadio.checked = true;
+
+    document.getElementById('sort-select').value = state.sortBy;
+    currentPage = state.page;
+}
+
+function onFilterChange(resetPage = true) {
+    const state = getFiltersFromUI();
+    if (resetPage) {
+        state.page = 1;
+        currentPage = 1;
+    }
+    updateURLWithFilters(state);
+    applyFiltersAndSort(state);
+    updateResults();
+    updateStats();
+}
+
 function setupClearAllButton() {
   const clearContainer = document.getElementById('clear-all');
   clearContainer.innerHTML = `
@@ -461,55 +604,19 @@ function handleFilterChange(attributeName, value, isChecked, isRadio) {
   // It triggers a re-application of all filters.
   // The parameters (attributeName, value, isChecked, isRadio) are passed from the event listener
   // but applyFilters() currently re-reads all filter states from the DOM, so they are not directly used here.
-  applyFilters();
+  onFilterChange();
 }
 
-function handleSearch(event) {
-  const query = event.target.value.toLowerCase().trim();
-  applyFilters(query);
+function handleSearch() {
+  onFilterChange();
 }
 
-function sortGames(sortBy) {
-  filteredGames.sort((a, b) => {
-    switch (sortBy) {
-      case 'name':
-        return a.name.localeCompare(b.name);
-      case 'rank':
-        return (a.rank || 999999) - (b.rank || 999999);
-      case 'rating':
-        return (b.rating || 0) - (a.rating || 0);
-      case 'numowned':
-        return (b.numowned || 0) - (a.numowned || 0);
-      case 'numrated':
-        return (b.usersrated || 0) - (a.usersrated || 0);
-      default:
-        return 0;
-    }
-  });
+function handleSort() {
+  onFilterChange();
 }
 
-function handleSort(event) {
-  const sortBy = event.target.value;
-  sortGames(sortBy);
-  currentPage = 1;
-  updateResults();
-}
-
-function applyFilters(searchQuery = null) {
-  const query = searchQuery !== null ? searchQuery :
-    (document.getElementById('search-input')?.value.toLowerCase().trim() || '');
-
-  // Get selected filters
-  const selectedCategories = getSelectedValues('categories');
-  const selectedMechanics = getSelectedValues('mechanics');
-  const selectedPlayerFilter = document.querySelector('input[name="players"]:checked')?.value;
-  const selectedWeight = getSelectedValues('weight');
-  const selectedPlayingTime = getSelectedValues('playing_time');
-  const selectedPreviousPlayers = getSelectedValues('previous_players');
-  const selectedMinAge = getSelectedRange('min_age');
-  const selectedNumPlays = getSelectedRange('numplays');
-
-  updateClearButtonVisibility({
+function applyFiltersAndSort(filters) {
+  const {
     query,
     selectedCategories,
     selectedMechanics,
@@ -518,8 +625,11 @@ function applyFilters(searchQuery = null) {
     selectedPlayingTime,
     selectedPreviousPlayers,
     selectedMinAge,
-    selectedNumPlays
-  });
+    selectedNumPlays,
+    sortBy
+  } = filters;
+
+  updateClearButtonVisibility(filters);
 
   filteredGames = allGames.filter(game => {
     // Text search
@@ -588,12 +698,22 @@ function applyFilters(searchQuery = null) {
   });
 
   // Sort the results
-  const sortBy = document.getElementById('sort-select').value;
-  sortGames(sortBy);
-
-  currentPage = 1;
-  updateResults();
-  updateStats();
+  filteredGames.sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'rank':
+        return (a.rank || 999999) - (b.rank || 999999);
+      case 'rating':
+        return (b.rating || 0) - (a.rating || 0);
+      case 'numowned':
+        return (b.numowned || 0) - (a.numowned || 0);
+      case 'numrated':
+        return (b.usersrated || 0) - (a.usersrated || 0);
+      default:
+        return 0;
+    }
+  });
 }
 
 function getSelectedValues(name) {
@@ -609,38 +729,13 @@ function getSelectedRange(name) {
   return { min, max };
 }
 
-function handleMinAgeFilter() {
-  applyFilters();
-}
-
-function handleNumPlaysFilter() {
-  applyFilters();
-}
-
 function clearAllFilters() {
-  // Clear text search
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) searchInput.value = '';
-
-  // Clear all checkboxes
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-
-  // Reset radio buttons to "Any" options
-  const playerAny = document.querySelector('input[name="players"][value="any"]');
-  if (playerAny) playerAny.checked = true;
-
-  const minAgeAny = document.querySelector('input[name="min_age"][value="0-100"]');
-  if (minAgeAny) minAgeAny.checked = true;
-
-  const numPlaysAny = document.querySelector('input[name="numplays"][value="0-9999"]');
-  if (numPlaysAny) numPlaysAny.checked = true;
-
-  // Reset sort to name
-  const sortSelect = document.getElementById('sort-select');
-  if (sortSelect) sortSelect.value = 'name';
-
-  // Re-apply filters, which will also sort and update the UI
-  applyFilters();
+  history.pushState({}, '', window.location.pathname);
+  const state = getFiltersFromURL();
+  updateUIFromState(state);
+  applyFiltersAndSort(state);
+  updateResults();
+  updateStats();
 }
 
 function updateResults() {
@@ -900,6 +995,8 @@ function updatePagination() {
 
 function goToPage(page) {
   currentPage = page;
+  const state = getFiltersFromUI();
+  updateURLWithFilters(state);
   updateResults();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
