@@ -187,20 +187,53 @@ function setupMechanicsFilter() {
 }
 
 function setupPlayersFilter() {
-  const playerCounts = new Set();
+  const playerCounts = new Map();
+
   allGames.forEach(game => {
+    const distinctPlayerCounts = new Set(game.players.map(([count, _]) => count.replace('+', '')));
+
+    distinctPlayerCounts.forEach(num => {
+        if (!playerCounts.has(num)) {
+            playerCounts.set(num, { total: 0, best: 0, recommended: 0, expansion: 0 });
+        }
+        playerCounts.get(num).total++;
+    });
+
     game.players.forEach(([count, type]) => {
-      playerCounts.add(count);
+        if (!type) return;
+        const num = count.replace('+', '');
+        if (!playerCounts.has(num)) {
+             // This case should ideally not be hit if the distinct counts are processed first, but as a safeguard:
+             playerCounts.set(num, { total: 0, best: 0, recommended: 0, expansion: 0 });
+        }
+        if (type === 'best') playerCounts.get(num).best++;
+        if (type === 'recommended') playerCounts.get(num).recommended++;
+        // Assuming 'expansion' is a possible type based on screenshot analysis
+        if (type === 'expansion') playerCounts.get(num).expansion++;
     });
   });
 
-  const sortedCounts = Array.from(playerCounts).sort((a, b) => {
-    const numA = parseInt(a.replace('+', ''));
-    const numB = parseInt(b.replace('+', ''));
-    return numA - numB;
+  const sortedKeys = Array.from(playerCounts.keys()).sort((a, b) => parseInt(a) - parseInt(b));
+
+  const items = [];
+  items.push({ label: 'Any', value: 'any', count: allGames.length, level: 0, default: true });
+  sortedKeys.forEach(num => {
+    const counts = playerCounts.get(num);
+    if (counts.total > 0) {
+        items.push({ label: `${num}`, value: num, count: counts.total, level: 0 });
+        if (counts.best > 0) {
+          items.push({ label: `Best with ${num}`, value: `${num}-best`, count: counts.best, level: 1 });
+        }
+        if (counts.recommended > 0) {
+          items.push({ label: `Recommended with ${num}`, value: `${num}-recommended`, count: counts.recommended, level: 1 });
+        }
+        if (counts.expansion > 0) {
+          items.push({ label: `Expansion allows ${num}`, value: `${num}-expansion`, count: counts.expansion, level: 1 });
+        }
+    }
   });
 
-  createRefinementFilter('facet-players', 'Number of players', sortedCounts, 'players');
+  createRefinementFilter('facet-players', 'Number of players', items, 'players', true);
 }
 
 function setupWeightFilter() {
@@ -259,10 +292,27 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       <summary>${title}</summary>
       <div class="filter-dropdown-content">
         ${items.map(item => {
-          const value = typeof item === 'object' ? `${item.min}-${item.max}` : item;
-          const label = typeof item === 'object' ? item.label : item;
-          const checked = (isRadio && (typeof item === 'object' ? item.default : false)) ? 'checked' : '';
+          if (attributeName === 'players' && typeof item === 'object') {
+            const { value, label, count, level, default: isDefault } = item;
+            const indentation = level > 0 ? `style="padding-left: ${level * 20}px;"` : '';
+            const countHtml = `<span class="facet-count" style="background-color: #f0f0f0; border-radius: 10px; padding: 0 8px; font-size: 12px; color: #333; margin-left: auto;">${count}</span>`;
+            const checked = isDefault ? 'checked' : '';
+            return `
+              <label class="filter-item" style="white-space: nowrap; display: flex; align-items: center; width: 100%;">
+                <div ${indentation} class="checkbox-label-wrapper" style="display: flex; align-items: center;">
+                  <input type="radio" name="${attributeName}" value="${value}" ${checked}>
+                  <span style="margin-left: 4px;">${label}</span>
+                </div>
+                ${countHtml}
+              </label>
+            `;
+          }
+
+          const value = typeof item === 'object' && item.min !== undefined ? `${item.min}-${item.max}` : item;
+          const label = typeof item === 'object' && item.label !== undefined ? item.label : item;
+          const checked = (isRadio && typeof item === 'object' && item.default) ? 'checked' : '';
           const inputType = isRadio ? 'radio' : 'checkbox';
+
           return `
             <label class="filter-item" style="white-space: nowrap;">
               <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
@@ -379,9 +429,7 @@ function handleSearch(event) {
   applyFilters(query);
 }
 
-function handleSort(event) {
-  const sortBy = event.target.value;
-
+function sortGames(sortBy) {
   filteredGames.sort((a, b) => {
     switch (sortBy) {
       case 'name':
@@ -398,7 +446,11 @@ function handleSort(event) {
         return 0;
     }
   });
+}
 
+function handleSort(event) {
+  const sortBy = event.target.value;
+  sortGames(sortBy);
   currentPage = 1;
   updateResults();
 }
@@ -410,7 +462,7 @@ function applyFilters(searchQuery = null) {
   // Get selected filters
   const selectedCategories = getSelectedValues('categories');
   const selectedMechanics = getSelectedValues('mechanics');
-  const selectedPlayers = getSelectedValues('players');
+  const selectedPlayerFilter = document.querySelector('input[name="players"]:checked')?.value;
   const selectedWeight = getSelectedValues('weight');
   const selectedPlayingTime = getSelectedValues('playing_time');
   const selectedPreviousPlayers = getSelectedValues('previous_players');
@@ -437,10 +489,21 @@ function applyFilters(searchQuery = null) {
     }
 
     // Players filter
-    if (selectedPlayers.length > 0 &&
-        !selectedPlayers.some(player =>
-          game.players.some(([count]) => count === player))) {
-      return false;
+    if (selectedPlayerFilter && selectedPlayerFilter !== 'any') {
+      const [expectedCount, expectedType] = selectedPlayerFilter.split('-');
+
+      const match = game.players.some(([count, type]) => {
+        const gameCount = count.replace('+', '');
+        if (expectedType) {
+          return gameCount === expectedCount && type === expectedType;
+        } else {
+          return gameCount === expectedCount;
+        }
+      });
+
+      if (!match) {
+        return false;
+      }
     }
 
     // Weight filter
@@ -471,6 +534,10 @@ function applyFilters(searchQuery = null) {
 
     return true;
   });
+
+  // Sort the results
+  const sortBy = document.getElementById('sort-select').value;
+  sortGames(sortBy);
 
   currentPage = 1;
   updateResults();
@@ -507,17 +574,21 @@ function clearAllFilters() {
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
   // Reset radio buttons to "Any" options
-  document.querySelectorAll('input[name="min_age"][value="0-100"]').forEach(radio => radio.checked = true);
-  document.querySelectorAll('input[name="numplays"][value="0-9999"]').forEach(radio => radio.checked = true);
+  const playerAny = document.querySelector('input[name="players"][value="any"]');
+  if (playerAny) playerAny.checked = true;
+
+  const minAgeAny = document.querySelector('input[name="min_age"][value="0-100"]');
+  if (minAgeAny) minAgeAny.checked = true;
+
+  const numPlaysAny = document.querySelector('input[name="numplays"][value="0-9999"]');
+  if (numPlaysAny) numPlaysAny.checked = true;
 
   // Reset sort to name
   const sortSelect = document.getElementById('sort-select');
   if (sortSelect) sortSelect.value = 'name';
 
-  filteredGames = [...allGames];
-  currentPage = 1;
-  updateResults();
-  updateStats();
+  // Re-apply filters, which will also sort and update the UI
+  applyFilters();
 }
 
 function updateResults() {
