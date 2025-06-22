@@ -2,9 +2,23 @@
 body {
     background: #F8FAFC;
     color: #606c76;
-    font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-    font-size: 14px;
+    font-family: "Roboto Flex", sans-serif;
+    font-optical-sizing: auto;
     font-weight: 300;
+    font-style: normal;
+    font-variation-settings:
+        "slnt" 0,
+        "wdth" 100,
+        "GRAD" 0,
+        "XOPQ" 96,
+        "XTRA" 468,
+        "YOPQ" 79,
+        "YTAS" 750,
+        "YTDE" -203,
+        "YTFI" 738,
+        "YTLC" 514,
+        "YTUC" 712;
+    font-size: 13px;
     letter-spacing: .01em;
     line-height: 1.2;
 }
@@ -245,7 +259,7 @@ body {
 }
 
 .cover-image {
-    height: 40px;
+    height: 60px;
     margin-right: 16px;
     flex-shrink: 0;
 }
@@ -268,6 +282,11 @@ body {
     font-size: 1.4em;
     font-weight: 700;
     line-height: 1.2;
+}
+
+.title-section .tag-chips {
+    padding-top: 5px;
+    font-size: 0.8em;
 }
 
 .close-btn {
@@ -714,12 +733,12 @@ body {
 .tag-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0; /* Prevent shrinking */
 }
 
 .tag-chip {
-    padding: 4px 10px;
+    padding: 4px 6px;
     border-radius: 16px;
     font-size: 0.8em;
     font-weight: 500;

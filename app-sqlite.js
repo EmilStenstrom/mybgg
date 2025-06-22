@@ -1077,6 +1077,7 @@ function renderGameCard(game) {
           </div>
           <div class="title-section">
             <h1 class="game-title">${highlightText(game.name, getCurrentSearchQuery())}</h1>
+            ${formatCategoryChips(game)}
           </div>
           <button class="close-button"><span class="material-symbols-rounded">close</span></button>
         </div>
@@ -1104,7 +1105,7 @@ function renderGameCard(game) {
 
         <!-- Tags Section -->
         <div class="tags-section">
-          ${formatGameTags(game)}
+          ${formatMechanicChips(game)}
         </div>
 
         ${formatOwnedExpansions(game.expansions)}
@@ -1158,21 +1159,26 @@ function formatOwnedExpansions(expansions) {
   `;
 }
 
-// Helper function to format game tags with count limit
-function formatGameTags(game) {
-  const mechanicsHtml = game.mechanics.map(mech =>
-    `<span class="tag-chip mechanic-chip">${escapeHtml(mech)}</span>`
-  ).join('');
-
+// Helper function to format category chips
+function formatCategoryChips(game) {
+  if (!game.categories || game.categories.length === 0) {
+    return '';
+  }
   const categoriesHtml = game.categories.map(cat =>
     `<span class="tag-chip category-chip">${escapeHtml(cat)}</span>`
   ).join('');
+  return `<div class="tag-chips">${categoriesHtml}</div>`;
+}
 
-  if (!mechanicsHtml && !categoriesHtml) {
-      return '';
+// Helper function to format mechanic chips
+function formatMechanicChips(game) {
+  if (!game.mechanics || game.mechanics.length === 0) {
+    return '';
   }
-
-  return `<div class="tag-chips">${categoriesHtml}${mechanicsHtml}</div>`;
+  const mechanicsHtml = game.mechanics.map(mech =>
+    `<span class="tag-chip mechanic-chip">${escapeHtml(mech)}</span>`
+  ).join('');
+  return `<div class="tag-chips">${mechanicsHtml}</div>`;
 }
 
 function formatPlayerCount(players) {
