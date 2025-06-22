@@ -1,18 +1,14 @@
 
 // Configuration loaded from HTML data attributes
 const CONFIG = (() => {
-  const body = document.body;
   return {
-    GAMES_PER_PAGE: parseInt(body.dataset.gamesPerPage) || 48,
-    MAX_DESCRIPTION_LENGTH: parseInt(body.dataset.maxDescriptionLength) || 200,
-    GAUGE_RADIUS: parseInt(body.dataset.gaugeRadius) || 10,
-    COMPLEXITY_THRESHOLDS: body.dataset.complexityThresholds?.split(',').map(Number) || [1.5, 2.5, 3.5, 4.5],
-    COMPLEXITY_NAMES: body.dataset.complexityNames?.split(',') || ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'],
-    PLAYING_TIMES: body.dataset.playingTimes?.split(',') || ['< 30min', '30min - 1h', '1-2h', '2-3h', '3-4h', '> 4h'],
-    SORT_OPTIONS: body.dataset.sortOptions?.split(',').map(opt => {
-      const [value, text] = opt.split(':');
-      return { value, text };
-    }) || [
+    GAMES_PER_PAGE: 48,
+    MAX_DESCRIPTION_LENGTH: 400,
+    GAUGE_RADIUS: 10,
+    COMPLEXITY_THRESHOLDS: [1.5, 2.5, 3.5, 4.5],
+    COMPLEXITY_NAMES: ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'],
+    PLAYING_TIMES: ['< 30min', '30min - 1h', '1-2h', '2-3h', '3-4h', '> 4h'],
+    SORT_OPTIONS: [
       { value: 'name', text: 'Name (A-Z)' },
       { value: 'rank', text: 'BGG Rank' },
       { value: 'rating', text: 'Rating' },
@@ -1200,9 +1196,6 @@ function renderGameCard(game) {
   // Set number of plays
   clone.querySelector('.numplays-value').textContent = game.numplays || "No";
 
-  // Set BGG link
-  clone.querySelector('.bgg-link').href = `https://boardgamegeek.com/boardgame/${game.id}`;
-
   return clone;
 }
 
@@ -1465,12 +1458,6 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
   popup.style.overflowY = '';
   const popupRect = popup.getBoundingClientRect();
 
-  console.log('Positioning popup (using natural dimensions):', {
-    triggerRect,
-    popupRect,
-    clickEvent: clickEvent ? { x: clickEvent.clientX, y: clickEvent.clientY } : 'none'
-  });
-
   let desiredAbsoluteLeft = triggerRect.left + (triggerRect.width - popupRect.width) / 2;
   let desiredAbsoluteTop = triggerRect.top + (triggerRect.height - popupRect.height) / 2;
 
@@ -1504,8 +1491,6 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
 
   const finalLeftStyle = currentAbsoluteLeft - triggerRect.left;
   const finalTopStyle = currentAbsoluteTop - triggerRect.top;
-
-  console.log('Final style positions (relative to trigger):', { left: finalLeftStyle, top: finalTopStyle });
 
   popup.style.left = finalLeftStyle + 'px';
   popup.style.top = finalTopStyle + 'px';
@@ -1561,15 +1546,6 @@ function on_render() {
         const ratingGaugeFg = bottomInfo.querySelector(".rating-gauge .gauge-fg");
         if (ratingGaugeFg) {
           ratingGaugeFg.style.stroke = `rgb(${color})`;
-        }
-      }
-
-      const bggFooter = card.querySelector(".bgg-footer");
-      if (bggFooter) {
-        bggFooter.style.backgroundColor = `rgb(${color})`;
-        const bggLink = bggFooter.querySelector(".bgg-link");
-        if (bggLink) {
-          bggLink.style.color = textColor;
         }
       }
     }

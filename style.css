@@ -3,7 +3,6 @@ body {
     color: #606c76;
     font-family: "Roboto Flex", sans-serif;
     font-optical-sizing: auto;
-    font-weight: 300;
     font-style: normal;
     font-variation-settings:
         "slnt" 0,
@@ -26,18 +25,15 @@ a {
     color: #b71c1c;
 }
 
-strong {
-    font-weight: 700;
+h2 {
+    margin: 0;
+    margin-bottom: 5px;
+    padding: 0;
+    font-size: 9px;
+    text-transform: uppercase;
 }
 
-h3 {
-    font-size: 0.9em;
-    margin-bottom: 0.5em;
-    font-weight: normal;
-    text-transform: uppercase;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-}
+
 
 details summary {
     cursor: pointer;
@@ -67,6 +63,10 @@ body {
 .wrapper {
     padding: 1em;
     position: relative;
+}
+
+.material-symbols-rounded {
+    font-size: 24px;
 }
 
 .facets {
@@ -107,7 +107,7 @@ body {
 }
 
 .filter-dropdown>summary>.material-symbols-rounded {
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .filter-dropdown[open]>.filter-dropdown-content {
@@ -118,7 +118,6 @@ body {
     background-color: #fff;
     border: 1px solid #ccc;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1em;
     min-width: 200px;
 }
 
@@ -142,7 +141,7 @@ body {
     background: #b71c1c;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
     box-sizing: border-box;
     height: 100%;
@@ -209,7 +208,7 @@ body {
     justify-content: center;
     height: 130px;
     margin: 0;
-    padding: 10px;
+    padding: 10px 15px;
     position: relative;
     list-style: none;
 }
@@ -241,20 +240,20 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    font-family: 'Roboto', sans-serif;
+    font-size: 11px
 }
 
 .card-header {
     display: flex;
     align-items: center;
-    padding: 16px;
+    padding: 10px 15px;
     border-bottom: 1px solid #e0e0e0;
     position: relative;
 }
 
 .cover-image {
     height: 60px;
-    margin-right: 16px;
+    margin-right: 15px;
     flex-shrink: 0;
 }
 
@@ -262,7 +261,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: 5px;
     border: 1px solid #ddd;
 }
 
@@ -272,15 +271,12 @@ body {
 }
 
 .game-title {
-    margin: 0 0 8px 0;
-    font-size: 1.3em;
-    font-weight: 700;
+    margin: 0 0 5px 0;
+    font-size: 20px;
     line-height: 1.2;
-}
-
-.title-section .tag-chips {
-    padding-top: 5px;
-    font-size: 0.75em;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+    line-height: 1.2;
 }
 
 .title-section .tag-chip {
@@ -314,24 +310,18 @@ body {
 .stats-bar {
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 12px 16px;
+    gap: 15px;
+    padding: 10px 15px 10px;
     background: #f8f9fa;
     border-bottom: 1px solid #e0e0e0;
-    font-size: 0.85em;
     flex-wrap: wrap;
 }
 
 .stat-item {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     color: #555;
-    font-weight: 500;
-}
-
-.stat-item.complexity-stat {
-    gap: 8px;
 }
 
 .complexity-gauge {
@@ -353,61 +343,37 @@ body {
 
 .complexity-gauge .gauge-text {
     font-size: 8px;
-    font-weight: 700;
     text-anchor: middle;
     transform: rotate(90deg);
     transform-origin: 12px 12px;
     fill: #333;
 }
 
-.stat-item .material-symbols-rounded {
-    font-size: 16px;
-    color: #666;
-}
-
 .description-section {
-    padding: 15px;
-    font-size: 0.9em;
+    padding: 10px 15px;
     line-height: 1.5;
     color: #444;
 }
 
-.teaser-text {
-    font-size: 0.9em;
-}
-
 .tags-section {
-    padding: 0 15px 15px;
-    border-bottom: 1px solid #e0e0e0;
-    color: #666;
-    font-size: 0.85em;
+    padding: 10px 15px;
+    border-top: 1px solid #e0e0e0;
 }
 
 .expansions-section {
-    padding: 15px;
-}
-
-.expansions-section h3 {
-    border: none;
-    margin: 0;
-    font-size: 0.75em;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #777;
-    letter-spacing: 0.05em;
+    padding: 10px 15px;
 }
 
 .expansion-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 5px;
 }
 
 .expansion-chip {
     padding: 4px 10px;
-    border-radius: 16px;
+    border-radius: 10px;
     font-size: 0.8em;
-    font-weight: 500;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: rgba(0, 0, 0, 0.05);
     color: #333;
@@ -433,39 +399,25 @@ body {
 .owned-status {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
     color: #28a745;
-    font-weight: 500;
     font-size: 0.9em;
-}
-
-.owned-status .material-symbols-rounded {
-    color: #28a745;
-    font-size: 16px;
 }
 
 .rating-section {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #666;
-    font-size: 0.85em;
+    gap: 5px;
 }
 
 .plays-section {
     display: flex;
     align-items: center;
-    gap: 4px;
-    color: #666;
-}
-
-.plays-section .material-symbols-rounded {
-    color: #666;
-    font-size: 16px;
+    gap: 5px;
 }
 
 .bgg-footer {
-    padding: 12px 16px;
+    padding: 10px 15px;
     text-align: center;
     background: #f8f9fa;
 }
@@ -473,8 +425,6 @@ body {
 .bgg-link {
     color: #007bff;
     text-decoration: none;
-    font-size: 0.85em;
-    font-weight: 500;
 }
 
 .bgg-link:hover {
@@ -488,7 +438,7 @@ body {
 
 .star-rating .star {
     color: #ffc107;
-    font-size: 16px;
+    font-size: 10px;
 }
 
 .star-rating .star.empty {
@@ -526,18 +476,6 @@ body {
     background: rgba(0, 0, 0, 0.6);
 }
 
-.close-button .material-symbols-rounded {
-    font-size: 20px;
-}
-
-.material-symbols-rounded {
-    font-variation-settings:
-        'FILL' 1,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24
-}
-
 .hero-strip {
     height: 90px;
     position: relative;
@@ -555,51 +493,11 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 12px;
-}
-
-.game-title {
-    margin: 0;
-    font-size: 1.6em;
-    font-weight: 700;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
-    line-height: 1.2;
-}
-
-.game-title a {
-    color: white;
-    text-decoration: none;
-}
-
-.pill-badges {
-    display: flex;
-    gap: 6px;
-    flex-shrink: 0;
-}
-
-.pill-badge {
-    background: rgba(255, 255, 255, 0.95);
-    color: #333;
-    padding: 3px 8px;
-    border-radius: 5px;
-    font-size: 0.75em;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-.pill-badge.rank {
-    background: #777;
-    color: white;
-}
-
-.pill-badge.rating {
-    background: #222;
-    color: white;
+    padding: 0 10px;
 }
 
 .bgg-link-section {
-    padding: 12px 15px;
+    padding: 10px 15px;
     text-align: center;
     background: #f8f9fa;
     border-top: 1px solid #eee;
@@ -608,23 +506,16 @@ body {
 
 .bgg-link {
     display: inline-block;
-    padding: 8px 16px;
+    padding: 10px 15px;
     border-radius: 6px;
     text-decoration: none;
-    font-size: 0.9em;
     line-height: 1;
-}
-
-.bgg-link .material-symbols-outlined {
-    vertical-align: -0.2em;
-    margin-right: 4px;
-    font-size: 1.2em;
 }
 
 .quick-stats {
     display: flex;
     justify-content: space-around;
-    padding: 15px;
+    padding: 10px 15px;
     background: #f8f9fa;
     border-bottom: 1px solid #eee;
     flex-shrink: 0;
@@ -635,15 +526,9 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    font-size: 0.9em;
-}
-
-.stat-icon {
-    font-size: 1.8em;
 }
 
 .stat-value {
-    font-weight: 600;
     color: #333;
 }
 
@@ -674,7 +559,7 @@ body {
 }
 
 .teaser-section {
-    padding: 15px;
+    padding: 10px 15px;
     border-bottom: 1px solid #eee;
     flex: 1;
     overflow-y: auto;
@@ -688,34 +573,28 @@ body {
 .more-button {
     background: none;
     border: none;
-    color: #666;
     cursor: pointer;
     font-size: inherit;
-    padding: 2px 4px;
-    margin-left: 4px;
-    text-decoration: underline;
+    padding: 0;
+    margin: 0;
     display: inline;
-    min-height: 20px;
-    min-width: 40px;
 }
 
 .more-button:hover {
-    color: #333;
-    background-color: #f5f5f5;
+    text-decoration: underline;
 }
 
 .tag-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    flex-shrink: 0;
+    gap: 3px;
+    font-size: 9px;
+    margin-left: -5px
 }
 
 .tag-chip {
     padding: 4px 6px;
-    border-radius: 16px;
-    font-size: 0.75em;
-    font-weight: 500;
+    border-radius: 10px;
     background: rgba(0, 0, 0, 0.05);
 }
 
@@ -727,12 +606,11 @@ body {
 
 .tag-chip.categories {
     background: #f8f8f8;
-    color: #666;
     border-color: #ddd;
 }
 
 .bottom-info {
-    padding: 15px;
+    padding: 10px 15px;
     background: #f8f9fa;
     border-top: 1px solid #eee;
     display: flex;
@@ -740,61 +618,16 @@ body {
     gap: 15px;
     margin-top: auto;
     flex-shrink: 0;
-    font-size: 0.85em;
 }
 
-.info-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-}
 
-.info-item label {
-    font-size: 0.75em;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #666;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-.info-item label .material-symbols-outlined {
-    font-size: 2em;
-}
-
-.play-count {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: #333;
-}
-
-.star-display {
-    display: flex;
-    gap: 2px;
-}
-
-.star {
-    font-size: 1.2em;
-    color: #ddd;
-}
-
-.star.filled {
-    color: #ffc107;
-}
 
 .no-rating {
-    color: #666;
     font-style: italic;
     font-size: 0.9em;
 }
 
 .owned-status {
-    font-weight: 600;
     color: #4caf50;
     font-size: 1.1em;
 }
@@ -840,7 +673,7 @@ body {
     color: #d32f2f;
     background: #ffeaea;
     border: 1px solid #ffcdd2;
-    border-radius: 4px;
+    border-radius: 5px;
     margin: 1em;
 }
 
@@ -901,7 +734,7 @@ body {
     width: 100%;
     padding: 0.5em;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
     font-size: 1em;
     box-sizing: border-box;
 }
@@ -909,7 +742,7 @@ body {
 #sort-select {
     padding: 0.5em;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 5px;
     background: white;
     font-size: 1em;
     box-sizing: border-box;
@@ -930,8 +763,7 @@ body {
     border: 1px solid #ddd;
     background: white;
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 0.9em;
+    border-radius: 5px;
 }
 
 .pagination button:hover {
@@ -951,23 +783,5 @@ body {
 
 .highlight {
     background: yellow;
-    font-weight: bold;
     color: #333;
-}
-
-.metadata {
-    margin-top: 1em;
-    padding-top: 1em;
-    border-top: 1px solid #eee;
-    display: none;
-}
-
-.metadata div {
-    margin-bottom: 0.3em;
-    font-size: 0.9em;
-}
-
-.metadata strong {
-    color: #333;
-    margin-right: 0.5em;
 }
