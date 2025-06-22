@@ -1,12 +1,10 @@
 import sqlite3
 import json
-import gzip
 import logging
-import os
 from typing import List, Dict, Any
 from .models import BoardGame
 import io
-import time # Added for fetch_image retry
+import time  # Added for fetch_image retry
 import colorgram
 import requests
 from PIL import Image, ImageFile
@@ -42,7 +40,7 @@ class SqliteIndexer:
                 categories TEXT,  -- JSON array
                 mechanics TEXT,   -- JSON array
                 players TEXT,     -- JSON array of [number, type] pairs
-                weight TEXT,
+                weight REAL,
                 playing_time TEXT,
                 min_age INTEGER,
                 rank INTEGER,
@@ -96,8 +94,8 @@ class SqliteIndexer:
         # Clear existing data
         cursor.execute('DELETE FROM games')
 
-        for game_obj in collection: # Renamed game to game_obj to avoid conflict with game dict
-            game = game_obj.todict() # Convert BoardGame object to dictionary
+        for game_obj in collection:  # Renamed game to game_obj to avoid conflict with game dict
+            game = game_obj.todict()  # Convert BoardGame object to dictionary
 
             # Convert complex fields to JSON strings
             categories_json = json.dumps(game.get('categories', []))
@@ -107,7 +105,6 @@ class SqliteIndexer:
             previous_players_json = json.dumps(game.get('previous_players', []))
             expansions_list = game.get('expansions', [])
             expansions_json = json.dumps([self._expansion_to_dict(exp) for exp in expansions_list if exp])
-
 
             color_str = None
             if game.get("image"):
@@ -151,38 +148,20 @@ class SqliteIndexer:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 game.get('id'), game.get('name'), game.get('description'), categories_json, mechanics_json,
-                players_json, str(game.get('weight')) if game.get('weight') is not None else None,
-                game.get('playing_time'), game.get('min_age'),
-                str(game.get('rank')) if game.get('rank') is not None else None,
-                str(game.get('usersrated')) if game.get('usersrated') is not None else None,
-                str(game.get('numowned')) if game.get('numowned') is not None else None,
-                str(game.get('rating')) if game.get('rating') is not None else None,
+                players_json,
+                float(game.get('weight')) if game.get('weight') is not None else None,
+                game.get('playing_time'),
+                game.get('min_age'),
+                int(game.get('rank')) if game.get('rank') is not None else None,
+                int(game.get('usersrated')) if game.get('usersrated') is not None else None,
+                int(game.get('numowned')) if game.get('numowned') is not None else None,
+                float(game.get('rating')) if game.get('rating') is not None else None,
                 game.get('numplays'), game.get('image'), tags_json, previous_players_json,
                 expansions_json, color_str
             ))
         conn.commit()
         conn.close()
         logger.info(f"Added {len(collection)} games to SQLite database")
-
-        # Create gzipped version and remove the original .sqlite file
-        self._create_gzipped_version()
-        if os.path.exists(self.db_path):
-            os.remove(self.db_path)
-            logger.info(f"Removed uncompressed database: {self.db_path}")
-
-    def _create_gzipped_version(self):
-        """Create a gzipped version of the SQLite database."""
-        if not os.path.exists(self.db_path):
-            logger.error(f"Database file {self.db_path} does not exist. Cannot create gzipped version.")
-            return
-
-        try:
-            with open(self.db_path, 'rb') as f_in,\
-                 gzip.open(self.db_path_gz, 'wb') as f_out:
-                f_out.write(f_in.read())
-            logger.info(f"Created gzipped database: {self.db_path_gz}")
-        except Exception as e:
-            logger.error(f"Error creating gzipped database: {e}")
 
     def _expansion_to_dict(self, expansion) -> Dict[str, Any]:
         """Convert expansion object to dictionary for JSON serialization."""
@@ -193,14 +172,14 @@ class SqliteIndexer:
                 'name': expansion.get('name', ''),
                 'players': expansion.get('players', []),
             }
-        if hasattr(expansion, 'todict'): # If it\'s an object with todict method
-             exp_dict = expansion.todict()
-             return {
+        if hasattr(expansion, 'todict'):  # If it's an object with todict method
+            exp_dict = expansion.todict()
+            return {
                 'id': exp_dict.get('id'),
                 'name': exp_dict.get('name', ''),
                 'players': exp_dict.get('players', []),
             }
-        if hasattr(expansion, '__dict__'): # Fallback for simple objects
+        if hasattr(expansion, '__dict__'):  # Fallback for simple objects
             exp_vars = vars(expansion)
             return {
                 'id': exp_vars.get('id'),

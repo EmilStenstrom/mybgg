@@ -1,5 +1,7 @@
 import json
 import sys
+import gzip
+import os
 
 from mybgg.downloader import Downloader
 from mybgg.sqlite_indexer import SqliteIndexer
@@ -41,13 +43,19 @@ def main(args):
     indexer.add_objects(collection)
     print(f"Created SQLite database with {num_games} games and {num_expansions} expansions.")
 
+    # Gzip the database and remove the original
+    gzip_path = f"{sqlite_path}.gz"
+    with open(sqlite_path, 'rb') as f_in, gzip.open(gzip_path, 'wb') as f_out:
+        f_out.write(f_in.read())
+    os.remove(sqlite_path)
+    print(f"Created gzipped database: {gzip_path}")
+
     # Upload to GitHub if not disabled
     if not args.no_upload:
         try:
             github_manager = setup_github_integration(SETTINGS)
 
             # Upload the gzipped SQLite file
-            gzip_path = f"{sqlite_path}.gz"
             snapshot_tag = SETTINGS["github"].get("snapshot_tag", "snapshot")
             asset_name = SETTINGS["github"].get("snapshot_asset", "mybgg.sqlite.gz")
 

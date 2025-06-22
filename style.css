@@ -238,7 +238,7 @@ body {
 
 .card-header {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
     position: relative;
@@ -268,12 +268,6 @@ body {
     font-size: 1.4em;
     font-weight: 700;
     line-height: 1.2;
-}
-
-.subtitle {
-    font-size: 0.9em;
-    font-weight: 400;
-    opacity: 0.85; /* Slightly less prominent than the title */
 }
 
 .close-btn {
@@ -318,6 +312,37 @@ body {
     font-weight: 500;
 }
 
+.stat-item.complexity-stat {
+    gap: 8px;
+}
+
+.complexity-gauge {
+    transform: rotate(-90deg);
+}
+
+.complexity-gauge .gauge-bg {
+    fill: none;
+    stroke: #e0e0e0;
+    stroke-width: 2.5;
+}
+
+.complexity-gauge .gauge-fg {
+    fill: none;
+    /* stroke is set by JS */
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s ease-out;
+}
+
+.complexity-gauge .gauge-text {
+    font-size: 9px;
+    font-weight: 700;
+    text-anchor: middle;
+    transform: rotate(90deg);
+    transform-origin: 12px 12px;
+    fill: #333;
+}
+
 .stat-item .material-symbols-rounded {
     font-size: 18px;
     color: #666;
@@ -339,6 +364,53 @@ body {
     border-bottom: 1px solid #e0e0e0;
     color: #666;
     font-size: 0.9em;
+}
+
+.expansions-section {
+    padding: 15px;
+}
+
+.expansions-section h3 {
+    border: none;
+    margin: 0;
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #777;
+    letter-spacing: 0.05em;
+}
+
+.expansion-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.expansion-chip {
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.85em;
+    font-weight: 500;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.05);
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.expansion-chip:hover {
+    background: rgba(0,0,0,0.1);
+    border-color: rgba(0,0,0,0.2);
+    color: #000;
+}
+
+.expansions-section div a {
+    color: #b71c1c;
+    text-decoration: none;
+}
+
+.expansions-section div a:hover {
+    text-decoration: underline;
 }
 
 .bottom-info {

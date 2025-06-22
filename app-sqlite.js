@@ -105,6 +105,9 @@ function loadAllGames() {
   while (stmt.step()) {
     const row = stmt.getAsObject();
 
+    // Parse weight to a float. It will be NaN if not a valid number.
+    row.weight = parseFloat(row.weight);
+
     // Parse JSON fields
     try {
       row.categories = JSON.parse(row.categories || '[]');
@@ -298,7 +301,10 @@ function setupWeightFilter() {
   const weightCounts = {};
   allGames.forEach(game => {
     if (game.weight) {
-      weightCounts[game.weight] = (weightCounts[game.weight] || 0) + 1;
+      const name = getComplexityName(game.weight);
+      if (name) {
+        weightCounts[name] = (weightCounts[name] || 0) + 1;
+      }
     }
   });
 
@@ -797,8 +803,11 @@ function filterGames(gamesToFilter, filters) {
     }
 
     // Weight filter
-    if (selectedWeight.length > 0 && !selectedWeight.includes(game.weight)) {
-      return false;
+    if (selectedWeight.length > 0) {
+      const gameWeightName = getComplexityName(game.weight);
+      if (!gameWeightName || !selectedWeight.includes(gameWeightName)) {
+        return false;
+      }
     }
 
     // Playing time filter
@@ -913,7 +922,10 @@ function updateAllFilterCounts(filters) {
   const weightCounts = {};
   gamesForWeightCount.forEach(game => {
     if (game.weight) {
-      weightCounts[game.weight] = (weightCounts[game.weight] || 0) + 1;
+      const name = getComplexityName(game.weight);
+      if (name) {
+        weightCounts[name] = (weightCounts[name] || 0) + 1;
+      }
     }
   });
   updateCountsInDOM('facet-weight', weightCounts);
@@ -1065,17 +1077,21 @@ function renderGameCard(game) {
           </div>
           <div class="title-section">
             <h1 class="game-title">${highlightText(game.name, getCurrentSearchQuery())}</h1>
-            <div class="subtitle">${formatPlayerCountShort(game.players)} players · ${game.playing_time || 'Unknown time'}</div>
           </div>
           <button class="close-button"><span class="material-symbols-rounded">close</span></button>
         </div>
 
         <!-- Stats Bar -->
         <div class="stats-bar">
-          ${game.rank ? `<div class="stat-item"><span class="material-symbols-rounded">leaderboard</span> ${game.rank}</div>` : ''}
-          ${game.rating ? `<div class="stat-item"><span class="material-symbols-rounded">star</span> ${game.rating.toFixed(1)}</div>` : ''}
           ${game.playing_time ? `<div class="stat-item"><span class="material-symbols-rounded">schedule</span> ${game.playing_time}</div>` : ''}
           ${game.players.length > 0 ? `<div class="stat-item"><span class="material-symbols-rounded">groups</span> ${formatPlayerCountShort(game.players)}</div>` : ''}
+          ${/* Check if weight is a valid number (parseFloat in loadAllGames turns invalid/missing into NaN) */ ''}
+          ${typeof game.weight === 'number' && !isNaN(game.weight) ? `
+            <div class="stat-item complexity-stat">
+              ${renderComplexityGauge(game.weight)}
+              <span>${getComplexityName(game.weight)}</span>
+            </div>
+          ` : ''}
           ${game.min_age ? `<div class="stat-item"><span class="material-symbols-rounded">child_care</span> ${game.min_age}+</div>` : ''}
         </div>
 
@@ -1091,15 +1107,19 @@ function renderGameCard(game) {
           ${formatGameTags(game)}
         </div>
 
+        ${formatOwnedExpansions(game.expansions)}
+
         <!-- Bottom Info Section -->
         <div class="bottom-info">
           <div class="info-group">
             <div class="rating-section">
-              ${renderStarRating(game.rating)} Rate
+              ${renderStarRating(game.rating)}
+              ${game.rating ? `<strong>${game.rating.toFixed(1)}</strong>` : 'Rate'}
             </div>
             <div class="plays-section">
               <span class="material-symbols-rounded">play_arrow</span> ${game.numplays || 0} plays
             </div>
+            ${game.rank ? `<div class="stat-item"><span class="material-symbols-rounded">leaderboard</span> ${game.rank}</div>` : ''}
           </div>
         </div>
 
@@ -1111,6 +1131,24 @@ function renderGameCard(game) {
         </div>
       </div>
     </details>
+  `;
+}
+
+// Helper function to format owned expansions with links
+function formatOwnedExpansions(expansions) {
+  if (!expansions || expansions.length === 0) {
+    return '';
+  }
+
+  const expansionLinks = expansions
+    .map(exp => `<a href="https://boardgamegeek.com/boardgame/${exp.id}" target="_blank" class="expansion-chip">${exp.name}</a>`)
+    .join('');
+
+  return `
+    <div class="expansions-section">
+      <h3>Expansions</h3>
+      <div class="expansion-chips">${expansionLinks}</div>
+    </div>
   `;
 }
 
@@ -1182,26 +1220,29 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-function renderComplexityGaugeSmall(complexityScore) {
-  const filled = Math.round(complexityScore / 2);
-  const empty = 5 - filled;
+function renderComplexityGauge(score) {
+  if (isNaN(score)) return '';
+
+  const radius = 10;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 5) * circumference;
+
   return `
-    <div class="complexity-gauge-small">
-      ${'★'.repeat(filled).split('').map((s, i) => `<span class="star material-symbols-rounded filled" style="color: #f39c12;" aria-hidden="true">${s}</span>`).join('')}
-      ${'☆'.repeat(empty).split('').map((s, i) => `<span class="star material-symbols-rounded" style="color: #ccc;" aria-hidden="true">${s}</span>`).join('')}
-    </div>
+    <svg class="complexity-gauge" width="24" height="24" viewBox="0 0 24 24">
+      <circle class="gauge-bg" cx="12" cy="12" r="${radius}" />
+      <circle class="gauge-fg" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
+      <text class="gauge-text" x="12" y="12" dy=".3em">${score.toFixed(1)}</text>
+    </svg>
   `;
 }
 
-function getComplexityScore(weight) {
-  const weightMap = {
-    'Light': 1.5,
-    'Light Medium': 2.2,
-    'Medium': 3.0,
-    'Medium Heavy': 3.8,
-    'Heavy': 4.5
-  };
-  return weightMap[weight] || null;
+function getComplexityName(score) {
+    if (isNaN(score) || score <= 0) return '';
+    if (score < 1.5) return 'Light';
+    if (score < 2.5) return 'Light Medium';
+    if (score < 3.5) return 'Medium';
+    if (score < 4.5) return 'Medium Heavy';
+    return 'Heavy';
 }
 
 function renderStarRating(rating) {
@@ -1468,6 +1509,11 @@ function on_render() {
         statIcons.forEach(icon => {
             icon.style.color = `rgb(${color})`;
         });
+
+        const gaugeFg = statsBar.querySelector(".gauge-fg");
+        if (gaugeFg) {
+            gaugeFg.style.stroke = `rgb(${color})`;
+        }
       }
 
       // Apply game color to the play icon and filled stars
