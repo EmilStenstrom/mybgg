@@ -1,11 +1,11 @@
-// SQLite-based search application to replace Algolia
+
 let db = null;
 let allGames = [];
 let filteredGames = [];
 let currentPage = 1;
 const GAMES_PER_PAGE = 48;
 
-// Load configuration and initialize the app
+
 function loadJSON(path, callback) {
   fetch(path)
     .then(response => response.json())
@@ -13,24 +13,19 @@ function loadJSON(path, callback) {
     .catch(error => console.error('Error loading config:', error));
 }
 
-// Initialize SQL.js and load the database
+
 async function initializeDatabase(settings) {
   try {
-    // Initialize SQL.js (already loaded in HTML)
     const SQL = await initSqlJs({
-      // Still need to tell sql.js where to find the .wasm file
       locateFile: file => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/${file}`
     });
 
-    // Determine database URL based on environment
     const isDev = /^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname);
-    // MODIFIED: Always use .gz for consistency, or make dev load .gz
     const dbUrl = isDev ? './mybgg.sqlite.gz' :
       `https://github.com/${settings.github.repo}/releases/latest/download/${settings.github.snapshot_asset}`;
 
     console.log(`Loading database from: ${dbUrl}`);
 
-    // Fetch and decompress database
     const response = await fetch(dbUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch database: ${response.status} ${response.statusText}`);
@@ -39,13 +34,11 @@ async function initializeDatabase(settings) {
     const arrayBuffer = await response.arrayBuffer();
     const bytes = new Uint8Array(arrayBuffer);
 
-    // Corrected: Use fflate.gunzipSync for decompressing Gzip data
     const dbData = fflate.gunzipSync(bytes);
 
     db = new SQL.Database(dbData);
     console.log('Database loaded successfully');
 
-    // Load all games into memory for faster filtering
     loadAllGames();
     initializeUI();
 
@@ -68,7 +61,6 @@ function parsePlayerCount(countStr) {
     if (s.endsWith('+')) {
         const numPart = s.slice(0, -1);
         const min = parseInt(numPart, 10);
-        // Check that the part before '+' is a clean number
         if (String(min) === numPart) {
             return { min: min, max: Infinity, open: true };
         }
@@ -83,13 +75,12 @@ function parsePlayerCount(countStr) {
 
     const num = parseInt(s, 10);
     if (!isNaN(num)) {
-        // Check that the whole string is a number to avoid parsing "1-5 players" as 1
         if (String(num) === s) {
             return { min: num, max: num, open: false };
         }
     }
 
-    return { min: 0, max: 0, open: false }; // Return no match for un-parsable strings
+    return { min: 0, max: 0, open: false };
 }
 
 function loadAllGames() {
@@ -105,10 +96,8 @@ function loadAllGames() {
   while (stmt.step()) {
     const row = stmt.getAsObject();
 
-    // Parse weight to a float. It will be NaN if not a valid number.
     row.weight = parseFloat(row.weight);
 
-    // Parse JSON fields
     try {
       row.categories = JSON.parse(row.categories || '[]');
       row.mechanics = JSON.parse(row.mechanics || '[]');
@@ -128,8 +117,7 @@ function loadAllGames() {
   console.log(`Loaded ${allGames.length} games.`);
 }
 
-// Global flag to prevent multiple event listeners
-let moreButtonListenerAdded = false;
+
 
 function initializeUI() {
   setupSearchBox();
@@ -150,20 +138,18 @@ function initializeUI() {
     updateStats();
   });
 
-  // Handle window resize to reposition open popups
   window.addEventListener('resize', function() {
     const openDetails = document.querySelector('details[open] .game-details');
     if (openDetails) {
       const trigger = openDetails.closest('details').querySelector('summary');
       if (trigger) {
-        // On resize, use space-based positioning (no click event)
         positionPopupInViewport(openDetails, trigger);
       }
     }
   });
 }
 
-// Direct onclick handler for more buttons
+
 function handleMoreButtonClick(button) {
   const teaserText = button.closest('.teaser-text');
   if (!teaserText) return;
@@ -593,9 +579,7 @@ function updateClearButtonVisibility(filters) {
   clearContainer.style.display = isAnyFilterActive ? 'flex' : 'none';
 }
 
-// =============================================================================
-// URL State Management
-// =============================================================================
+
 
 function getFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
@@ -735,10 +719,6 @@ function setupClearAllButton() {
 }
 
 function handleFilterChange(attributeName, value, isChecked, isRadio) {
-  // This function is called when a filter input changes.
-  // It triggers a re-application of all filters.
-  // The parameters (attributeName, value, isChecked, isRadio) are passed from the event listener
-  // but applyFilters() currently re-reads all filter states from the DOM, so they are not directly used here.
   onFilterChange();
 }
 
@@ -764,25 +744,21 @@ function filterGames(gamesToFilter, filters) {
   } = filters;
 
   return gamesToFilter.filter(game => {
-    // Text search
     if (query && !game.name.toLowerCase().includes(query) &&
       !game.description.toLowerCase().includes(query)) {
       return false;
     }
 
-    // Category filter
     if (selectedCategories.length > 0 &&
       !selectedCategories.some(cat => game.categories.includes(cat))) {
       return false;
     }
 
-    // Mechanics filter
     if (selectedMechanics.length > 0 &&
       !selectedMechanics.some(mech => game.mechanics.includes(mech))) {
       return false;
     }
 
-    // Players filter
     if (selectedPlayerFilter && selectedPlayerFilter !== 'any') {
       const targetPlayers = Number(selectedPlayerFilter);
 
@@ -802,7 +778,6 @@ function filterGames(gamesToFilter, filters) {
       }
     }
 
-    // Weight filter
     if (selectedWeight.length > 0) {
       const gameWeightName = getComplexityName(game.weight);
       if (!gameWeightName || !selectedWeight.includes(gameWeightName)) {
@@ -810,23 +785,19 @@ function filterGames(gamesToFilter, filters) {
       }
     }
 
-    // Playing time filter
     if (selectedPlayingTime.length > 0 && !selectedPlayingTime.includes(game.playing_time)) {
       return false;
     }
 
-    // Previous players filter
     if (selectedPreviousPlayers.length > 0 &&
       !selectedPreviousPlayers.some(player => game.previous_players.includes(player))) {
       return false;
     }
 
-    // Min age filter
     if (selectedMinAge && (game.min_age < selectedMinAge.min || game.min_age > selectedMinAge.max)) {
       return false;
     }
 
-    // Number of plays filter
     if (selectedNumPlays && (game.numplays < selectedNumPlays.min || game.numplays > selectedNumPlays.max)) {
       return false;
     }
@@ -861,7 +832,6 @@ function updateCountsInDOM(facetId, counts, showZero = false) {
 }
 
 function updateAllFilterCounts(filters) {
-  // --- Categories ---
   const catFilters = { ...filters,
     selectedCategories: []
   };
@@ -874,7 +844,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-categories', categoryCounts);
 
-  // --- Mechanics ---
   const mechFilters = { ...filters,
     selectedMechanics: []
   };
@@ -887,7 +856,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-mechanics', mechanicCounts);
 
-  // --- Players ---
   const playerFilters = { ...filters,
     selectedPlayerFilter: 'any'
   };
@@ -912,9 +880,8 @@ function updateAllFilterCounts(filters) {
       playerCounts[value] = count;
     }
   });
-  updateCountsInDOM('facet-players', playerCounts, true); // Show zero for players
+  updateCountsInDOM('facet-players', playerCounts, true);
 
-  // --- Weight ---
   const weightFilters = { ...filters,
     selectedWeight: []
   };
@@ -930,7 +897,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-weight', weightCounts);
 
-  // --- Playing Time ---
   const playingTimeFilters = { ...filters,
     selectedPlayingTime: []
   };
@@ -943,7 +909,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-playing-time', playingTimeCounts);
 
-  // --- Min Age ---
   const minAgeFilters = { ...filters,
     selectedMinAge: null
   };
@@ -961,7 +926,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-min-age', minAgeCounts, true);
 
-  // --- Previous Players ---
   const prevPlayersFilters = { ...filters,
     selectedPreviousPlayers: []
   };
@@ -974,7 +938,6 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-previous-players', prevPlayerCounts);
 
-  // --- Num Plays ---
   const numPlaysFilters = { ...filters,
     selectedNumPlays: null
   };
@@ -999,7 +962,6 @@ function applyFiltersAndSort(filters) {
 
   filteredGames = filterGames(allGames, filters);
 
-  // Sort the results
   filteredGames.sort((a, b) => {
     switch (filters.sortBy) {
       case 'name':
@@ -1052,7 +1014,6 @@ function updateResults() {
     return;
   }
 
-  // Render games in a grid
   container.innerHTML = `
     <div class="game-grid">
       ${pageGames.map(game => renderGameCard(game)).join('')}
@@ -1070,7 +1031,6 @@ function renderGameCard(game) {
         <img src="${game.image}" alt="${game.name}">
       </summary>
       <div class="game-details">
-        <!-- Header Section with Cover Image and Title -->
         <div class="card-header">
           <div class="cover-image">
             <img src="${game.image}" alt="${game.name}">
@@ -1082,11 +1042,9 @@ function renderGameCard(game) {
           <button class="close-button"><span class="material-symbols-rounded">close</span></button>
         </div>
 
-        <!-- Stats Bar -->
         <div class="stats-bar">
           ${game.playing_time ? `<div class="stat-item"><span class="material-symbols-rounded">schedule</span> ${game.playing_time}</div>` : ''}
           ${game.players.length > 0 ? `<div class="stat-item"><span class="material-symbols-rounded">groups</span> ${formatPlayerCountShort(game.players)}</div>` : ''}
-          ${/* Check if weight is a valid number (parseFloat in loadAllGames turns invalid/missing into NaN) */ ''}
           ${typeof game.weight === 'number' && !isNaN(game.weight) ? `
             <div class="stat-item complexity-stat">
               ${renderComplexityGauge(game.weight)}
@@ -1096,21 +1054,18 @@ function renderGameCard(game) {
           ${game.min_age ? `<div class="stat-item"><span class="material-symbols-rounded">child_care</span> ${game.min_age}+</div>` : ''}
         </div>
 
-        <!-- Description Section -->
         <div class="description-section">
           <div class="teaser-text" data-full-text="${escapeHtml(game.description || '')}">
             ${game.description ? getTeaserText(game.description, true) : 'No description available.'}
           </div>
         </div>
 
-        <!-- Tags Section -->
         <div class="tags-section">
           ${formatMechanicChips(game)}
         </div>
 
         ${formatOwnedExpansions(game.expansions)}
 
-        <!-- Bottom Info Section -->
         <div class="bottom-info">
           <div class="info-group">
             ${game.rating ? `
@@ -1130,7 +1085,6 @@ function renderGameCard(game) {
           </div>
         </div>
 
-        <!-- BGG Link Footer -->
         <div class="bgg-footer">
           <a href="https://boardgamegeek.com/boardgame/${game.id}" target="_blank" class="bgg-link">
             View full page on BoardGameGeek →
@@ -1141,7 +1095,7 @@ function renderGameCard(game) {
   `;
 }
 
-// Helper function to format owned expansions with links
+
 function formatOwnedExpansions(expansions) {
   if (!expansions || expansions.length === 0) {
     return '';
@@ -1159,7 +1113,7 @@ function formatOwnedExpansions(expansions) {
   `;
 }
 
-// Helper function to format category chips
+
 function formatCategoryChips(game) {
   if (!game.categories || game.categories.length === 0) {
     return '';
@@ -1170,7 +1124,7 @@ function formatCategoryChips(game) {
   return `<div class="tag-chips">${categoriesHtml}</div>`;
 }
 
-// Helper function to format mechanic chips
+
 function formatMechanicChips(game) {
   if (!game.mechanics || game.mechanics.length === 0) {
     return '';
@@ -1189,7 +1143,6 @@ function formatPlayerCount(players) {
 }
 
 function formatPlayerCountShort(players) {
-  // Return just the range for quick stats, e.g., "2-4"
   if (players.length === 0) return '';
   if (players.length === 1) return players[0][0];
 
@@ -1207,7 +1160,6 @@ function getTeaserText(description, hasMore = false) {
     return description;
   }
 
-  // Truncate and try to end on a word boundary
   let truncated = description.substring(0, maxLength);
   const lastSpace = truncated.lastIndexOf(' ');
   if (lastSpace > 0) {
@@ -1318,12 +1270,10 @@ function updatePagination() {
 
   let paginationHTML = '<div class="pagination">';
 
-  // Previous button
   if (currentPage > 1) {
     paginationHTML += `<button onclick="goToPage(${currentPage - 1})">‹ Previous</button>`;
   }
 
-  // Page numbers (show max 5 pages around current)
   const startPage = Math.max(1, currentPage - 2);
   const endPage = Math.min(totalPages, currentPage + 2);
 
@@ -1342,7 +1292,6 @@ function updatePagination() {
     paginationHTML += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
   }
 
-  // Next button
   if (currentPage < totalPages) {
     paginationHTML += `<button onclick="goToPage(${currentPage + 1})">Next ›</button>`;
   }
@@ -1369,7 +1318,6 @@ function parsePlayerCount(countStr) {
   if (s.endsWith('+')) {
       const numPart = s.slice(0, -1);
       const min = parseInt(numPart, 10);
-      // Check that the part before '+' is a clean number
       if (String(min) === numPart) {
           return { min: min, max: Infinity, open: true };
       }
@@ -1380,21 +1328,18 @@ function parsePlayerCount(countStr) {
       const min = parseInt(rangeMatch[1], 10);
       const max = parseInt(rangeMatch[2], 10);
       return { min: min, max: max, open: false };
-  }
-
-  const num = parseInt(s, 10);
-  if (!isNaN(num)) {
-      // Check that the whole string is a number to avoid parsing "1-5 players" as 1
-      if (String(num) === s) {
-          return { min: num, max: num, open: false };
+  }      const num = parseInt(s, 10);
+      if (!isNaN(num)) {
+          if (String(num) === s) {
+              return { min: num, max: num, open: false };
+          }
       }
-  }
 
-  return { min: 0, max: 0, open: false }; // Return no match for un-parsable strings
+  return { min: 0, max: 0, open: false };
 }
 
 
-// Utility functions
+
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -1409,116 +1354,91 @@ function debounce(func, wait) {
 
 function getTextColorForBg(rgbColor) {
   const [r, g, b] = rgbColor.split(',').map(Number);
-  // Formula for luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  // Return black for light colors, white for dark colors
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 }
 
-// Function to position popup based on click position within tile
+
 function positionPopupInViewport(popup, trigger, clickEvent = null) {
   const triggerRect = trigger.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-  const margin = 8; // Margin from viewport edges
+  const margin = 8;
 
-  // Reset temporary styles that might affect dimensions, to get natural popup size
   popup.style.height = '';
   popup.style.overflowY = '';
-  // Note: We get popupRect once, assuming its content defines its natural size.
   const popupRect = popup.getBoundingClientRect();
 
   console.log('Positioning popup (using natural dimensions):', {
     triggerRect,
     popupRect,
-    clickEvent: clickEvent ? { x: clickEvent.clientX, y: clickEvent.clientY } : 'none' // clickEvent currently unused
+    clickEvent: clickEvent ? { x: clickEvent.clientX, y: clickEvent.clientY } : 'none'
   });
 
-  // 1. Calculate Desired Absolute Positions for Centering
   let desiredAbsoluteLeft = triggerRect.left + (triggerRect.width - popupRect.width) / 2;
   let desiredAbsoluteTop = triggerRect.top + (triggerRect.height - popupRect.height) / 2;
 
-  // Initialize current absolute positions with desired centered positions
   let currentAbsoluteLeft = desiredAbsoluteLeft;
   let currentAbsoluteTop = desiredAbsoluteTop;
 
-  // 2. Adjust Horizontal Position to Stay Within Viewport
   if (currentAbsoluteLeft < margin) {
     currentAbsoluteLeft = margin;
   } else if (currentAbsoluteLeft + popupRect.width > viewportWidth - margin) {
     currentAbsoluteLeft = viewportWidth - margin - popupRect.width;
-    // If popup is wider than viewport, ensure it's still pinned to the left margin
     if (currentAbsoluteLeft < margin) {
         currentAbsoluteLeft = margin;
     }
   }
 
-  // 3. Adjust Vertical Position to Stay Within Viewport
   if (currentAbsoluteTop < margin) {
     currentAbsoluteTop = margin;
   } else if (currentAbsoluteTop + popupRect.height > viewportHeight - margin) {
     currentAbsoluteTop = viewportHeight - margin - popupRect.height;
-    // If popup is taller than viewport, ensure it's still pinned to the top margin
     if (currentAbsoluteTop < margin) {
         currentAbsoluteTop = margin;
     }
   }
 
-  // 4. Handle Height Constraints and Scrolling if Popup is Taller than Viewport
   const availableViewportHeight = viewportHeight - 2 * margin;
   if (popupRect.height > availableViewportHeight) {
     popup.style.height = availableViewportHeight + 'px';
     popup.style.overflowY = 'auto';
-    // If made scrollable due to viewport height constraint, always align its top with the viewport's top margin.
     currentAbsoluteTop = margin;
-  } else {
-    // Ensure styles are reset if not scrollable (already done at the start, but good for clarity)
-    // popup.style.height = ''; // Already reset
-    // popup.style.overflowY = ''; // Already reset
   }
 
-  // Convert final absolute positions to style values (relative to the trigger's containing block)
-  // Assuming popup.style.left and popup.style.top are relative to triggerRect's origin.
   const finalLeftStyle = currentAbsoluteLeft - triggerRect.left;
   const finalTopStyle = currentAbsoluteTop - triggerRect.top;
 
   console.log('Final style positions (relative to trigger):', { left: finalLeftStyle, top: finalTopStyle });
 
-  // Apply the calculated position and styles
   popup.style.left = finalLeftStyle + 'px';
   popup.style.top = finalTopStyle + 'px';
 }
 
-// Event handlers for collapsible panels
+
 function on_render() {
-  // Apply background colors to both game cards and popup details
   const gameCards = document.querySelectorAll(".game-card");
   gameCards.forEach(function(card) {
-    const color = card.getAttribute("data-color") || "255,255,255"; // Default to white if no color
+    const color = card.getAttribute("data-color") || "255,255,255";
     const textColor = getTextColorForBg(color);
 
-    // Apply semi-transparent color to the game card tile
     card.style.backgroundColor = `rgba(${color}, 0.5)`;
 
     const gameDetails = card.querySelector(".game-details");
     if (gameDetails) {
-      // Reset background for the main details container to default (white)
       gameDetails.style.backgroundColor = '#FFFFFF';
 
-      // Apply solid color to the popup header and set text color for contrast
       const cardHeader = card.querySelector(".card-header");
       if (cardHeader) {
         cardHeader.style.backgroundColor = `rgb(${color})`;
         cardHeader.style.color = textColor;
 
-        // Also apply to close button if it's inside the header
         const closeBtn = cardHeader.querySelector('.close-button');
         if (closeBtn) {
             closeBtn.style.color = textColor;
         }
       }
 
-      // Apply a light version of the game color to the stats bar and its icons
       const statsBar = card.querySelector(".stats-bar");
       if (statsBar) {
         statsBar.style.backgroundColor = `rgba(${color}, 0.1)`;
@@ -1533,7 +1453,6 @@ function on_render() {
         }
       }
 
-      // Apply game color to the play icon and filled stars
       const bottomInfo = card.querySelector(".bottom-info");
       if(bottomInfo) {
         const playIcon = bottomInfo.querySelector(".plays-section .material-symbols-rounded");
@@ -1550,7 +1469,6 @@ function on_render() {
         }
       }
 
-      // Apply a light version of the game color to the footer and its link
       const bggFooter = card.querySelector(".bgg-footer");
       if (bggFooter) {
         bggFooter.style.backgroundColor = `rgb(${color})`;
@@ -1562,7 +1480,6 @@ function on_render() {
     }
   });
 
-  // Setup collapsible details
   setupGameDetails();
 }
 
@@ -1575,7 +1492,6 @@ function setupGameDetails() {
         const gameDetails = elem.parentElement.querySelector(".game-details");
         if (gameDetails) {
           gameDetails.focus();
-          // Position the popup based on click position within tile
           requestAnimationFrame(() => {
             positionPopupInViewport(gameDetails, elem, event);
           });
@@ -1613,7 +1529,7 @@ function closeAllDetails() {
   });
 }
 
-// Debounce function to limit how often a function can execute
+
 function debounce(func, delay) {
   let timeout;
   return function(...args) {
@@ -1627,16 +1543,16 @@ function closeAll(event) {
   closeAllDetails();
 }
 
-// Global click handler to close details
+
 document.addEventListener("click", closeAll);
 
-// Initialize the application
+
 function init(settings) {
   console.log('Initializing mybgg SQLite app...');
   initializeDatabase(settings);
 }
 
-// Load configuration and start the app
+
 loadJSON('./config.json', function(settings) {
   console.log('Settings loaded:', settings);
   init(settings);

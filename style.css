@@ -1,4 +1,3 @@
-/* Tag styling */
 body {
     background: #F8FAFC;
     color: #606c76;
@@ -28,16 +27,16 @@ a {
 strong {
     font-weight: 700;
 }
-h3 { /* Used for filter titles (summary) and game detail headings */
+h3 {
     font-size: 0.9em;
     margin-bottom: 0.5em;
-    font-weight: normal; /* Overridden by summary for filters */
+    font-weight: normal;
     text-transform: uppercase;
     border-bottom: 1px solid #ddd;
     padding-bottom: 5px;
 }
 
-/* Reset default elements */
+
 details summary {
     cursor: pointer;
 }
@@ -48,7 +47,7 @@ details > summary:first-of-type {
     list-style-type: none;
 }
 
-/* Main layout */
+
 body {
     margin: 0;
     padding: 0;
@@ -64,28 +63,26 @@ body {
     padding: 1em;
     position: relative;
 }
-    .facets { /* Container for all filter dropdowns */
+    .facets {
         display: flex;
         flex-direction: row;
-        align-items: stretch; /* Ensures all items have the same height */
+        align-items: stretch;
         padding-bottom: 1em;
         position: relative;
         z-index: 10;
         flex-wrap: nowrap;
         background-color: #F8FAFC;
-        gap: 1em; /* Added for spacing between items */
+        gap: 1em;
     }
-        /* Styling for each filter dropdown <details> element */
         .filter-dropdown {
-            /* margin-right: 1em; Removed, gap on parent handles spacing */
             border: 1px solid #ddd;
             border-radius: 5px;
             background-color: #fff;
             position: relative;
             padding: 0;
-            display: flex; /* To allow summary to stretch and control its alignment */
-            flex-direction: column; /* Stack summary and content */
-            flex-grow: 1; /* Added to make dropdowns share container width */
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
         }
 
         .filter-dropdown > summary {
@@ -93,55 +90,48 @@ body {
             list-style: none;
             border: none;
             margin: 0;
-            height: 100%; /* Make summary fill the details tag height */
-            box-sizing: border-box; /* Include padding and border in the element's total width and height */
+            height: 100%;
+            box-sizing: border-box;
             display: flex;
-            align-items: center; /* Vertically center text */
-            justify-content: flex-start; /* Align icon and text to the start */
-            text-align: left; /* Align text to the left */
-            gap: 0.5em; /* Space between icon and text */
+            align-items: center;
+            justify-content: flex-start;
+            text-align: left;
+            gap: 0.5em;
         }
         .filter-dropdown > summary > span {
             font-size: 16px;
         }
 
-        /* No specific style for summary::-webkit-details-marker needed here as it's globally reset */
 
-        /* Styles for the .filter-dropdown-content when its parent <details> is open */
+
         .filter-dropdown[open] > .filter-dropdown-content {
-            position: absolute; /* Take out of normal flow */
-            top: 100%;      /* Position below the parent <details> element */
+            position: absolute;
+            top: 100%;
             left: 0;
-            z-index: 50;    /* Ensure it's above other facets/elements */
+            z-index: 50;
             background-color: #fff;
             border: 1px solid #ccc;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             padding: 1em;
-            min-width: 200px; /* Sensible default, JS might override */
-            /* JS may also set display:flex, z-index, min-width, or change to position:fixed */
+            min-width: 200px;
         }
 
-        /* Base style for the filter dropdown content area */
         .filter-dropdown-content {
-            display: flex; /* For items inside */
+            display: flex;
             flex-direction: column;
-            /* Default state (closed) is handled by <details> not being [open] */
-            /* JS might set display: '' or display: 'flex' on toggle */
         }
 
-        /* Styles for the clear-all button */
         .clear-all {
             border-radius: 5px;
             color: white;
             display: flex;
-            align-items: center; /* Vertically center text */
-            justify-content: center; /* Horizontally center text */
-            text-align: center; /* Fallback for text alignment */
-            flex-grow: 1; /* Make it share container width */
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-grow: 1;
             cursor: pointer;
         }
 
-        /* Clear button styling */
         .clear-button {
             background: #b71c1c;
             color: white;
@@ -149,8 +139,8 @@ body {
             border-radius: 4px;
             cursor: pointer;
             box-sizing: border-box;
-            height: 100%; /* Make it fill the parent */
-            width: 100%; /* Make it fill the parent */
+            height: 100%;
+            width: 100%;
         }
 
         .clear-button:hover {
@@ -159,7 +149,7 @@ body {
 
 
 
-/* Components */
+
 .logo {
     margin-right: 1em;
 }
@@ -187,53 +177,53 @@ body {
     }
 }
 
-/* Game Grid & Cards */
+
 .game-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Adjusted minmax for typical card size */
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 0;
   margin: 0 auto;
   padding: 0;
 }
 
-.game-card { /* Formerly .game-wrapper */
+.game-card {
   border-radius: 0;
   box-shadow: none;
   padding: 0;
   position: relative;
-  display: flex; /* For summary and game-details alignment */
-  flex-direction: column; /* Stack summary and details */
-  align-items: center; /* Center content like image in summary */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border: 1px solid rgba(0,0,0,0.1);
   border-width: 0 1px 1px 0;
 }
 
 .game-card > summary {
-  display: flex; /* To center the image */
+  display: flex;
   align-items: center;
   justify-content: center;
-  height: 130px; /* Fixed height for the image area */
+  height: 130px;
   margin: 0;
   padding: 10px;
-  position: relative; /* For any potential absolute children if needed */
-  list-style: none; /* Remove marker if not already done by global reset */
+  position: relative;
+  list-style: none;
 }
 
 .game-card > summary::-webkit-details-marker {
-    display: none; /* Ensure marker is hidden */
+    display: none;
 }
 
-.game-card > summary > img { /* Formerly .game img */
+.game-card > summary > img {
   display: block;
-  margin: 0; /* Centering handled by summary flex */
-  max-width: 100%; /* Max width considering padding */
-  max-height: 100%; /* Max height considering padding */
+  margin: 0;
+  max-width: 100%;
+  max-height: 100%;
   border: 1px solid rgba(0,0,0,0.1);
   border-radius: 5px;
-  image-rendering: auto; /* Or pixelated for sharper 1x on 2x screens if desired */
+  image-rendering: auto;
 }
 
-/* New Card Design Styles */
+
 .game-details {
     box-shadow: 1px 1px 15px rgba(0,0,0,0.3);
     border: 1px solid #ddd;
@@ -347,7 +337,6 @@ body {
 
 .complexity-gauge .gauge-fg {
     fill: none;
-    /* stroke is set by JS */
     stroke-width: 2.5;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.3s ease-out;
@@ -495,7 +484,7 @@ body {
     text-decoration: underline;
 }
 
-/* Star rating styles */
+
 .star-rating {
     display: inline-flex;
     align-items: center;
@@ -511,16 +500,16 @@ body {
 }
 
 
-/* Collector Card Styling */
+
 .collector-card {
-    width: 400px !important; /* Wider for new layout */
-    max-height: 80vh; /* Prevent cards from being too tall */
-    overflow-y: auto; /* Allow scrolling if needed */
+    width: 400px !important;
+    max-height: 80vh;
+    overflow-y: auto;
     display: flex !important;
     flex-direction: column;
 }
 
-/* New close button for game details card */
+
 .close-button {
     position: absolute;
     top: 8px;
@@ -535,7 +524,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10; /* Above hero content */
+    z-index: 10;
     padding: 0;
     transition: background-color 0.2s ease;
 }
@@ -556,35 +545,34 @@ body {
   'opsz' 24
 }
 
-/* Zone 1: Hero Strip */
+
 .hero-strip {
     height: 90px;
     position: relative;
     overflow: hidden;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .hero-content {
-    position: relative; /* No longer needs to be absolute */
+    position: relative;
     z-index: 3;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 0 12px; /* Add horizontal padding */
+    padding: 0 12px;
 }
 
 .game-title {
     margin: 0;
-    font-size: 1.6em; /* Made bigger */
+    font-size: 1.6em;
     font-weight: 700;
     color: white;
     text-shadow: 0 2px 4px rgba(0,0,0,0.9);
     line-height: 1.2;
-    /* text-align: center; */ /* Handled by parent */
 }
 
 .game-title a {
@@ -618,13 +606,13 @@ body {
     color: white;
 }
 
-/* BGG Link Section (now at bottom) */
+
 .bgg-link-section {
     padding: 12px 15px;
     text-align: center;
     background: #f8f9fa;
     border-top: 1px solid #eee;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .bgg-link {
@@ -633,24 +621,23 @@ body {
     border-radius: 6px;
     text-decoration: none;
     font-size: 0.9em;
-    line-height: 1; /* For better icon alignment */
+    line-height: 1;
 }
 
-/* Icon alignment for BGG link */
 .bgg-link .material-symbols-outlined {
-    vertical-align: -0.2em; /* Fine-tune vertical alignment */
+    vertical-align: -0.2em;
     margin-right: 4px;
-    font-size: 1.2em; /* Slightly larger than text */
+    font-size: 1.2em;
 }
 
-/* Zone 2: Quick Stats Bar */
+
 .quick-stats {
     display: flex;
     justify-content: space-around;
     padding: 15px;
     background: #f8f9fa;
     border-bottom: 1px solid #eee;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .stat {
@@ -662,7 +649,7 @@ body {
 }
 
 .stat-icon {
-    font-size: 1.8em; /* Made bigger */
+    font-size: 1.8em;
 }
 
 .stat-value {
@@ -670,7 +657,7 @@ body {
     color: #333;
 }
 
-/* Small complexity gauge for quick stats */
+
 .complexity-gauge-small {
     display: flex;
     justify-content: center;
@@ -697,13 +684,13 @@ body {
     transform: translate(-50%, -50%);
 }
 
-/* Zone 3: Teaser Section */
+
 .teaser-section {
     padding: 15px;
     border-bottom: 1px solid #eee;
     flex: 1;
     overflow-y: auto;
-    max-height: 300px; /* Limit height to prevent pushing header out */
+    max-height: 300px;
 }
 
 .teaser-text {
@@ -729,12 +716,12 @@ body {
     background-color: #f5f5f5;
 }
 
-/* Zone 4: Tag Chips */
+
 .tag-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .tag-chip {
@@ -757,7 +744,7 @@ body {
     border-color: #ddd;
 }
 
-/* Zone 5: Bottom Info - Tags (owned), My rating, Times played */
+
 .bottom-info {
     padding: 15px;
     background: #f8f9fa;
@@ -766,8 +753,8 @@ body {
     justify-content: space-around;
     align-items: flex-start;
     gap: 15px;
-    margin-top: auto; /* Push to bottom */
-    flex-shrink: 0; /* Prevent shrinking */
+    margin-top: auto;
+    flex-shrink: 0;
     font-size: 0.9em;
 }
 
@@ -791,20 +778,19 @@ body {
     gap: 4px;
 }
 
-/* Style for icons inside the bottom info labels */
 .info-item label .material-symbols-outlined {
     font-size: 2em;
 }
 
 
-/* Play Count */
+
 .play-count {
     font-size: 1.5em;
     font-weight: 600;
     color: #333;
 }
 
-/* Star Rating */
+
 .star-display {
     display: flex;
     gap: 2px;
@@ -825,14 +811,14 @@ body {
     font-size: 0.9em;
 }
 
-/* Owned Status */
+
 .owned-status {
     font-weight: 600;
     color: #4caf50;
     font-size: 1.1em;
 }
 
-/* Close button positioning for new layout */
+
 .collector-card .close {
     position: absolute;
     top: 8px;
@@ -861,11 +847,11 @@ body {
     transform: scale(1.1);
 }
 
-/* Legacy game details styling - replaced by collector-card */
 
-/* .facets .heading is covered by .filter-dropdown > summary and general h3 */
 
-/* SQLite-specific styles (retained) */
+
+
+
 .loading {
     text-align: center;
     padding: 2em;
@@ -890,7 +876,7 @@ body {
     font-style: italic;
 }
 
-/* Filter items inside dropdown */
+
 .filter-item {
     display: flex;
     justify-content: space-between;
@@ -905,9 +891,8 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5em;
-    /* Allow this part to shrink if needed, but not grow excessively */
     flex-shrink: 1;
-    min-width: 0; /* Important for text truncation */
+    min-width: 0;
 }
 
 .filter-item-main span {
@@ -918,8 +903,8 @@ body {
 .facet-count {
     color: #888;
     font-size: 0.9em;
-    margin-left: 1em; /* Space between label and count */
-    flex-shrink: 0; /* Prevent count from shrinking */
+    margin-left: 1em;
+    flex-shrink: 0;
     background: #eee;
     padding: 2px 5px;
     border-radius: 5px;
@@ -927,7 +912,7 @@ body {
 
 .filter-item input {
     margin-right: 0.5em;
-    vertical-align: middle; /* Align checkbox with text */
+    vertical-align: middle;
 }
 .filter-item span {
     vertical-align: middle;
@@ -937,28 +922,28 @@ body {
     background: rgba(183, 28, 28, 0.05);
 }
 
-/* Search input styling */
+
 #search-input {
     width: 100%;
     padding: 0.5em;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1em;
-    box-sizing: border-box; /* Ensure padding doesn't expand beyond width */
+    box-sizing: border-box;
 }
 
-/* Sort select styling */
+
 #sort-select {
-    padding: 0.5em; /* Match search input padding */
+    padding: 0.5em;
     border: 1px solid #ddd;
     border-radius: 4px;
     background: white;
-    font-size: 1em; /* Match search input font size */
+    font-size: 1em;
     box-sizing: border-box;
-    height: calc(1em + 1em + 2px); /* Approximate height of search input */
+    height: calc(1em + 1em + 2px);
 }
 
-/* Pagination styles */
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -987,32 +972,32 @@ body {
     border-color: #b71c1c;
 }
 
-.pagination span { /* For '...' in pagination */
+.pagination span {
     padding: 0.5em;
     color: #888;
 }
 
-/* Highlight search terms */
-.highlight { /* Used in renderGameCard for search term highlighting */
+
+.highlight {
     background: yellow;
     font-weight: bold;
-    color: #333; /* Ensure readability on yellow */
+    color: #333;
 }
 
-/* Legacy metadata styling - replaced by collector-card zones */
+
 .metadata {
     margin-top: 1em;
     padding-top: 1em;
     border-top: 1px solid #eee;
-    display: none; /* Hidden as we use the new zones */
+    display: none;
 }
 
-.metadata div { /* Each line in metadata, e.g., "Categories: ..." */
+.metadata div {
     margin-bottom: 0.3em;
     font-size: 0.9em;
 }
 
-.metadata strong { /* e.g., "Categories:" text */
+.metadata strong {
     color: #333;
     margin-right: 0.5em;
 }
