@@ -1115,10 +1115,14 @@ function renderGameCard(game) {
             ${game.rating ? `
             <div class="rating-section stat-item">
               ${renderRatingGauge(game.rating)}
-              <span>BGG Rating</span>
+              <span>Rating</span>
             </div>
             ` : ''}
-            ${game.rank ? `<div class="stat-item rank-section"><span class="material-symbols-rounded">trophy</span>Top ${game.rank}</div>` : ''}
+            ${game.rank ? `
+            <div class="stat-item rank-section">
+              <span class="material-symbols-rounded">leaderboard</span>
+              Rank: ${game.rank}
+            </div>` : ''}
             <div class="plays-section">
               <span class="material-symbols-rounded">chess_pawn</span> ${game.numplays || "No"} plays
             </div>
@@ -1156,17 +1160,19 @@ function formatOwnedExpansions(expansions) {
 
 // Helper function to format game tags with count limit
 function formatGameTags(game) {
-  const mechanics = game.mechanics.slice(0, 3);
-  const categories = game.categories.slice(0, 3);
-  const allTags = [...mechanics, ...categories];
-  const remainingCount = (game.mechanics.length + game.categories.length) - allTags.length;
+  const mechanicsHtml = game.mechanics.map(mech =>
+    `<span class="tag-chip mechanic-chip">${escapeHtml(mech)}</span>`
+  ).join('');
 
-  let tagsHtml = allTags.join(' · ');
-  if (remainingCount > 0) {
-    tagsHtml += ` +${remainingCount}`;
+  const categoriesHtml = game.categories.map(cat =>
+    `<span class="tag-chip category-chip">${escapeHtml(cat)}</span>`
+  ).join('');
+
+  if (!mechanicsHtml && !categoriesHtml) {
+      return '';
   }
 
-  return tagsHtml;
+  return `<div class="tag-chips">${categoriesHtml}${mechanicsHtml}</div>`;
 }
 
 function formatPlayerCount(players) {
