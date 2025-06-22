@@ -324,10 +324,10 @@ body {
 }
 
 .description-section {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-    line-height: 1.5;
-    color: #444;
+  padding: 15px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #444;
 }
 
 .teaser-text {
@@ -335,7 +335,7 @@ body {
 }
 
 .tags-section {
-    padding: 12px 16px;
+    padding: 0 15px 15px;
     border-bottom: 1px solid #e0e0e0;
     color: #666;
     font-size: 0.9em;
@@ -420,21 +420,6 @@ body {
     color: #e0e0e0;
 }
 
-/* More button styles */
-.more-button {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-size: inherit;
-    text-decoration: underline;
-    padding: 0;
-    margin-left: 4px;
-}
-
-.more-button:hover {
-    color: #0056b3;
-}
 
 /* Collector Card Styling */
 .collector-card {

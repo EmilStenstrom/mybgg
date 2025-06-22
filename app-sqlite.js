@@ -61,6 +61,37 @@ async function initializeDatabase(settings) {
   }
 }
 
+function parsePlayerCount(countStr) {
+    if (!countStr) return { min: 0, max: 0, open: false };
+    let s = String(countStr).trim();
+
+    if (s.endsWith('+')) {
+        const numPart = s.slice(0, -1);
+        const min = parseInt(numPart, 10);
+        // Check that the part before '+' is a clean number
+        if (String(min) === numPart) {
+            return { min: min, max: Infinity, open: true };
+        }
+    }
+
+    const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
+    if (rangeMatch) {
+        const min = parseInt(rangeMatch[1], 10);
+        const max = parseInt(rangeMatch[2], 10);
+        return { min: min, max: max, open: false };
+    }
+
+    const num = parseInt(s, 10);
+    if (!isNaN(num)) {
+        // Check that the whole string is a number to avoid parsing "1-5 players" as 1
+        if (String(num) === s) {
+            return { min: num, max: num, open: false };
+        }
+    }
+
+    return { min: 0, max: 0, open: false }; // Return no match for un-parsable strings
+}
+
 function loadAllGames() {
   const stmt = db.prepare(`
     SELECT id, name, description, categories, mechanics, players, weight,
@@ -220,12 +251,11 @@ function setupPlayersFilter() {
   const playerCounts = new Set();
   allGames.forEach(game => {
     game.players.forEach(([count, type]) => {
-      const {
-        min,
-        max
-      } = parsePlayerCount(count);
-      if (min > 0) { // Only add valid player counts
-        const upper = isFinite(max) ? max : 10; // Cap at 10 for UI
+      if (type === 'not recommended') return;
+
+      const { min, max } = parsePlayerCount(count);
+      if (min > 0) {
+        const upper = isFinite(max) ? max : min;
         for (let i = min; i <= upper; i++) {
           playerCounts.add(i);
         }
@@ -244,6 +274,7 @@ function setupPlayersFilter() {
     ...sortedPlayers.map(p => {
       const count = allGames.filter(game => {
         return game.players.some(([playerCount, type]) => {
+          if (type === 'not recommended') return false;
           const {
             min,
             max
@@ -751,12 +782,12 @@ function filterGames(gamesToFilter, filters) {
 
       if (!isNaN(targetPlayers)) {
         const match = game.players.some(([count, type]) => {
-          if (!count) return false;
-          const {
-            min,
-            max
-          } = parsePlayerCount(count);
-          return targetPlayers >= min && targetPlayers <= max;
+          if (!count || type === 'not recommended') return false;
+          const parsed = parsePlayerCount(count);
+          if (parsed.open) {
+            return targetPlayers === parsed.min;
+          }
+          return targetPlayers >= parsed.min && targetPlayers <= parsed.max;
         });
 
         if (!match) {
@@ -861,6 +892,7 @@ function updateAllFilterCounts(filters) {
       const targetPlayers = Number(value);
       const count = gamesForPlayerCount.filter(game =>
         game.players.some(([playerCount, type]) => {
+          if (type === 'not recommended') return false;
           const {
             min,
             max
@@ -1117,15 +1149,31 @@ function formatPlayerCountShort(players) {
 
 function getTeaserText(description, hasMore = false) {
   if (!description) return '';
-  const sentences = description.split(/[.!?]+/);
-  const teaser = sentences.slice(0, 2).join('. ');
-  const needsMore = description.length > 200 || sentences.length > 2;
-  const truncated = teaser.length > 200 ? teaser.substring(0, 200) + '...' : teaser + (sentences.length > 2 ? '...' : '');
+  const maxLength = 200;
 
-  if (hasMore && needsMore) {
+  if (description.length <= maxLength) {
+    return description;
+  }
+
+  // Truncate and try to end on a word boundary
+  let truncated = description.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  if (lastSpace > 0) {
+    truncated = truncated.substring(0, lastSpace);
+  }
+  truncated += '...';
+
+  if (hasMore) {
     return truncated + ' <button class="more-button" onclick="handleMoreButtonClick(this)">more</button>';
   }
+
   return truncated;
+}
+
+function handleMoreButtonClick(button) {
+  const teaserTextElement = button.parentElement;
+  const fullText = teaserTextElement.getAttribute('data-full-text');
+  teaserTextElement.innerHTML = escapeHtml(fullText);
 }
 
 function escapeHtml(text) {
@@ -1257,42 +1305,34 @@ function goToPage(page) {
 }
 
 function parsePlayerCount(countStr) {
-  if (!countStr) return {
-    min: 0,
-    max: 0
-  };
+  if (!countStr) return { min: 0, max: 0, open: false };
+  let s = String(countStr).trim();
 
-  if (countStr.includes('-')) {
-    const parts = countStr.split('-').map(Number);
-    // Basic validation
-    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-      return {
-        min: parts[0],
-        max: parts[1]
-      };
-    }
+  if (s.endsWith('+')) {
+      const numPart = s.slice(0, -1);
+      const min = parseInt(numPart, 10);
+      // Check that the part before '+' is a clean number
+      if (String(min) === numPart) {
+          return { min: min, max: Infinity, open: true };
+      }
   }
-  if (countStr.includes('+')) {
-    const min = Number(countStr.replace('+', ''));
-    if (!isNaN(min)) {
-      return {
-        min: min,
-        max: Infinity
-      };
-    }
+
+  const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
+  if (rangeMatch) {
+      const min = parseInt(rangeMatch[1], 10);
+      const max = parseInt(rangeMatch[2], 10);
+      return { min: min, max: max, open: false };
   }
-  const num = Number(countStr);
+
+  const num = parseInt(s, 10);
   if (!isNaN(num)) {
-    return {
-      min: num,
-      max: num
-    };
+      // Check that the whole string is a number to avoid parsing "1-5 players" as 1
+      if (String(num) === s) {
+          return { min: num, max: num, open: false };
+      }
   }
-  // Return a non-matching range if parsing fails
-  return {
-    min: 0,
-    max: 0
-  };
+
+  return { min: 0, max: 0, open: false }; // Return no match for un-parsable strings
 }
 
 
