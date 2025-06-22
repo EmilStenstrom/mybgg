@@ -565,7 +565,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 
       const rect = summaryElement.getBoundingClientRect();
       const availableHeight = window.innerHeight - rect.bottom - 10;
-      dropdownContent.style.maxHeight = `${Math.min(availableHeight, 385)}px`;
+      dropdownContent.style.maxHeight = `${Math.min(availableHeight, 400)}px`;
     };
 
     newContainer.addEventListener('toggle', function (event) {

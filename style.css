@@ -3,6 +3,7 @@ body {
     color: #606c76;
     font-family: "Roboto Flex", sans-serif;
     font-optical-sizing: auto;
+    font-weight: 300;
     font-style: normal;
     font-variation-settings:
         "slnt" 0,
@@ -137,20 +138,7 @@ body {
     cursor: pointer;
 }
 
-.clear-button {
-    background: #b71c1c;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-sizing: border-box;
-    height: 100%;
-    width: 100%;
-}
 
-.clear-button:hover {
-    background: #8e0000;
-}
 
 .logo {
     margin-right: 1em;
@@ -284,28 +272,7 @@ body {
     color: #fff;
 }
 
-.close-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: none;
-    border: none;
-    font-size: 24px;
-    color: #999;
-    cursor: pointer;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
 
-.close-btn:hover {
-    background: #f0f0f0;
-    color: #333;
-}
 
 .stats-bar {
     display: flex;
@@ -352,12 +319,12 @@ body {
 .description-section {
     padding: 10px 15px;
     line-height: 1.5;
-    color: #444;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .tags-section {
     padding: 10px 15px;
-    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .expansions-section {
@@ -396,14 +363,6 @@ body {
     text-decoration: underline;
 }
 
-.owned-status {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: #28a745;
-    font-size: 0.9em;
-}
-
 .rating-section {
     display: flex;
     align-items: center;
@@ -416,42 +375,11 @@ body {
     gap: 5px;
 }
 
-.bgg-footer {
-    padding: 10px 15px;
-    text-align: center;
-    background: #f8f9fa;
-}
 
-.bgg-link {
-    color: #007bff;
-    text-decoration: none;
-}
 
-.bgg-link:hover {
-    text-decoration: underline;
-}
 
-.star-rating {
-    display: inline-flex;
-    align-items: center;
-}
 
-.star-rating .star {
-    color: #ffc107;
-    font-size: 10px;
-}
 
-.star-rating .star.empty {
-    color: #e0e0e0;
-}
-
-.collector-card {
-    width: 400px !important;
-    max-height: 80vh;
-    overflow-y: auto;
-    display: flex !important;
-    flex-direction: column;
-}
 
 .close-button {
     position: absolute;
@@ -476,95 +404,7 @@ body {
     background: rgba(0, 0, 0, 0.6);
 }
 
-.hero-strip {
-    height: 90px;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.hero-content {
-    position: relative;
-    z-index: 3;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0 10px;
-}
-
-.bgg-link-section {
-    padding: 10px 15px;
-    text-align: center;
-    background: #f8f9fa;
-    border-top: 1px solid #eee;
-    flex-shrink: 0;
-}
-
-.bgg-link {
-    display: inline-block;
-    padding: 10px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    line-height: 1;
-}
-
-.quick-stats {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 15px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #eee;
-    flex-shrink: 0;
-}
-
-.stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
-
-.stat-value {
-    color: #333;
-}
-
-.complexity-gauge-small {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.gauge-circle-small {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: conic-gradient(#666 0% var(--percentage), #e0e0e0 var(--percentage) 100%);
-    position: relative;
-}
-
-.gauge-circle-small::before {
-    content: '';
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: white;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.teaser-section {
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    flex: 1;
-    overflow-y: auto;
-    max-height: 300px;
-}
 
 .teaser-text {
     line-height: 1.4;
@@ -612,52 +452,11 @@ body {
 .bottom-info {
     padding: 10px 15px;
     background: #f8f9fa;
-    border-top: 1px solid #eee;
     display: flex;
     align-items: center;
     gap: 15px;
     margin-top: auto;
     flex-shrink: 0;
-}
-
-
-
-.no-rating {
-    font-style: italic;
-    font-size: 0.9em;
-}
-
-.owned-status {
-    color: #4caf50;
-    font-size: 1.1em;
-}
-
-.collector-card .close {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border-radius: 50%;
-    width: 26px;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3em;
-    cursor: pointer;
-    transition: all 0.2s;
-    line-height: 1;
-    border: none;
-    padding: 0;
-    font-family: inherit;
-}
-
-.collector-card .close:hover,
-.collector-card .close:focus {
-    background: rgba(220, 50, 50, 0.8);
-    transform: scale(1.1);
 }
 
 .loading {
