@@ -1153,7 +1153,7 @@ function renderGameCard(game) {
   const minAgeStat = clone.querySelector('.min-age-stat');
   if (game.min_age) {
     minAgeStat.style.display = 'flex';
-    clone.querySelector('.min-age-value').textContent = game.min_age;
+    clone.querySelector('.min-age-value').textContent = game.min_age + "+";
   }
 
   // Set description

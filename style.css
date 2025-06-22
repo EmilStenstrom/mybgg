@@ -273,14 +273,19 @@ body {
 
 .game-title {
     margin: 0 0 8px 0;
-    font-size: 1.4em;
+    font-size: 1.3em;
     font-weight: 700;
     line-height: 1.2;
 }
 
 .title-section .tag-chips {
     padding-top: 5px;
-    font-size: 0.8em;
+    font-size: 0.75em;
+}
+
+.title-section .tag-chip {
+    background: rgba(0, 0, 0, 0.2);
+    color: #fff;
 }
 
 .close-btn {
@@ -313,7 +318,7 @@ body {
     padding: 12px 16px;
     background: #f8f9fa;
     border-bottom: 1px solid #e0e0e0;
-    font-size: 0.9em;
+    font-size: 0.85em;
     flex-wrap: wrap;
 }
 
@@ -347,7 +352,7 @@ body {
 }
 
 .complexity-gauge .gauge-text {
-    font-size: 9px;
+    font-size: 8px;
     font-weight: 700;
     text-anchor: middle;
     transform: rotate(90deg);
@@ -356,26 +361,26 @@ body {
 }
 
 .stat-item .material-symbols-rounded {
-    font-size: 18px;
+    font-size: 16px;
     color: #666;
 }
 
 .description-section {
     padding: 15px;
-    font-size: 0.9rem;
+    font-size: 0.9em;
     line-height: 1.5;
     color: #444;
 }
 
 .teaser-text {
-    font-size: 0.95em;
+    font-size: 0.9em;
 }
 
 .tags-section {
     padding: 0 15px 15px;
     border-bottom: 1px solid #e0e0e0;
     color: #666;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
 .expansions-section {
@@ -385,7 +390,7 @@ body {
 .expansions-section h3 {
     border: none;
     margin: 0;
-    font-size: 0.8em;
+    font-size: 0.75em;
     font-weight: 700;
     text-transform: uppercase;
     color: #777;
@@ -401,7 +406,7 @@ body {
 .expansion-chip {
     padding: 4px 10px;
     border-radius: 16px;
-    font-size: 0.85em;
+    font-size: 0.8em;
     font-weight: 500;
     border: 1px solid rgba(0, 0, 0, 0.1);
     background: rgba(0, 0, 0, 0.05);
@@ -425,18 +430,6 @@ body {
     text-decoration: underline;
 }
 
-.bottom-info {
-    padding: 16px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.info-group {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
 .owned-status {
     display: flex;
     align-items: center;
@@ -456,7 +449,7 @@ body {
     align-items: center;
     gap: 8px;
     color: #666;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
 .plays-section {
@@ -480,7 +473,7 @@ body {
 .bgg-link {
     color: #007bff;
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: 0.85em;
     font-weight: 500;
 }
 
@@ -721,7 +714,7 @@ body {
 .tag-chip {
     padding: 4px 6px;
     border-radius: 16px;
-    font-size: 0.8em;
+    font-size: 0.75em;
     font-weight: 500;
     background: rgba(0, 0, 0, 0.05);
 }
@@ -743,12 +736,11 @@ body {
     background: #f8f9fa;
     border-top: 1px solid #eee;
     display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
+    align-items: center;
     gap: 15px;
     margin-top: auto;
     flex-shrink: 0;
-    font-size: 0.9em;
+    font-size: 0.85em;
 }
 
 .info-item {
@@ -760,7 +752,7 @@ body {
 }
 
 .info-item label {
-    font-size: 0.8em;
+    font-size: 0.75em;
     font-weight: 600;
     text-transform: uppercase;
     color: #666;
@@ -776,7 +768,7 @@ body {
 }
 
 .play-count {
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-weight: 600;
     color: #333;
 }
