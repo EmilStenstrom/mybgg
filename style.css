@@ -34,8 +34,6 @@ h2 {
     text-transform: uppercase;
 }
 
-
-
 details summary {
     cursor: pointer;
 }
@@ -137,8 +135,6 @@ body {
     flex-grow: 1;
     cursor: pointer;
 }
-
-
 
 .logo {
     margin-right: 1em;
@@ -272,8 +268,6 @@ body {
     color: #fff;
 }
 
-
-
 .stats-bar {
     display: flex;
     align-items: center;
@@ -375,12 +369,6 @@ body {
     gap: 5px;
 }
 
-
-
-
-
-
-
 .close-button {
     position: absolute;
     top: 8px;
@@ -390,8 +378,8 @@ body {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -400,11 +388,14 @@ body {
     transition: background-color 0.2s ease;
 }
 
+.close-button .material-symbols-rounded {
+    font-size: 16px;
+    color: white;
+}
+
 .close-button:hover {
     background: rgba(0, 0, 0, 0.6);
 }
-
-
 
 .teaser-text {
     line-height: 1.4;
