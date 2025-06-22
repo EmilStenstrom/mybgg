@@ -429,28 +429,42 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
   const container = document.getElementById(facetId);
   if (!container) return;
 
+  // Create filter dropdown structure manually
+  const template = document.getElementById('filter-item-template');
+  const filterItemsHtml = items.map(item => {
+    const value = (typeof item === 'object' && item.value !== undefined) ? item.value : (typeof item === 'object' && item.min !== undefined ? `${item.min}-${item.max}` : item);
+    const label = (typeof item === 'object' && item.label !== undefined) ? item.label : item;
+    const count = (typeof item === 'object' && item.count !== undefined) ? item.count : null;
+    const checked = (isRadio && typeof item === 'object' && item.default) ? 'checked' : '';
+    const inputType = isRadio ? 'radio' : 'checkbox';
+
+    const clone = template.content.cloneNode(true);
+    const labelEl = clone.querySelector('.filter-item');
+    const input = clone.querySelector('input');
+    const span = clone.querySelector('.filter-label');
+    const countEl = clone.querySelector('.facet-count');
+
+    input.type = inputType;
+    input.name = attributeName;
+    input.value = value;
+    if (checked) input.checked = true;
+    span.textContent = label;
+
+    if (count !== null) {
+      countEl.textContent = count;
+      countEl.style.display = 'inline';
+    } else {
+      countEl.style.display = 'none';
+    }
+
+    return labelEl.outerHTML;
+  }).join('');
+
   container.outerHTML = `
     <details class="filter-dropdown" id="${facetId}">
       <summary><span class="material-symbols-rounded">filter_list</span> ${title}</summary>
       <div class="filter-dropdown-content">
-        ${items.map(item => {
-          const value = (typeof item === 'object' && item.value !== undefined) ? item.value : (typeof item === 'object' && item.min !== undefined ? `${item.min}-${item.max}` : item);
-          const label = (typeof item === 'object' && item.label !== undefined) ? item.label : item;
-          const count = (typeof item === 'object' && item.count !== undefined) ? item.count : null;
-          const checked = (isRadio && typeof item === 'object' && item.default) ? 'checked' : '';
-          const inputType = isRadio ? 'radio' : 'checkbox';
-          const countHtml = count !== null ? `<span class="facet-count">${count}</span>` : '';
-
-          return `
-            <label class="filter-item">
-              <div class="filter-item-main">
-                <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
-                <span>${label}</span>
-              </div>
-              ${countHtml}
-            </label>
-          `;
-        }).join('')}
+        ${filterItemsHtml}
       </div>
     </details>
   `;
@@ -1025,92 +1039,106 @@ function updateResults() {
 }
 
 function renderGameCard(game) {
-  return `
-    <details class="game-card" data-color="${game.color || '255,255,255'}">
-      <summary>
-        <img src="${game.image}" alt="${game.name}">
-      </summary>
-      <div class="game-details">
-        <div class="card-header">
-          <div class="cover-image">
-            <img src="${game.image}" alt="${game.name}">
-          </div>
-          <div class="title-section">
-            <h1 class="game-title">${highlightText(game.name, getCurrentSearchQuery())}</h1>
-            ${formatCategoryChips(game)}
-          </div>
-          <button class="close-button"><span class="material-symbols-rounded">close</span></button>
-        </div>
+  const template = document.getElementById('game-card-template');
+  const clone = template.content.cloneNode(true);
+  const card = clone.querySelector('.game-card');
 
-        <div class="stats-bar">
-          ${game.playing_time ? `<div class="stat-item"><span class="material-symbols-rounded">schedule</span> ${game.playing_time}</div>` : ''}
-          ${game.players.length > 0 ? `<div class="stat-item"><span class="material-symbols-rounded">groups</span> ${formatPlayerCountShort(game.players)}</div>` : ''}
-          ${typeof game.weight === 'number' && !isNaN(game.weight) ? `
-            <div class="stat-item complexity-stat">
-              ${renderComplexityGauge(game.weight)}
-              <span>${getComplexityName(game.weight)}</span>
-            </div>
-          ` : ''}
-          ${game.min_age ? `<div class="stat-item"><span class="material-symbols-rounded">child_care</span> ${game.min_age}+</div>` : ''}
-        </div>
+  // Set basic card data
+  card.setAttribute('data-color', game.color || '255,255,255');
 
-        <div class="description-section">
-          <div class="teaser-text" data-full-text="${escapeHtml(game.description || '')}">
-            ${game.description ? getTeaserText(game.description, true) : 'No description available.'}
-          </div>
-        </div>
+  // Set images
+  const summaryImg = clone.querySelector('.summary-image');
+  const coverImg = clone.querySelector('.cover-image-img');
+  summaryImg.src = game.image;
+  summaryImg.alt = game.name;
+  coverImg.src = game.image;
+  coverImg.alt = game.name;
 
-        <div class="tags-section">
-          ${formatMechanicChips(game)}
-        </div>
+  // Set title
+  const title = clone.querySelector('.game-title');
+  title.innerHTML = highlightText(game.name, getCurrentSearchQuery());
 
-        ${formatOwnedExpansions(game.expansions)}
-
-        <div class="bottom-info">
-          <div class="info-group">
-            ${game.rating ? `
-            <div class="rating-section stat-item">
-              ${renderRatingGauge(game.rating)}
-              <span>Rating</span>
-            </div>
-            ` : ''}
-            ${game.rank ? `
-            <div class="stat-item rank-section">
-              <span class="material-symbols-rounded">leaderboard</span>
-              Rank: ${game.rank}
-            </div>` : ''}
-            <div class="plays-section">
-              <span class="material-symbols-rounded">chess_pawn</span> ${game.numplays || "No"} plays
-            </div>
-          </div>
-        </div>
-
-        <div class="bgg-footer">
-          <a href="https://boardgamegeek.com/boardgame/${game.id}" target="_blank" class="bgg-link">
-            View full page on BoardGameGeek →
-          </a>
-        </div>
-      </div>
-    </details>
-  `;
-}
-
-
-function formatOwnedExpansions(expansions) {
-  if (!expansions || expansions.length === 0) {
-    return '';
+  // Set category chips
+  const categoryContainer = clone.querySelector('.category-chips-container');
+  const categoryChips = formatCategoryChips(game);
+  if (categoryChips) {
+    categoryContainer.innerHTML = categoryChips;
   }
 
-  const expansionLinks = expansions
-    .map(exp => `<a href="https://boardgamegeek.com/boardgame/${exp.id}" target="_blank" class="expansion-chip">${exp.name}</a>`)
-    .join('');
+  // Set stats bar items
+  const playingTimeStat = clone.querySelector('.playing-time-stat');
+  if (game.playing_time) {
+    playingTimeStat.style.display = 'flex';
+    clone.querySelector('.playing-time-value').textContent = game.playing_time;
+  }
 
-  return `
-    <div class="expansions-section">
-      <h3>Expansions</h3>
-      <div class="expansion-chips">${expansionLinks}</div>
-    </div>
-  `;
+  const playersStat = clone.querySelector('.players-stat');
+  if (game.players.length > 0) {
+    playersStat.style.display = 'flex';
+    clone.querySelector('.players-value').textContent = formatPlayerCountShort(game.players);
+  }
+
+  const complexityStat = clone.querySelector('.complexity-stat');
+  if (typeof game.weight === 'number' && !isNaN(game.weight)) {
+    complexityStat.style.display = 'flex';
+    clone.querySelector('.complexity-gauge-container').innerHTML = renderComplexityGauge(game.weight);
+    clone.querySelector('.complexity-name').textContent = getComplexityName(game.weight);
+  }
+
+  const minAgeStat = clone.querySelector('.min-age-stat');
+  if (game.min_age) {
+    minAgeStat.style.display = 'flex';
+    clone.querySelector('.min-age-value').textContent = game.min_age;
+  }
+
+  // Set description
+  const teaserText = clone.querySelector('.teaser-text');
+  teaserText.setAttribute('data-full-text', escapeHtml(game.description || ''));
+  teaserText.innerHTML = game.description ? getTeaserText(game.description, true) : 'No description available.';
+
+  // Set mechanic chips
+  const mechanicContainer = clone.querySelector('.mechanic-chips-container');
+  const mechanicChips = formatMechanicChips(game);
+  if (mechanicChips) {
+    mechanicContainer.innerHTML = mechanicChips;
+  }
+
+  // Set expansions
+  const expansionsSection = clone.querySelector('.expansions-section');
+  if (game.expansions && game.expansions.length > 0) {
+    expansionsSection.style.display = 'block';
+    const expansionTemplate = document.getElementById('expansion-chip-template');
+    const expansionLinks = game.expansions.map(exp => {
+      const expClone = expansionTemplate.content.cloneNode(true);
+      const link = expClone.querySelector('.expansion-chip');
+      link.href = `https://boardgamegeek.com/boardgame/${exp.id}`;
+      link.textContent = exp.name;
+      return link.outerHTML;
+    }).join('');
+    clone.querySelector('.expansion-chips').innerHTML = expansionLinks;
+  }
+
+  // Set rating
+  const ratingSection = clone.querySelector('.rating-section');
+  if (game.rating) {
+    ratingSection.style.display = 'flex';
+    clone.querySelector('.rating-gauge-container').innerHTML = renderRatingGauge(game.rating);
+  }
+
+  // Set rank
+  const rankSection = clone.querySelector('.rank-section');
+  if (game.rank) {
+    rankSection.style.display = 'flex';
+    clone.querySelector('.rank-value').textContent = game.rank;
+  }
+
+  // Set number of plays
+  clone.querySelector('.numplays-value').textContent = game.numplays || "No";
+
+  // Set BGG link
+  clone.querySelector('.bgg-link').href = `https://boardgamegeek.com/boardgame/${game.id}`;
+
+  return card.outerHTML;
 }
 
 
@@ -1118,9 +1146,13 @@ function formatCategoryChips(game) {
   if (!game.categories || game.categories.length === 0) {
     return '';
   }
-  const categoriesHtml = game.categories.map(cat =>
-    `<span class="tag-chip category-chip">${escapeHtml(cat)}</span>`
-  ).join('');
+  const template = document.getElementById('category-chip-template');
+  const categoriesHtml = game.categories.map(cat => {
+    const clone = template.content.cloneNode(true);
+    const chip = clone.querySelector('.tag-chip');
+    chip.textContent = cat;
+    return chip.outerHTML;
+  }).join('');
   return `<div class="tag-chips">${categoriesHtml}</div>`;
 }
 
@@ -1129,9 +1161,13 @@ function formatMechanicChips(game) {
   if (!game.mechanics || game.mechanics.length === 0) {
     return '';
   }
-  const mechanicsHtml = game.mechanics.map(mech =>
-    `<span class="tag-chip mechanic-chip">${escapeHtml(mech)}</span>`
-  ).join('');
+  const template = document.getElementById('mechanic-chip-template');
+  const mechanicsHtml = game.mechanics.map(mech => {
+    const clone = template.content.cloneNode(true);
+    const chip = clone.querySelector('.tag-chip');
+    chip.textContent = mech;
+    return chip.outerHTML;
+  }).join('');
   return `<div class="tag-chips">${mechanicsHtml}</div>`;
 }
 
@@ -1189,17 +1225,21 @@ function escapeHtml(text) {
 function renderComplexityGauge(score) {
   if (isNaN(score)) return '';
 
+  const template = document.getElementById('complexity-gauge-template');
+  const clone = template.content.cloneNode(true);
+  const svg = clone.querySelector('.complexity-gauge');
+  const fgCircle = clone.querySelector('.gauge-fg');
+  const text = clone.querySelector('.gauge-text');
+
   const radius = 10;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 5) * circumference;
 
-  return `
-    <svg class="complexity-gauge" width="24" height="24" viewBox="0 0 24 24">
-      <circle class="gauge-bg" cx="12" cy="12" r="${radius}" />
-      <circle class="gauge-fg" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
-      <text class="gauge-text" x="12" y="12" dy=".3em">${score.toFixed(1)}</text>
-    </svg>
-  `;
+  fgCircle.setAttribute('stroke-dasharray', circumference);
+  fgCircle.setAttribute('stroke-dashoffset', offset);
+  text.textContent = score.toFixed(1);
+
+  return svg.outerHTML;
 }
 
 function getComplexityName(score) {
@@ -1214,17 +1254,21 @@ function getComplexityName(score) {
 function renderRatingGauge(score) {
   if (isNaN(score) || score === 0) return '';
 
+  const template = document.getElementById('rating-gauge-template');
+  const clone = template.content.cloneNode(true);
+  const svg = clone.querySelector('.rating-gauge');
+  const fgCircle = clone.querySelector('.gauge-fg');
+  const text = clone.querySelector('.gauge-text');
+
   const radius = 10;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 10) * circumference;
 
-  return `
-    <svg class="complexity-gauge rating-gauge" width="24" height="24" viewBox="0 0 24 24">
-      <circle class="gauge-bg" cx="12" cy="12" r="${radius}" />
-      <circle class="gauge-fg" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
-      <text class="gauge-text" x="12" y="12" dy=".3em">${score.toFixed(1)}</text>
-    </svg>
-  `;
+  fgCircle.setAttribute('stroke-dasharray', circumference);
+  fgCircle.setAttribute('stroke-dashoffset', offset);
+  text.textContent = score.toFixed(1);
+
+  return svg.outerHTML;
 }
 
 function highlightText(text, query) {

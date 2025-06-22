@@ -39,6 +39,121 @@
     </main>
   </article>
 
+  <!-- HTML Templates -->
+  <template id="filter-item-template">
+    <label class="filter-item">
+      <div class="filter-item-main">
+        <input type="" name="" value="">
+        <span class="filter-label"></span>
+      </div>
+      <span class="facet-count"></span>
+    </label>
+  </template>
+
+  <template id="game-card-template">
+    <details class="game-card" data-color="">
+      <summary>
+        <img src="" alt="" class="summary-image">
+      </summary>
+      <div class="game-details">
+        <div class="card-header">
+          <div class="cover-image">
+            <img src="" alt="" class="cover-image-img">
+          </div>
+          <div class="title-section">
+            <h1 class="game-title"></h1>
+            <div class="category-chips-container"></div>
+          </div>
+          <button class="close-button"><span class="material-symbols-rounded">close</span></button>
+        </div>
+
+        <div class="stats-bar">
+          <div class="stat-item playing-time-stat" style="display: none;">
+            <span class="material-symbols-rounded">schedule</span>
+            <span class="playing-time-value"></span>
+          </div>
+          <div class="stat-item players-stat" style="display: none;">
+            <span class="material-symbols-rounded">groups</span>
+            <span class="players-value"></span>
+          </div>
+          <div class="stat-item complexity-stat" style="display: none;">
+            <div class="complexity-gauge-container"></div>
+            <span class="complexity-name"></span>
+          </div>
+          <div class="stat-item min-age-stat" style="display: none;">
+            <span class="material-symbols-rounded">child_care</span>
+            <span class="min-age-value"></span>+
+          </div>
+        </div>
+
+        <div class="description-section">
+          <div class="teaser-text" data-full-text="">
+          </div>
+        </div>
+
+        <div class="tags-section">
+          <div class="mechanic-chips-container"></div>
+        </div>
+
+        <div class="expansions-section" style="display: none;">
+          <h3>Expansions</h3>
+          <div class="expansion-chips"></div>
+        </div>
+
+        <div class="bottom-info">
+          <div class="info-group">
+            <div class="rating-section stat-item" style="display: none;">
+              <div class="rating-gauge-container"></div>
+              <span>Rating</span>
+            </div>
+            <div class="stat-item rank-section" style="display: none;">
+              <span class="material-symbols-rounded">leaderboard</span>
+              Rank: <span class="rank-value"></span>
+            </div>
+            <div class="plays-section">
+              <span class="material-symbols-rounded">chess_pawn</span>
+              <span class="numplays-value"></span> plays
+            </div>
+          </div>
+        </div>
+
+        <div class="bgg-footer">
+          <a href="" target="_blank" class="bgg-link">
+            View full page on BoardGameGeek →
+          </a>
+        </div>
+      </div>
+    </details>
+  </template>
+
+  <template id="expansion-chip-template">
+    <a href="" target="_blank" class="expansion-chip"></a>
+  </template>
+
+  <template id="category-chip-template">
+    <span class="tag-chip category-chip"></span>
+  </template>
+
+  <template id="mechanic-chip-template">
+    <span class="tag-chip mechanic-chip"></span>
+  </template>
+
+  <template id="complexity-gauge-template">
+    <svg class="complexity-gauge" width="24" height="24" viewBox="0 0 24 24">
+      <circle class="gauge-bg" cx="12" cy="12" r="10" />
+      <circle class="gauge-fg" cx="12" cy="12" r="10" stroke-dasharray="" stroke-dashoffset="" />
+      <text class="gauge-text" x="12" y="12" dy=".3em"></text>
+    </svg>
+  </template>
+
+  <template id="rating-gauge-template">
+    <svg class="complexity-gauge rating-gauge" width="24" height="24" viewBox="0 0 24 24">
+      <circle class="gauge-bg" cx="12" cy="12" r="10" />
+      <circle class="gauge-fg" cx="12" cy="12" r="10" stroke-dasharray="" stroke-dashoffset="" />
+      <text class="gauge-text" x="12" y="12" dy=".3em"></text>
+    </svg>
+  </template>
+
   <script src="app-sqlite.js"></script>
 </body>
 </html>
