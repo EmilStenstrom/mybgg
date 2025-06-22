@@ -5,14 +5,12 @@ let filteredGames = [];
 let currentPage = 1;
 const GAMES_PER_PAGE = 48;
 
-
 function loadJSON(path, callback) {
   fetch(path)
     .then(response => response.json())
     .then(callback)
     .catch(error => console.error('Error loading config:', error));
 }
-
 
 async function initializeDatabase(settings) {
   try {
@@ -55,32 +53,32 @@ async function initializeDatabase(settings) {
 }
 
 function parsePlayerCount(countStr) {
-    if (!countStr) return { min: 0, max: 0, open: false };
-    let s = String(countStr).trim();
+  if (!countStr) return { min: 0, max: 0, open: false };
+  let s = String(countStr).trim();
 
-    if (s.endsWith('+')) {
-        const numPart = s.slice(0, -1);
-        const min = parseInt(numPart, 10);
-        if (String(min) === numPart) {
-            return { min: min, max: Infinity, open: true };
-        }
+  if (s.endsWith('+')) {
+    const numPart = s.slice(0, -1);
+    const min = parseInt(numPart, 10);
+    if (String(min) === numPart) {
+      return { min: min, max: Infinity, open: true };
     }
+  }
 
-    const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
-    if (rangeMatch) {
-        const min = parseInt(rangeMatch[1], 10);
-        const max = parseInt(rangeMatch[2], 10);
-        return { min: min, max: max, open: false };
+  const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
+  if (rangeMatch) {
+    const min = parseInt(rangeMatch[1], 10);
+    const max = parseInt(rangeMatch[2], 10);
+    return { min: min, max: max, open: false };
+  }
+
+  const num = parseInt(s, 10);
+  if (!isNaN(num)) {
+    if (String(num) === s) {
+      return { min: num, max: num, open: false };
     }
+  }
 
-    const num = parseInt(s, 10);
-    if (!isNaN(num)) {
-        if (String(num) === s) {
-            return { min: num, max: num, open: false };
-        }
-    }
-
-    return { min: 0, max: 0, open: false };
+  return { min: 0, max: 0, open: false };
 }
 
 function loadAllGames() {
@@ -117,8 +115,6 @@ function loadAllGames() {
   console.log(`Loaded ${allGames.length} games.`);
 }
 
-
-
 function initializeUI() {
   setupSearchBox();
   setupFilters();
@@ -138,7 +134,7 @@ function initializeUI() {
     updateStats();
   });
 
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
     const openDetails = document.querySelector('details[open] .game-details');
     if (openDetails) {
       const trigger = openDetails.closest('details').querySelector('summary');
@@ -148,7 +144,6 @@ function initializeUI() {
     }
   });
 }
-
 
 function handleMoreButtonClick(button) {
   const teaserText = button.closest('.teaser-text');
@@ -255,28 +250,28 @@ function setupPlayersFilter() {
   const sortedPlayers = Array.from(playerCounts).sort((a, b) => a - b);
 
   const playerItems = [{
-      label: 'Any',
-      value: 'any',
-      default: true,
-      count: allGames.length
-    },
-    ...sortedPlayers.map(p => {
-      const count = allGames.filter(game => {
-        return game.players.some(([playerCount, type]) => {
-          if (type === 'not recommended') return false;
-          const {
-            min,
-            max
-          } = parsePlayerCount(playerCount);
-          return p >= min && p <= max;
-        });
-      }).length;
-      return {
-        label: `${p} player${p === 1 ? '' : 's'}`,
-        value: p.toString(),
-        count: count
-      };
-    })
+    label: 'Any',
+    value: 'any',
+    default: true,
+    count: allGames.length
+  },
+  ...sortedPlayers.map(p => {
+    const count = allGames.filter(game => {
+      return game.players.some(([playerCount, type]) => {
+        if (type === 'not recommended') return false;
+        const {
+          min,
+          max
+        } = parsePlayerCount(playerCount);
+        return p >= min && p <= max;
+      });
+    }).length;
+    return {
+      label: `${p} player${p === 1 ? '' : 's'}`,
+      value: p.toString(),
+      count: count
+    };
+  })
   ];
 
   createRefinementFilter('facet-players', 'Number of players', playerItems, 'players', true);
@@ -362,7 +357,8 @@ function setupMinAgeFilter() {
       if (range.default) return true;
       return game.min_age >= range.min && game.min_age <= range.max;
     }).length;
-    return { ...range,
+    return {
+      ...range,
       count: range.default ? allGames.length : count
     };
   });
@@ -417,7 +413,8 @@ function setupNumPlaysFilter() {
       if (range.default) return true;
       return game.numplays >= range.min && game.numplays <= range.max;
     }).length;
-    return { ...range,
+    return {
+      ...range,
       count: range.default ? allGames.length : count
     };
   });
@@ -511,7 +508,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       dropdownContent.style.maxHeight = `${Math.min(availableHeight, 385)}px`;
     };
 
-    newContainer.addEventListener('toggle', function(event) {
+    newContainer.addEventListener('toggle', function (event) {
       const dropdownContent = this.querySelector('.filter-dropdown-content');
       const summaryElement = this.querySelector('summary');
       if (!dropdownContent || !summaryElement) return;
@@ -552,7 +549,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 
     const summary = newContainer.querySelector('summary');
     if (summary) {
-      summary.addEventListener('click', function(e) {
+      summary.addEventListener('click', function (e) {
         const details = this.parentElement;
         if (details.open) {
           e.preventDefault();
@@ -593,133 +590,131 @@ function updateClearButtonVisibility(filters) {
   clearContainer.style.display = isAnyFilterActive ? 'flex' : 'none';
 }
 
-
-
 function getFiltersFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const minAgeParam = params.get('min_age');
-    const numPlaysParam = params.get('numplays');
+  const params = new URLSearchParams(window.location.search);
+  const minAgeParam = params.get('min_age');
+  const numPlaysParam = params.get('numplays');
 
-    return {
-        query: params.get('q') || '',
-        selectedCategories: params.get('categories')?.split(',').filter(Boolean) || [],
-        selectedMechanics: params.get('mechanics')?.split(',').filter(Boolean) || [],
-        selectedPlayerFilter: params.get('players') || 'any',
-        selectedWeight: params.get('weight')?.split(',').filter(Boolean) || [],
-        selectedPlayingTime: params.get('playing_time')?.split(',').filter(Boolean) || [],
-        selectedPreviousPlayers: params.get('previous_players')?.split(',').filter(Boolean) || [],
-        selectedMinAge: minAgeParam ? { min: Number(minAgeParam.split('-')[0]), max: Number(minAgeParam.split('-')[1]) } : null,
-        selectedNumPlays: numPlaysParam ? { min: Number(numPlaysParam.split('-')[0]), max: Number(numPlaysParam.split('-')[1]) } : null,
-        sortBy: params.get('sort') || 'name',
-        page: Number(params.get('page')) || 1
-    };
+  return {
+    query: params.get('q') || '',
+    selectedCategories: params.get('categories')?.split(',').filter(Boolean) || [],
+    selectedMechanics: params.get('mechanics')?.split(',').filter(Boolean) || [],
+    selectedPlayerFilter: params.get('players') || 'any',
+    selectedWeight: params.get('weight')?.split(',').filter(Boolean) || [],
+    selectedPlayingTime: params.get('playing_time')?.split(',').filter(Boolean) || [],
+    selectedPreviousPlayers: params.get('previous_players')?.split(',').filter(Boolean) || [],
+    selectedMinAge: minAgeParam ? { min: Number(minAgeParam.split('-')[0]), max: Number(minAgeParam.split('-')[1]) } : null,
+    selectedNumPlays: numPlaysParam ? { min: Number(numPlaysParam.split('-')[0]), max: Number(numPlaysParam.split('-')[1]) } : null,
+    sortBy: params.get('sort') || 'name',
+    page: Number(params.get('page')) || 1
+  };
 }
 
 function getFiltersFromUI() {
-    const query = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
-    const selectedCategories = getSelectedValues('categories');
-    const selectedMechanics = getSelectedValues('mechanics');
-    const selectedPlayerFilter = document.querySelector('input[name="players"]:checked')?.value || 'any';
-    const selectedWeight = getSelectedValues('weight');
-    const selectedPlayingTime = getSelectedValues('playing_time');
-    const selectedPreviousPlayers = getSelectedValues('previous_players');
-    const selectedMinAge = getSelectedRange('min_age');
-    const selectedNumPlays = getSelectedRange('numplays');
-    const sortBy = document.getElementById('sort-select')?.value || 'name';
+  const query = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
+  const selectedCategories = getSelectedValues('categories');
+  const selectedMechanics = getSelectedValues('mechanics');
+  const selectedPlayerFilter = document.querySelector('input[name="players"]:checked')?.value || 'any';
+  const selectedWeight = getSelectedValues('weight');
+  const selectedPlayingTime = getSelectedValues('playing_time');
+  const selectedPreviousPlayers = getSelectedValues('previous_players');
+  const selectedMinAge = getSelectedRange('min_age');
+  const selectedNumPlays = getSelectedRange('numplays');
+  const sortBy = document.getElementById('sort-select')?.value || 'name';
 
-    return {
-        query,
-        selectedCategories,
-        selectedMechanics,
-        selectedPlayerFilter,
-        selectedWeight,
-        selectedPlayingTime,
-        selectedPreviousPlayers,
-        selectedMinAge,
-        selectedNumPlays,
-        sortBy,
-        page: currentPage
-    };
+  return {
+    query,
+    selectedCategories,
+    selectedMechanics,
+    selectedPlayerFilter,
+    selectedWeight,
+    selectedPlayingTime,
+    selectedPreviousPlayers,
+    selectedMinAge,
+    selectedNumPlays,
+    sortBy,
+    page: currentPage
+  };
 }
 
 function updateURLWithFilters(filters) {
-    const params = new URLSearchParams();
+  const params = new URLSearchParams();
 
-    if (filters.query) params.set('q', filters.query);
-    if (filters.selectedCategories?.length) params.set('categories', filters.selectedCategories.join(','));
-    if (filters.selectedMechanics?.length) params.set('mechanics', filters.selectedMechanics.join(','));
-    if (filters.selectedPlayerFilter && filters.selectedPlayerFilter !== 'any') params.set('players', filters.selectedPlayerFilter);
-    if (filters.selectedWeight?.length) params.set('weight', filters.selectedWeight.join(','));
-    if (filters.selectedPlayingTime?.length) params.set('playing_time', filters.selectedPlayingTime.join(','));
-    if (filters.selectedPreviousPlayers?.length) params.set('previous_players', filters.selectedPreviousPlayers.join(','));
-    if (filters.selectedMinAge) params.set('min_age', `${filters.selectedMinAge.min}-${filters.selectedMinAge.max}`);
-    if (filters.selectedNumPlays) params.set('numplays', `${filters.selectedNumPlays.min}-${filters.selectedNumPlays.max}`);
-    if (filters.sortBy && filters.sortBy !== 'name') params.set('sort', filters.sortBy);
-    if (filters.page && filters.page > 1) params.set('page', filters.page);
+  if (filters.query) params.set('q', filters.query);
+  if (filters.selectedCategories?.length) params.set('categories', filters.selectedCategories.join(','));
+  if (filters.selectedMechanics?.length) params.set('mechanics', filters.selectedMechanics.join(','));
+  if (filters.selectedPlayerFilter && filters.selectedPlayerFilter !== 'any') params.set('players', filters.selectedPlayerFilter);
+  if (filters.selectedWeight?.length) params.set('weight', filters.selectedWeight.join(','));
+  if (filters.selectedPlayingTime?.length) params.set('playing_time', filters.selectedPlayingTime.join(','));
+  if (filters.selectedPreviousPlayers?.length) params.set('previous_players', filters.selectedPreviousPlayers.join(','));
+  if (filters.selectedMinAge) params.set('min_age', `${filters.selectedMinAge.min}-${filters.selectedMinAge.max}`);
+  if (filters.selectedNumPlays) params.set('numplays', `${filters.selectedNumPlays.min}-${filters.selectedNumPlays.max}`);
+  if (filters.sortBy && filters.sortBy !== 'name') params.set('sort', filters.sortBy);
+  if (filters.page && filters.page > 1) params.set('page', filters.page);
 
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    history.replaceState(filters, '', newUrl);
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  history.replaceState(filters, '', newUrl);
 }
 
 function updateUIFromState(state) {
-    document.getElementById('search-input').value = state.query;
+  document.getElementById('search-input').value = state.query;
 
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
 
-    const checkboxFilters = {
-        'categories': state.selectedCategories,
-        'mechanics': state.selectedMechanics,
-        'weight': state.selectedWeight,
-        'playing_time': state.selectedPlayingTime,
-        'previous_players': state.selectedPreviousPlayers,
-    };
+  const checkboxFilters = {
+    'categories': state.selectedCategories,
+    'mechanics': state.selectedMechanics,
+    'weight': state.selectedWeight,
+    'playing_time': state.selectedPlayingTime,
+    'previous_players': state.selectedPreviousPlayers,
+  };
 
-    for (const name in checkboxFilters) {
-        const values = checkboxFilters[name];
-        if (values?.length) {
-            values.forEach(value => {
-                const cb = document.querySelector(`input[type="checkbox"][name="${name}"][value="${CSS.escape(value)}"]`);
-                if (cb) cb.checked = true;
-            });
-        }
+  for (const name in checkboxFilters) {
+    const values = checkboxFilters[name];
+    if (values?.length) {
+      values.forEach(value => {
+        const cb = document.querySelector(`input[type="checkbox"][name="${name}"][value="${CSS.escape(value)}"]`);
+        if (cb) cb.checked = true;
+      });
     }
+  }
 
-    const playerRadio = document.querySelector(`input[name="players"][value="${state.selectedPlayerFilter}"]`);
-    if (playerRadio) playerRadio.checked = true;
+  const playerRadio = document.querySelector(`input[name="players"][value="${state.selectedPlayerFilter}"]`);
+  if (playerRadio) playerRadio.checked = true;
 
-    if (state.selectedPlayerFilter && state.selectedPlayerFilter !== 'any') {
-        const mainValue = state.selectedPlayerFilter.split('-')[0];
-        const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
-        allPlayerLabels.forEach(label => {
-            const level = parseInt(label.dataset.level, 10);
-            if (level > 0) {
-                label.style.display = label.dataset.parentValue === mainValue ? 'flex' : 'none';
-            }
-        });
-    }
+  if (state.selectedPlayerFilter && state.selectedPlayerFilter !== 'any') {
+    const mainValue = state.selectedPlayerFilter.split('-')[0];
+    const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
+    allPlayerLabels.forEach(label => {
+      const level = parseInt(label.dataset.level, 10);
+      if (level > 0) {
+        label.style.display = label.dataset.parentValue === mainValue ? 'flex' : 'none';
+      }
+    });
+  }
 
-    const minAgeValue = state.selectedMinAge ? `${state.selectedMinAge.min}-${state.selectedMinAge.max}` : '0-100';
-    const minAgeRadio = document.querySelector(`input[name="min_age"][value="${minAgeValue}"]`);
-    if (minAgeRadio) minAgeRadio.checked = true;
+  const minAgeValue = state.selectedMinAge ? `${state.selectedMinAge.min}-${state.selectedMinAge.max}` : '0-100';
+  const minAgeRadio = document.querySelector(`input[name="min_age"][value="${minAgeValue}"]`);
+  if (minAgeRadio) minAgeRadio.checked = true;
 
-    const numPlaysValue = state.selectedNumPlays ? `${state.selectedNumPlays.min}-${state.selectedNumPlays.max}` : '0-9999';
-    const numPlaysRadio = document.querySelector(`input[name="numplays"][value="${numPlaysValue}"]`);
-    if (numPlaysRadio) numPlaysRadio.checked = true;
+  const numPlaysValue = state.selectedNumPlays ? `${state.selectedNumPlays.min}-${state.selectedNumPlays.max}` : '0-9999';
+  const numPlaysRadio = document.querySelector(`input[name="numplays"][value="${numPlaysValue}"]`);
+  if (numPlaysRadio) numPlaysRadio.checked = true;
 
-    document.getElementById('sort-select').value = state.sortBy;
-    currentPage = state.page;
+  document.getElementById('sort-select').value = state.sortBy;
+  currentPage = state.page;
 }
 
 function onFilterChange(resetPage = true) {
-    const state = getFiltersFromUI();
-    if (resetPage) {
-        state.page = 1;
-        currentPage = 1;
-    }
-    updateURLWithFilters(state);
-    applyFiltersAndSort(state);
-    updateResults();
-    updateStats();
+  const state = getFiltersFromUI();
+  if (resetPage) {
+    state.page = 1;
+    currentPage = 1;
+  }
+  updateURLWithFilters(state);
+  applyFiltersAndSort(state);
+  updateResults();
+  updateStats();
 }
 
 function setupClearAllButton() {
@@ -846,7 +841,8 @@ function updateCountsInDOM(facetId, counts, showZero = false) {
 }
 
 function updateAllFilterCounts(filters) {
-  const catFilters = { ...filters,
+  const catFilters = {
+    ...filters,
     selectedCategories: []
   };
   const gamesForCatCount = filterGames(allGames, catFilters);
@@ -858,7 +854,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-categories', categoryCounts);
 
-  const mechFilters = { ...filters,
+  const mechFilters = {
+    ...filters,
     selectedMechanics: []
   };
   const gamesForMechCount = filterGames(allGames, mechFilters);
@@ -870,7 +867,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-mechanics', mechanicCounts);
 
-  const playerFilters = { ...filters,
+  const playerFilters = {
+    ...filters,
     selectedPlayerFilter: 'any'
   };
   const gamesForPlayerCount = filterGames(allGames, playerFilters);
@@ -896,7 +894,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-players', playerCounts, true);
 
-  const weightFilters = { ...filters,
+  const weightFilters = {
+    ...filters,
     selectedWeight: []
   };
   const gamesForWeightCount = filterGames(allGames, weightFilters);
@@ -911,7 +910,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-weight', weightCounts);
 
-  const playingTimeFilters = { ...filters,
+  const playingTimeFilters = {
+    ...filters,
     selectedPlayingTime: []
   };
   const gamesForPlayingTimeCount = filterGames(allGames, playingTimeFilters);
@@ -923,7 +923,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-playing-time', playingTimeCounts);
 
-  const minAgeFilters = { ...filters,
+  const minAgeFilters = {
+    ...filters,
     selectedMinAge: null
   };
   const gamesForMinAgeCount = filterGames(allGames, minAgeFilters);
@@ -940,7 +941,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-min-age', minAgeCounts, true);
 
-  const prevPlayersFilters = { ...filters,
+  const prevPlayersFilters = {
+    ...filters,
     selectedPreviousPlayers: []
   };
   const gamesForPrevPlayersCount = filterGames(allGames, prevPlayersFilters);
@@ -952,7 +954,8 @@ function updateAllFilterCounts(filters) {
   });
   updateCountsInDOM('facet-previous-players', prevPlayerCounts);
 
-  const numPlaysFilters = { ...filters,
+  const numPlaysFilters = {
+    ...filters,
     selectedNumPlays: null
   };
   const gamesForNumPlaysCount = filterGames(allGames, numPlaysFilters);
@@ -1141,7 +1144,6 @@ function renderGameCard(game) {
   return card.outerHTML;
 }
 
-
 function formatCategoryChips(game) {
   if (!game.categories || game.categories.length === 0) {
     return '';
@@ -1155,7 +1157,6 @@ function formatCategoryChips(game) {
   }).join('');
   return `<div class="tag-chips">${categoriesHtml}</div>`;
 }
-
 
 function formatMechanicChips(game) {
   if (!game.mechanics || game.mechanics.length === 0) {
@@ -1243,12 +1244,12 @@ function renderComplexityGauge(score) {
 }
 
 function getComplexityName(score) {
-    if (isNaN(score) || score <= 0) return '';
-    if (score < 1.5) return 'Light';
-    if (score < 2.5) return 'Light Medium';
-    if (score < 3.5) return 'Medium';
-    if (score < 4.5) return 'Medium Heavy';
-    return 'Heavy';
+  if (isNaN(score) || score <= 0) return '';
+  if (score < 1.5) return 'Light';
+  if (score < 2.5) return 'Light Medium';
+  if (score < 3.5) return 'Medium';
+  if (score < 4.5) return 'Medium Heavy';
+  return 'Heavy';
 }
 
 function renderRatingGauge(score) {
@@ -1360,29 +1361,27 @@ function parsePlayerCount(countStr) {
   let s = String(countStr).trim();
 
   if (s.endsWith('+')) {
-      const numPart = s.slice(0, -1);
-      const min = parseInt(numPart, 10);
-      if (String(min) === numPart) {
-          return { min: min, max: Infinity, open: true };
-      }
+    const numPart = s.slice(0, -1);
+    const min = parseInt(numPart, 10);
+    if (String(min) === numPart) {
+      return { min: min, max: Infinity, open: true };
+    }
   }
 
   const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
   if (rangeMatch) {
-      const min = parseInt(rangeMatch[1], 10);
-      const max = parseInt(rangeMatch[2], 10);
-      return { min: min, max: max, open: false };
-  }      const num = parseInt(s, 10);
-      if (!isNaN(num)) {
-          if (String(num) === s) {
-              return { min: num, max: num, open: false };
-          }
-      }
+    const min = parseInt(rangeMatch[1], 10);
+    const max = parseInt(rangeMatch[2], 10);
+    return { min: min, max: max, open: false };
+  } const num = parseInt(s, 10);
+  if (!isNaN(num)) {
+    if (String(num) === s) {
+      return { min: num, max: num, open: false };
+    }
+  }
 
   return { min: 0, max: 0, open: false };
 }
-
-
 
 function debounce(func, wait) {
   let timeout;
@@ -1401,7 +1400,6 @@ function getTextColorForBg(rgbColor) {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   return luminance > 0.5 ? '#000000' : '#FFFFFF';
 }
-
 
 function positionPopupInViewport(popup, trigger, clickEvent = null) {
   const triggerRect = trigger.getBoundingClientRect();
@@ -1430,7 +1428,7 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
   } else if (currentAbsoluteLeft + popupRect.width > viewportWidth - margin) {
     currentAbsoluteLeft = viewportWidth - margin - popupRect.width;
     if (currentAbsoluteLeft < margin) {
-        currentAbsoluteLeft = margin;
+      currentAbsoluteLeft = margin;
     }
   }
 
@@ -1439,7 +1437,7 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
   } else if (currentAbsoluteTop + popupRect.height > viewportHeight - margin) {
     currentAbsoluteTop = viewportHeight - margin - popupRect.height;
     if (currentAbsoluteTop < margin) {
-        currentAbsoluteTop = margin;
+      currentAbsoluteTop = margin;
     }
   }
 
@@ -1459,10 +1457,9 @@ function positionPopupInViewport(popup, trigger, clickEvent = null) {
   popup.style.top = finalTopStyle + 'px';
 }
 
-
 function on_render() {
   const gameCards = document.querySelectorAll(".game-card");
-  gameCards.forEach(function(card) {
+  gameCards.forEach(function (card) {
     const color = card.getAttribute("data-color") || "255,255,255";
     const textColor = getTextColorForBg(color);
 
@@ -1479,7 +1476,7 @@ function on_render() {
 
         const closeBtn = cardHeader.querySelector('.close-button');
         if (closeBtn) {
-            closeBtn.style.color = textColor;
+          closeBtn.style.color = textColor;
         }
       }
 
@@ -1488,19 +1485,19 @@ function on_render() {
         statsBar.style.backgroundColor = `rgba(${color}, 0.1)`;
         const statIcons = statsBar.querySelectorAll(".material-symbols-rounded");
         statIcons.forEach(icon => {
-            icon.style.color = `rgb(${color})`;
+          icon.style.color = `rgb(${color})`;
         });
 
         const gaugeFg = statsBar.querySelector(".gauge-fg");
         if (gaugeFg) {
-            gaugeFg.style.stroke = `rgb(${color})`;
+          gaugeFg.style.stroke = `rgb(${color})`;
         }
       }
 
       const bottomInfo = card.querySelector(".bottom-info");
-      if(bottomInfo) {
+      if (bottomInfo) {
         const playIcon = bottomInfo.querySelector(".plays-section .material-symbols-rounded");
-        if(playIcon) playIcon.style.color = `rgb(${color})`;
+        if (playIcon) playIcon.style.color = `rgb(${color})`;
 
         const rankIcon = bottomInfo.querySelector(".rank-section .material-symbols-rounded");
         if (rankIcon) {
@@ -1509,7 +1506,7 @@ function on_render() {
 
         const ratingGaugeFg = bottomInfo.querySelector(".rating-gauge .gauge-fg");
         if (ratingGaugeFg) {
-            ratingGaugeFg.style.stroke = `rgb(${color})`;
+          ratingGaugeFg.style.stroke = `rgb(${color})`;
         }
       }
 
@@ -1517,8 +1514,8 @@ function on_render() {
       if (bggFooter) {
         bggFooter.style.backgroundColor = `rgb(${color})`;
         const bggLink = bggFooter.querySelector(".bgg-link");
-        if(bggLink) {
-            bggLink.style.color = textColor;
+        if (bggLink) {
+          bggLink.style.color = textColor;
         }
       }
     }
@@ -1529,7 +1526,7 @@ function on_render() {
 
 function setupGameDetails() {
   const summaries = document.querySelectorAll("summary");
-  summaries.forEach(function(elem) {
+  summaries.forEach(function (elem) {
     function conditionalClose(event) {
       closeAllDetails();
       if (!elem.parentElement.hasAttribute("open")) {
@@ -1543,10 +1540,10 @@ function setupGameDetails() {
       }
     }
     elem.addEventListener("click", conditionalClose);
-      });
+  });
 
   const gameDetails = document.querySelectorAll(".game-details");
-  gameDetails.forEach(function(elem) {
+  gameDetails.forEach(function (elem) {
     let closeButton = elem.querySelector('.close-button');
 
     function closeDetails(event) {
@@ -1559,7 +1556,7 @@ function setupGameDetails() {
       closeButton.addEventListener("keypress", closeDetails);
     }
 
-    elem.addEventListener("click", function(event) {
+    elem.addEventListener("click", function (event) {
       event.stopPropagation();
     });
   });
@@ -1568,15 +1565,14 @@ function setupGameDetails() {
 
 function closeAllDetails() {
   const openDetails = document.querySelectorAll("details[open]");
-  openDetails.forEach(function(elem) {
+  openDetails.forEach(function (elem) {
     elem.removeAttribute("open");
   });
 }
 
-
 function debounce(func, delay) {
   let timeout;
-  return function(...args) {
+  return function (...args) {
     const context = this;
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), delay);
@@ -1587,17 +1583,14 @@ function closeAll(event) {
   closeAllDetails();
 }
 
-
 document.addEventListener("click", closeAll);
-
 
 function init(settings) {
   console.log('Initializing mybgg SQLite app...');
   initializeDatabase(settings);
 }
 
-
-loadJSON('./config.json', function(settings) {
+loadJSON('./config.json', function (settings) {
   console.log('Settings loaded:', settings);
   init(settings);
 });
