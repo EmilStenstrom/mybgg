@@ -181,115 +181,225 @@ function setupFilters() {
 }
 
 function setupCategoriesFilter() {
-  const categories = new Set();
+  const categoryCounts = {};
   allGames.forEach(game => {
-    game.categories.forEach(cat => categories.add(cat));
+    game.categories.forEach(cat => {
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    });
   });
 
-  createRefinementFilter('facet-categories', 'Categories', Array.from(categories).sort(), 'categories');
+  const sortedCategories = Object.keys(categoryCounts).sort();
+  const items = sortedCategories.map(cat => ({
+    label: cat,
+    value: cat,
+    count: categoryCounts[cat]
+  }));
+
+  createRefinementFilter('facet-categories', 'Categories', items, 'categories');
 }
 
 function setupMechanicsFilter() {
-  const mechanics = new Set();
+  const mechanicCounts = {};
   allGames.forEach(game => {
-    game.mechanics.forEach(mech => mechanics.add(mech));
+    game.mechanics.forEach(mech => {
+      mechanicCounts[mech] = (mechanicCounts[mech] || 0) + 1;
+    });
   });
 
-  createRefinementFilter('facet-mechanics', 'Mechanics', Array.from(mechanics).sort(), 'mechanics');
+  const sortedMechanics = Object.keys(mechanicCounts).sort();
+  const items = sortedMechanics.map(mech => ({
+    label: mech,
+    value: mech,
+    count: mechanicCounts[mech]
+  }));
+
+  createRefinementFilter('facet-mechanics', 'Mechanics', items, 'mechanics');
 }
 
 function setupPlayersFilter() {
-  const playerCounts = new Map();
-
+  const playerCounts = new Set();
   allGames.forEach(game => {
-    const distinctPlayerCounts = new Set(game.players.map(([count, _]) => count.replace('+', '')));
-
-    distinctPlayerCounts.forEach(num => {
-        if (!playerCounts.has(num)) {
-            playerCounts.set(num, { total: 0, best: 0, recommended: 0, expansion: 0 });
-        }
-        playerCounts.get(num).total++;
-    });
-
     game.players.forEach(([count, type]) => {
-        if (!type) return;
-        const num = count.replace('+', '');
-        if (!playerCounts.has(num)) {
-             // This case should ideally not be hit if the distinct counts are processed first, but as a safeguard:
-             playerCounts.set(num, { total: 0, best: 0, recommended: 0, expansion: 0 });
+      const {
+        min,
+        max
+      } = parsePlayerCount(count);
+      if (min > 0) { // Only add valid player counts
+        const upper = isFinite(max) ? max : 10; // Cap at 10 for UI
+        for (let i = min; i <= upper; i++) {
+          playerCounts.add(i);
         }
-        if (type === 'best') playerCounts.get(num).best++;
-        if (type === 'recommended') playerCounts.get(num).recommended++;
-        // Assuming 'expansion' is a possible type based on screenshot analysis
-        if (type === 'expansion') playerCounts.get(num).expansion++;
+      }
     });
   });
 
-  const sortedKeys = Array.from(playerCounts.keys()).sort((a, b) => parseInt(a) - parseInt(b));
+  const sortedPlayers = Array.from(playerCounts).sort((a, b) => a - b);
 
-  const items = [];
-  items.push({ label: 'Any', value: 'any', count: allGames.length, level: 0, default: true });
-  sortedKeys.forEach(num => {
-    const counts = playerCounts.get(num);
-    if (counts.total > 0) {
-        items.push({ label: `${num}`, value: num, count: counts.total, level: 0 });
-        if (counts.best > 0) {
-          items.push({ label: `Best with ${num}`, value: `${num}-best`, count: counts.best, level: 1, isSubOption: true, parentValue: num });
-        }
-        if (counts.recommended > 0) {
-          items.push({ label: `Recommended with ${num}`, value: `${num}-recommended`, count: counts.recommended, level: 1, isSubOption: true, parentValue: num });
-        }
-        if (counts.expansion > 0) {
-          items.push({ label: `Expansion allows ${num}`, value: `${num}-expansion`, count: counts.expansion, level: 1, isSubOption: true, parentValue: num });
-        }
-    }
-  });
+  const playerItems = [{
+      label: 'Any',
+      value: 'any',
+      default: true,
+      count: allGames.length
+    },
+    ...sortedPlayers.map(p => {
+      const count = allGames.filter(game => {
+        return game.players.some(([playerCount, type]) => {
+          const {
+            min,
+            max
+          } = parsePlayerCount(playerCount);
+          return p >= min && p <= max;
+        });
+      }).length;
+      return {
+        label: `${p} player${p === 1 ? '' : 's'}`,
+        value: p.toString(),
+        count: count
+      };
+    })
+  ];
 
-  createRefinementFilter('facet-players', 'Number of players', items, 'players', true);
+  createRefinementFilter('facet-players', 'Number of players', playerItems, 'players', true);
 }
 
 function setupWeightFilter() {
   const weights = ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'];
-  createRefinementFilter('facet-weight', 'Complexity', weights, 'weight');
+  const weightCounts = {};
+  allGames.forEach(game => {
+    if (game.weight) {
+      weightCounts[game.weight] = (weightCounts[game.weight] || 0) + 1;
+    }
+  });
+
+  const items = weights.map(w => ({
+    label: w,
+    value: w,
+    count: weightCounts[w] || 0
+  }));
+
+  createRefinementFilter('facet-weight', 'Complexity', items, 'weight');
 }
 
 function setupPlayingTimeFilter() {
   const times = ['< 30min', '30min - 1h', '1-2h', '2-3h', '3-4h', '> 4h'];
-  createRefinementFilter('facet-playing-time', 'Playing time', times, 'playing_time');
+  const timeCounts = {};
+  allGames.forEach(game => {
+    if (game.playing_time) {
+      timeCounts[game.playing_time] = (timeCounts[game.playing_time] || 0) + 1;
+    }
+  });
+
+  const items = times.map(t => ({
+    label: t,
+    value: t,
+    count: timeCounts[t] || 0
+  }));
+
+  createRefinementFilter('facet-playing-time', 'Playing time', items, 'playing_time');
 }
 
 function setupMinAgeFilter() {
-  const ageRanges = [
-    { label: 'Any age', min: 0, max: 100, default: true },
-    { label: '< 5 years', min: 0, max: 4 },
-    { label: '< 7 years', min: 0, max: 6 },
-    { label: '< 9 years', min: 0, max: 8 },
-    { label: '< 11 years', min: 0, max: 10 },
-    { label: '< 13 years', min: 0, max: 12 },
-    { label: '< 15 years', min: 0, max: 14 },
-    { label: '15+', min: 15, max: 100 }
-  ];
-  createRefinementFilter('facet-min-age', 'Min age', ageRanges, 'min_age', true);
+  const ageRanges = [{
+    label: 'Any age',
+    min: 0,
+    max: 100,
+    default: true
+  }, {
+    label: '< 5 years',
+    min: 0,
+    max: 4
+  }, {
+    label: '< 7 years',
+    min: 0,
+    max: 6
+  }, {
+    label: '< 9 years',
+    min: 0,
+    max: 8
+  }, {
+    label: '< 11 years',
+    min: 0,
+    max: 10
+  }, {
+    label: '< 13 years',
+    min: 0,
+    max: 12
+  }, {
+    label: '< 15 years',
+    min: 0,
+    max: 14
+  }, {
+    label: '15+',
+    min: 15,
+    max: 100
+  }];
+
+  const items = ageRanges.map(range => {
+    const count = allGames.filter(game => {
+      if (range.default) return true;
+      return game.min_age >= range.min && game.min_age <= range.max;
+    }).length;
+    return { ...range,
+      count: range.default ? allGames.length : count
+    };
+  });
+
+  createRefinementFilter('facet-min-age', 'Min age', items, 'min_age', true);
 }
 
 function setupPreviousPlayersFilter() {
-  const players = new Set();
+  const playerCounts = {};
   allGames.forEach(game => {
-    game.previous_players.forEach(player => players.add(player));
+    game.previous_players.forEach(player => {
+      playerCounts[player] = (playerCounts[player] || 0) + 1;
+    });
   });
 
-  createRefinementFilter('facet-previous-players', 'Previous players', Array.from(players).sort(), 'previous_players');
+  const sortedPlayers = Object.keys(playerCounts).sort();
+  const items = sortedPlayers.map(player => ({
+    label: player,
+    value: player,
+    count: playerCounts[player]
+  }));
+
+  createRefinementFilter('facet-previous-players', 'Previous players', items, 'previous_players');
 }
 
 function setupNumPlaysFilter() {
-  const playRanges = [
-    { label: 'Any', min: 0, max: 9999, default: true },
-    { label: 'Unplayed (0)', min: 0, max: 0 },
-    { label: '1-5 plays', min: 1, max: 5 },
-    { label: '6-10 plays', min: 6, max: 10 },
-    { label: '11+ plays', min: 11, max: 9999 }
-  ];
-  createRefinementFilter('facet-numplays', 'Number of plays', playRanges, 'numplays', true);
+  const playRanges = [{
+    label: 'Any',
+    min: 0,
+    max: 9999,
+    default: true
+  }, {
+    label: 'Unplayed (0)',
+    min: 0,
+    max: 0
+  }, {
+    label: '1-5 plays',
+    min: 1,
+    max: 5
+  }, {
+    label: '6-10 plays',
+    min: 6,
+    max: 10
+  }, {
+    label: '11+ plays',
+    min: 11,
+    max: 9999
+  }];
+
+  const items = playRanges.map(range => {
+    const count = allGames.filter(game => {
+      if (range.default) return true;
+      return game.numplays >= range.min && game.numplays <= range.max;
+    }).length;
+    return { ...range,
+      count: range.default ? allGames.length : count
+    };
+  });
+
+  createRefinementFilter('facet-numplays', 'Number of plays', items, 'numplays', true);
 }
 
 function createRefinementFilter(facetId, title, items, attributeName, isRadio = false) {
@@ -298,36 +408,23 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
 
   container.outerHTML = `
     <details class="filter-dropdown" id="${facetId}">
-      <summary>${title}</summary>
+      <summary><span class="material-symbols-rounded">filter_list</span> ${title}</summary>
       <div class="filter-dropdown-content">
         ${items.map(item => {
-          if (attributeName === 'players' && typeof item === 'object') {
-            const { label, value, count, level, isSubOption, parentValue, default: isDefault } = item;
-                        const checked = isDefault ? 'checked' : '';
-const indentation = isSubOption ? 'style="margin-left: 20px;"' : '';
-            const countHtml = count !== undefined ? `<span class="facet-count">${count}</span>` : '';
-            const labelStyle = `white-space: nowrap; display: ${isSubOption ? 'none' : 'flex'}; align-items: center; width: 100%;`;
-
-            return `
-              <label class="filter-item" data-level="${level}" data-parent-value="${parentValue || ''}" style="${labelStyle}">
-                <div ${indentation} class="checkbox-label-wrapper" style="display: flex; align-items: center;">
-                  <input type="radio" name="${attributeName}" value="${value}" ${checked}>
-                  <span style="margin-left: 4px;">${label}</span>
-                </div>
-                ${countHtml}
-              </label>
-            `;
-          }
-
-          const value = typeof item === 'object' && item.min !== undefined ? `${item.min}-${item.max}` : item;
-          const label = typeof item === 'object' && item.label !== undefined ? item.label : item;
+          const value = (typeof item === 'object' && item.value !== undefined) ? item.value : (typeof item === 'object' && item.min !== undefined ? `${item.min}-${item.max}` : item);
+          const label = (typeof item === 'object' && item.label !== undefined) ? item.label : item;
+          const count = (typeof item === 'object' && item.count !== undefined) ? item.count : null;
           const checked = (isRadio && typeof item === 'object' && item.default) ? 'checked' : '';
           const inputType = isRadio ? 'radio' : 'checkbox';
+          const countHtml = count !== null ? `<span class="facet-count">${count}</span>` : '';
 
           return `
-            <label class="filter-item" style="white-space: nowrap;">
-              <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
-              <span>${label}</span>
+            <label class="filter-item">
+              <div class="filter-item-main">
+                <input type="${inputType}" name="${attributeName}" value="${value}" ${checked}>
+                <span>${label}</span>
+              </div>
+              ${countHtml}
             </label>
           `;
         }).join('')}
@@ -393,8 +490,12 @@ const indentation = isSubOption ? 'style="margin-left: 20px;"' : '';
         dropdownContent.style.overflowY = 'auto';
 
         scrollHandler();
-        window.addEventListener('scroll', scrollHandler, { passive: true });
-        window.addEventListener('resize', scrollHandler, { passive: true });
+        window.addEventListener('scroll', scrollHandler, {
+          passive: true
+        });
+        window.addEventListener('resize', scrollHandler, {
+          passive: true
+        });
 
       } else {
         this.style.position = '';
@@ -612,7 +713,7 @@ function handleSort() {
   onFilterChange();
 }
 
-function applyFiltersAndSort(filters) {
+function filterGames(gamesToFilter, filters) {
   const {
     query,
     selectedCategories,
@@ -622,46 +723,45 @@ function applyFiltersAndSort(filters) {
     selectedPlayingTime,
     selectedPreviousPlayers,
     selectedMinAge,
-    selectedNumPlays,
-    sortBy
+    selectedNumPlays
   } = filters;
 
-  updateClearButtonVisibility(filters);
-
-  filteredGames = allGames.filter(game => {
+  return gamesToFilter.filter(game => {
     // Text search
     if (query && !game.name.toLowerCase().includes(query) &&
-        !game.description.toLowerCase().includes(query)) {
+      !game.description.toLowerCase().includes(query)) {
       return false;
     }
 
     // Category filter
     if (selectedCategories.length > 0 &&
-        !selectedCategories.some(cat => game.categories.includes(cat))) {
+      !selectedCategories.some(cat => game.categories.includes(cat))) {
       return false;
     }
 
     // Mechanics filter
     if (selectedMechanics.length > 0 &&
-        !selectedMechanics.some(mech => game.mechanics.includes(mech))) {
+      !selectedMechanics.some(mech => game.mechanics.includes(mech))) {
       return false;
     }
 
     // Players filter
     if (selectedPlayerFilter && selectedPlayerFilter !== 'any') {
-      const [expectedCount, expectedType] = selectedPlayerFilter.split('-');
+      const targetPlayers = Number(selectedPlayerFilter);
 
-      const match = game.players.some(([count, type]) => {
-        const gameCount = count.replace('+', '');
-        if (expectedType) {
-          return gameCount === expectedCount && type === expectedType;
-        } else {
-          return gameCount === expectedCount;
+      if (!isNaN(targetPlayers)) {
+        const match = game.players.some(([count, type]) => {
+          if (!count) return false;
+          const {
+            min,
+            max
+          } = parsePlayerCount(count);
+          return targetPlayers >= min && targetPlayers <= max;
+        });
+
+        if (!match) {
+          return false;
         }
-      });
-
-      if (!match) {
-        return false;
       }
     }
 
@@ -677,7 +777,7 @@ function applyFiltersAndSort(filters) {
 
     // Previous players filter
     if (selectedPreviousPlayers.length > 0 &&
-        !selectedPreviousPlayers.some(player => game.previous_players.includes(player))) {
+      !selectedPreviousPlayers.some(player => game.previous_players.includes(player))) {
       return false;
     }
 
@@ -693,10 +793,171 @@ function applyFiltersAndSort(filters) {
 
     return true;
   });
+}
+
+function updateCountsInDOM(facetId, counts, showZero = false) {
+  const facetContainer = document.getElementById(facetId);
+  if (!facetContainer) return;
+
+  const filterItems = facetContainer.querySelectorAll('.filter-item');
+  filterItems.forEach(item => {
+    const input = item.querySelector('input');
+    if (!input) return;
+
+    const value = input.value;
+    const countSpan = item.querySelector('.facet-count');
+
+    if (countSpan) {
+      const newCount = counts[value] || 0;
+      countSpan.textContent = newCount;
+
+      if (newCount === 0 && !input.checked && !showZero) {
+        item.style.display = 'none';
+      } else {
+        item.style.display = 'flex';
+      }
+    }
+  });
+}
+
+function updateAllFilterCounts(filters) {
+  // --- Categories ---
+  const catFilters = { ...filters,
+    selectedCategories: []
+  };
+  const gamesForCatCount = filterGames(allGames, catFilters);
+  const categoryCounts = {};
+  gamesForCatCount.forEach(game => {
+    game.categories.forEach(cat => {
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    });
+  });
+  updateCountsInDOM('facet-categories', categoryCounts);
+
+  // --- Mechanics ---
+  const mechFilters = { ...filters,
+    selectedMechanics: []
+  };
+  const gamesForMechCount = filterGames(allGames, mechFilters);
+  const mechanicCounts = {};
+  gamesForMechCount.forEach(game => {
+    game.mechanics.forEach(mech => {
+      mechanicCounts[mech] = (mechanicCounts[mech] || 0) + 1;
+    });
+  });
+  updateCountsInDOM('facet-mechanics', mechanicCounts);
+
+  // --- Players ---
+  const playerFilters = { ...filters,
+    selectedPlayerFilter: 'any'
+  };
+  const gamesForPlayerCount = filterGames(allGames, playerFilters);
+  const playerCounts = {};
+  document.querySelectorAll('#facet-players input[type="radio"]').forEach(radio => {
+    const value = radio.value;
+    if (value === 'any') {
+      playerCounts[value] = gamesForPlayerCount.length;
+    } else {
+      const targetPlayers = Number(value);
+      const count = gamesForPlayerCount.filter(game =>
+        game.players.some(([playerCount, type]) => {
+          const {
+            min,
+            max
+          } = parsePlayerCount(playerCount);
+          return targetPlayers >= min && targetPlayers <= max;
+        })
+      ).length;
+      playerCounts[value] = count;
+    }
+  });
+  updateCountsInDOM('facet-players', playerCounts, true); // Show zero for players
+
+  // --- Weight ---
+  const weightFilters = { ...filters,
+    selectedWeight: []
+  };
+  const gamesForWeightCount = filterGames(allGames, weightFilters);
+  const weightCounts = {};
+  gamesForWeightCount.forEach(game => {
+    if (game.weight) {
+      weightCounts[game.weight] = (weightCounts[game.weight] || 0) + 1;
+    }
+  });
+  updateCountsInDOM('facet-weight', weightCounts);
+
+  // --- Playing Time ---
+  const playingTimeFilters = { ...filters,
+    selectedPlayingTime: []
+  };
+  const gamesForPlayingTimeCount = filterGames(allGames, playingTimeFilters);
+  const playingTimeCounts = {};
+  gamesForPlayingTimeCount.forEach(game => {
+    if (game.playing_time) {
+      playingTimeCounts[game.playing_time] = (playingTimeCounts[game.playing_time] || 0) + 1;
+    }
+  });
+  updateCountsInDOM('facet-playing-time', playingTimeCounts);
+
+  // --- Min Age ---
+  const minAgeFilters = { ...filters,
+    selectedMinAge: null
+  };
+  const gamesForMinAgeCount = filterGames(allGames, minAgeFilters);
+  const minAgeCounts = {};
+  document.querySelectorAll('#facet-min-age input[type="radio"]').forEach(radio => {
+    const value = radio.value;
+    const [min, max] = value.split('-').map(Number);
+    if (value === '0-100') {
+      minAgeCounts[value] = gamesForMinAgeCount.length;
+    } else {
+      const count = gamesForMinAgeCount.filter(game => game.min_age >= min && game.min_age <= max).length;
+      minAgeCounts[value] = count;
+    }
+  });
+  updateCountsInDOM('facet-min-age', minAgeCounts, true);
+
+  // --- Previous Players ---
+  const prevPlayersFilters = { ...filters,
+    selectedPreviousPlayers: []
+  };
+  const gamesForPrevPlayersCount = filterGames(allGames, prevPlayersFilters);
+  const prevPlayerCounts = {};
+  gamesForPrevPlayersCount.forEach(game => {
+    game.previous_players.forEach(player => {
+      prevPlayerCounts[player] = (prevPlayerCounts[player] || 0) + 1;
+    });
+  });
+  updateCountsInDOM('facet-previous-players', prevPlayerCounts);
+
+  // --- Num Plays ---
+  const numPlaysFilters = { ...filters,
+    selectedNumPlays: null
+  };
+  const gamesForNumPlaysCount = filterGames(allGames, numPlaysFilters);
+  const numPlaysCounts = {};
+  document.querySelectorAll('#facet-numplays input[type="radio"]').forEach(radio => {
+    const value = radio.value;
+    const [min, max] = value.split('-').map(Number);
+    if (value === '0-9999') {
+      numPlaysCounts[value] = gamesForNumPlaysCount.length;
+    } else {
+      const count = gamesForNumPlaysCount.filter(game => game.numplays >= min && game.numplays <= max).length;
+      numPlaysCounts[value] = count;
+    }
+  });
+  updateCountsInDOM('facet-numplays', numPlaysCounts, true);
+}
+
+function applyFiltersAndSort(filters) {
+  updateClearButtonVisibility(filters);
+  updateAllFilterCounts(filters);
+
+  filteredGames = filterGames(allGames, filters);
 
   // Sort the results
   filteredGames.sort((a, b) => {
-    switch (sortBy) {
+    switch (filters.sortBy) {
       case 'name':
         return a.name.localeCompare(b.name);
       case 'rank':
@@ -989,8 +1250,51 @@ function goToPage(page) {
   const state = getFiltersFromUI();
   updateURLWithFilters(state);
   updateResults();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 }
+
+function parsePlayerCount(countStr) {
+  if (!countStr) return {
+    min: 0,
+    max: 0
+  };
+
+  if (countStr.includes('-')) {
+    const parts = countStr.split('-').map(Number);
+    // Basic validation
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      return {
+        min: parts[0],
+        max: parts[1]
+      };
+    }
+  }
+  if (countStr.includes('+')) {
+    const min = Number(countStr.replace('+', ''));
+    if (!isNaN(min)) {
+      return {
+        min: min,
+        max: Infinity
+      };
+    }
+  }
+  const num = Number(countStr);
+  if (!isNaN(num)) {
+    return {
+      min: num,
+      max: num
+    };
+  }
+  // Return a non-matching range if parsing fails
+  return {
+    min: 0,
+    max: 0
+  };
+}
+
 
 // Utility functions
 function debounce(func, wait) {

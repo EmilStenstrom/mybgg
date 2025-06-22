@@ -83,8 +83,12 @@ body {
             box-sizing: border-box; /* Include padding and border in the element's total width and height */
             display: flex;
             align-items: center; /* Vertically center text */
-            justify-content: center; /* Horizontally center text */
-            text-align: center; /* Fallback for text alignment */
+            justify-content: flex-start; /* Align icon and text to the start */
+            text-align: left; /* Align text to the left */
+            gap: 0.5em; /* Space between icon and text */
+        }
+        .filter-dropdown > summary > span {
+            font-size: 16px;
         }
 
         /* No specific style for summary::-webkit-details-marker needed here as it's globally reset */
@@ -814,10 +818,37 @@ body {
 
 /* Filter items inside dropdown */
 .filter-item {
-    display: block; /* Or flex for better alignment of checkbox and label */
-    padding: 0.3em 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4em 0.8em;
     cursor: pointer;
     font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.filter-item-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    /* Allow this part to shrink if needed, but not grow excessively */
+    flex-shrink: 1;
+    min-width: 0; /* Important for text truncation */
+}
+
+.filter-item-main span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.facet-count {
+    color: #888;
+    font-size: 0.9em;
+    margin-left: 1em; /* Space between label and count */
+    flex-shrink: 0; /* Prevent count from shrinking */
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 5px;
 }
 
 .filter-item input {
