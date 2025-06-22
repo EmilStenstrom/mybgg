@@ -294,7 +294,7 @@ class BGGClient:
                             alias="numowned"
                         ),
                         xml.string(
-                            "statistics/ratings/bayesaverage",
+                            "statistics/ratings/average",
                             attribute="value",
                             alias="rating"
                         ),

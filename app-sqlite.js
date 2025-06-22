@@ -1112,14 +1112,16 @@ function renderGameCard(game) {
         <!-- Bottom Info Section -->
         <div class="bottom-info">
           <div class="info-group">
-            <div class="rating-section">
-              ${renderStarRating(game.rating)}
-              ${game.rating ? `<strong>${game.rating.toFixed(1)}</strong>` : 'Rate'}
+            ${game.rating ? `
+            <div class="rating-section stat-item">
+              ${renderRatingGauge(game.rating)}
+              <span>BGG Rating</span>
             </div>
+            ` : ''}
+            ${game.rank ? `<div class="stat-item rank-section"><span class="material-symbols-rounded">trophy</span>Top ${game.rank}</div>` : ''}
             <div class="plays-section">
-              <span class="material-symbols-rounded">play_arrow</span> ${game.numplays || 0} plays
+              <span class="material-symbols-rounded">chess_pawn</span> ${game.numplays || "No"} plays
             </div>
-            ${game.rank ? `<div class="stat-item"><span class="material-symbols-rounded">leaderboard</span> ${game.rank}</div>` : ''}
           </div>
         </div>
 
@@ -1245,16 +1247,19 @@ function getComplexityName(score) {
     return 'Heavy';
 }
 
-function renderStarRating(rating) {
-  if (!rating) return '';
+function renderRatingGauge(score) {
+  if (isNaN(score) || score === 0) return '';
 
-  const stars = Math.round(rating / 2); // Convert 10-point to 5-star scale
+  const radius = 10;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 10) * circumference;
+
   return `
-    <div class="star-display">
-      ${Array.from({length: 5}, (_, i) =>
-        `<span class="star material-symbols-rounded ${i < stars ? 'filled' : ''}">${i < stars ? 'star' : 'star_border'}</span>`
-      ).join('')}
-    </div>
+    <svg class="complexity-gauge rating-gauge" width="24" height="24" viewBox="0 0 24 24">
+      <circle class="gauge-bg" cx="12" cy="12" r="${radius}" />
+      <circle class="gauge-fg" cx="12" cy="12" r="${radius}" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
+      <text class="gauge-text" x="12" y="12" dy=".3em">${score.toFixed(1)}</text>
+    </svg>
   `;
 }
 
@@ -1522,10 +1527,15 @@ function on_render() {
         const playIcon = bottomInfo.querySelector(".plays-section .material-symbols-rounded");
         if(playIcon) playIcon.style.color = `rgb(${color})`;
 
-        const stars = bottomInfo.querySelectorAll(".rating-section .star.filled");
-        stars.forEach(star => {
-            star.style.color = `rgb(${color})`;
-        });
+        const rankIcon = bottomInfo.querySelector(".rank-section .material-symbols-rounded");
+        if (rankIcon) {
+          rankIcon.style.color = `rgb(${color})`;
+        }
+
+        const ratingGaugeFg = bottomInfo.querySelector(".rating-gauge .gauge-fg");
+        if (ratingGaugeFg) {
+            ratingGaugeFg.style.stroke = `rgb(${color})`;
+        }
       }
 
       // Apply a light version of the game color to the footer and its link

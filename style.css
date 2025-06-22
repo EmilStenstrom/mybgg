@@ -452,7 +452,6 @@ body {
     align-items: center;
     gap: 4px;
     color: #666;
-    font-size: 0.9em;
 }
 
 .plays-section .material-symbols-rounded {
@@ -752,6 +751,7 @@ body {
     gap: 15px;
     margin-top: auto; /* Push to bottom */
     flex-shrink: 0; /* Prevent shrinking */
+    font-size: 0.9em;
 }
 
 .info-item {
