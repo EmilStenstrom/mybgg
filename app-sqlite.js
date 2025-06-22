@@ -1,10 +1,71 @@
 
+// Configuration loaded from HTML data attributes
+const CONFIG = (() => {
+  const body = document.body;
+  return {
+    GAMES_PER_PAGE: parseInt(body.dataset.gamesPerPage) || 48,
+    MAX_DESCRIPTION_LENGTH: parseInt(body.dataset.maxDescriptionLength) || 200,
+    GAUGE_RADIUS: parseInt(body.dataset.gaugeRadius) || 10,
+    COMPLEXITY_THRESHOLDS: body.dataset.complexityThresholds?.split(',').map(Number) || [1.5, 2.5, 3.5, 4.5],
+    COMPLEXITY_NAMES: body.dataset.complexityNames?.split(',') || ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'],
+    PLAYING_TIMES: body.dataset.playingTimes?.split(',') || ['< 30min', '30min - 1h', '1-2h', '2-3h', '3-4h', '> 4h'],
+    SORT_OPTIONS: body.dataset.sortOptions?.split(',').map(opt => {
+      const [value, text] = opt.split(':');
+      return { value, text };
+    }) || [
+      { value: 'name', text: 'Name (A-Z)' },
+      { value: 'rank', text: 'BGG Rank' },
+      { value: 'rating', text: 'Rating' },
+      { value: 'numowned', text: 'Most Owned' },
+      { value: 'numrated', text: 'Most Rated' }
+    ]
+  };
+})();
+
+// Legacy constants for compatibility
+const GAMES_PER_PAGE = CONFIG.GAMES_PER_PAGE;
+const MAX_DESCRIPTION_LENGTH = CONFIG.MAX_DESCRIPTION_LENGTH;
+const GAUGE_RADIUS = CONFIG.GAUGE_RADIUS;
+
+// Global state
 let db = null;
 let allGames = [];
 let filteredGames = [];
 let currentPage = 1;
-const GAMES_PER_PAGE = 48;
 
+// Utility functions
+function showError(message) {
+  const container = document.getElementById('hits');
+  const template = document.getElementById('error-template');
+  const clone = template.content.cloneNode(true);
+  clone.querySelector('.error-message').textContent = message;
+  container.innerHTML = '';
+  container.appendChild(clone);
+}
+
+function createElement(tag, attributes = {}, textContent = '') {
+  const element = document.createElement(tag);
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key === 'className') {
+      element.className = value;
+    } else {
+      element.setAttribute(key, value);
+    }
+  });
+  if (textContent) element.textContent = textContent;
+  return element;
+}
+
+function createTagChipsContainer(chips) {
+  if (!chips || chips.length === 0) return '';
+  const template = document.getElementById('tag-chips-container-template');
+  const clone = template.content.cloneNode(true);
+  const container = clone.querySelector('.tag-chips');
+  container.innerHTML = chips;
+  return container.outerHTML;
+}
+
+// Core application functions
 function loadJSON(path, callback) {
   fetch(path)
     .then(response => response.json())
@@ -42,13 +103,7 @@ async function initializeDatabase(settings) {
 
   } catch (error) {
     console.error('Error initializing database:', error);
-    document.getElementById('hits').innerHTML = `
-      <div class="error">
-        <h2>Error loading database</h2>
-        <p>${error.message}</p>
-        <p>Please check that the database file exists and is accessible.</p>
-      </div>
-    `;
+    showError(error.message);
   }
 }
 
@@ -152,7 +207,9 @@ function handleMoreButtonClick(button) {
   const fullText = teaserText.getAttribute('data-full-text');
 
   if (button.textContent === 'more') {
-    teaserText.innerHTML = escapeHtml(fullText) + ' <button class="more-button" onclick="handleMoreButtonClick(this)">less</button>';
+    const template = document.getElementById('less-button-template');
+    const clone = template.content.cloneNode(true);
+    teaserText.innerHTML = escapeHtml(fullText) + ' ' + clone.querySelector('button').outerHTML;
   } else {
     teaserText.innerHTML = getTeaserText(fullText, true);
   }
@@ -160,27 +217,37 @@ function handleMoreButtonClick(button) {
 
 function setupSearchBox() {
   const searchBox = document.getElementById('search-box');
-  searchBox.innerHTML = `
-    <input type="text" id="search-input" placeholder="Search games..." />
-  `;
-
-  const searchInput = document.getElementById('search-input');
-  searchInput.addEventListener('input', debounce(handleSearch, 300));
+  const input = createElement('input', {
+    type: 'text',
+    id: 'search-input',
+    placeholder: 'Search games...'
+  });
+  searchBox.appendChild(input);
+  input.addEventListener('input', debounce(onFilterChange, 300));
 }
 
 function setupSorting() {
   const sortContainer = document.getElementById('sort-by');
-  sortContainer.innerHTML = `
-    <select id="sort-select" name="sort-by">
-      <option value="name">Name (A-Z)</option>
-      <option value="rank">BGG Rank</option>
-      <option value="rating">Rating</option>
-      <option value="numowned">Most Owned</option>
-      <option value="numrated">Most Rated</option>
-    </select>
-  `;
+  const select = createElement('select', {
+    id: 'sort-select',
+    name: 'sort-by'
+  });
 
-  document.getElementById('sort-select').addEventListener('change', handleSort);
+  const options = [
+    { value: 'name', text: 'Name (A-Z)' },
+    { value: 'rank', text: 'BGG Rank' },
+    { value: 'rating', text: 'Rating' },
+    { value: 'numowned', text: 'Most Owned' },
+    { value: 'numrated', text: 'Most Rated' }
+  ];
+
+  options.forEach(({ value, text }) => {
+    const option = createElement('option', { value }, text);
+    select.appendChild(option);
+  });
+
+  sortContainer.appendChild(select);
+  select.addEventListener('change', onFilterChange);
 }
 
 function setupFilters() {
@@ -278,7 +345,6 @@ function setupPlayersFilter() {
 }
 
 function setupWeightFilter() {
-  const weights = ['Light', 'Light Medium', 'Medium', 'Medium Heavy', 'Heavy'];
   const weightCounts = {};
   allGames.forEach(game => {
     if (game.weight) {
@@ -289,17 +355,16 @@ function setupWeightFilter() {
     }
   });
 
-  const items = weights.map(w => ({
-    label: w,
-    value: w,
-    count: weightCounts[w] || 0
+  const items = CONFIG.COMPLEXITY_NAMES.map(name => ({
+    label: name,
+    value: name,
+    count: weightCounts[name] || 0
   }));
 
   createRefinementFilter('facet-weight', 'Complexity', items, 'weight');
 }
 
 function setupPlayingTimeFilter() {
-  const times = ['< 30min', '30min - 1h', '1-2h', '2-3h', '3-4h', '> 4h'];
   const timeCounts = {};
   allGames.forEach(game => {
     if (game.playing_time) {
@@ -307,10 +372,10 @@ function setupPlayingTimeFilter() {
     }
   });
 
-  const items = times.map(t => ({
-    label: t,
-    value: t,
-    count: timeCounts[t] || 0
+  const items = CONFIG.PLAYING_TIMES.map(time => ({
+    label: time,
+    value: time,
+    count: timeCounts[time] || 0
   }));
 
   createRefinementFilter('facet-playing-time', 'Playing time', items, 'playing_time');
@@ -457,14 +522,13 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
     return labelEl.outerHTML;
   }).join('');
 
-  container.outerHTML = `
-    <details class="filter-dropdown" id="${facetId}">
-      <summary><span class="material-symbols-rounded">filter_list</span> ${title}</summary>
-      <div class="filter-dropdown-content">
-        ${filterItemsHtml}
-      </div>
-    </details>
-  `;
+  const dropdownTemplate = document.getElementById('filter-dropdown-template');
+  const clone = dropdownTemplate.content.cloneNode(true);
+  const details = clone.querySelector('details');
+  details.id = facetId;
+  clone.querySelector('.filter-title').textContent = title;
+  clone.querySelector('.filter-dropdown-content').innerHTML = filterItemsHtml;
+  container.replaceWith(clone);
 
   const newContainer = document.getElementById(facetId);
   if (newContainer) {
@@ -489,7 +553,7 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
             }
           });
         }
-        handleFilterChange(attributeName, event.target.value, event.target.checked, isRadio);
+        onFilterChange();
       }
     });
 
@@ -719,24 +783,14 @@ function onFilterChange(resetPage = true) {
 
 function setupClearAllButton() {
   const clearContainer = document.getElementById('clear-all');
-  clearContainer.innerHTML = `
-    <button id="clear-filters" class="clear-button">Clear filters</button>
-  `;
+  const button = createElement('button', {
+    id: 'clear-filters',
+    className: 'clear-button'
+  }, 'Clear filters');
+  button.addEventListener('click', clearAllFilters);
+
+  clearContainer.appendChild(button);
   clearContainer.style.display = 'none';
-
-  document.getElementById('clear-filters').addEventListener('click', clearAllFilters);
-}
-
-function handleFilterChange(attributeName, value, isChecked, isRadio) {
-  onFilterChange();
-}
-
-function handleSearch() {
-  onFilterChange();
-}
-
-function handleSort() {
-  onFilterChange();
 }
 
 function filterGames(gamesToFilter, filters) {
@@ -1026,16 +1080,24 @@ function updateResults() {
   const pageGames = filteredGames.slice(startIdx, endIdx);
 
   if (pageGames.length === 0) {
-    container.innerHTML = '<div class="no-results">No games found matching your criteria.</div>';
+    const template = document.getElementById('no-results-template');
+    const clone = template.content.cloneNode(true);
+    container.innerHTML = '';
+    container.appendChild(clone);
     updatePagination();
     return;
   }
 
-  container.innerHTML = `
-    <div class="game-grid">
-      ${pageGames.map(game => renderGameCard(game)).join('')}
-    </div>
-  `;
+  const gridTemplate = document.getElementById('game-grid-template');
+  const gridClone = gridTemplate.content.cloneNode(true);
+  const gameGrid = gridClone.querySelector('.game-grid');
+
+  pageGames.forEach(game => {
+    gameGrid.appendChild(renderGameCard(game));
+  });
+
+  container.innerHTML = '';
+  container.appendChild(gridClone);
 
   on_render();
   updatePagination();
@@ -1141,7 +1203,7 @@ function renderGameCard(game) {
   // Set BGG link
   clone.querySelector('.bgg-link').href = `https://boardgamegeek.com/boardgame/${game.id}`;
 
-  return card.outerHTML;
+  return clone;
 }
 
 function formatCategoryChips(game) {
@@ -1155,7 +1217,7 @@ function formatCategoryChips(game) {
     chip.textContent = cat;
     return chip.outerHTML;
   }).join('');
-  return `<div class="tag-chips">${categoriesHtml}</div>`;
+  return createTagChipsContainer(categoriesHtml);
 }
 
 function formatMechanicChips(game) {
@@ -1169,7 +1231,7 @@ function formatMechanicChips(game) {
     chip.textContent = mech;
     return chip.outerHTML;
   }).join('');
-  return `<div class="tag-chips">${mechanicsHtml}</div>`;
+  return createTagChipsContainer(mechanicsHtml);
 }
 
 function formatPlayerCount(players) {
@@ -1191,13 +1253,12 @@ function formatPlayerCountShort(players) {
 
 function getTeaserText(description, hasMore = false) {
   if (!description) return '';
-  const maxLength = 200;
 
-  if (description.length <= maxLength) {
+  if (description.length <= MAX_DESCRIPTION_LENGTH) {
     return description;
   }
 
-  let truncated = description.substring(0, maxLength);
+  let truncated = description.substring(0, MAX_DESCRIPTION_LENGTH);
   const lastSpace = truncated.lastIndexOf(' ');
   if (lastSpace > 0) {
     truncated = truncated.substring(0, lastSpace);
@@ -1205,16 +1266,12 @@ function getTeaserText(description, hasMore = false) {
   truncated += '...';
 
   if (hasMore) {
-    return truncated + ' <button class="more-button" onclick="handleMoreButtonClick(this)">more</button>';
+    const template = document.getElementById('more-button-template');
+    const clone = template.content.cloneNode(true);
+    return truncated + ' ' + clone.querySelector('button').outerHTML;
   }
 
   return truncated;
-}
-
-function handleMoreButtonClick(button) {
-  const teaserTextElement = button.parentElement;
-  const fullText = teaserTextElement.getAttribute('data-full-text');
-  teaserTextElement.innerHTML = escapeHtml(fullText);
 }
 
 function escapeHtml(text) {
@@ -1232,8 +1289,7 @@ function renderComplexityGauge(score) {
   const fgCircle = clone.querySelector('.gauge-fg');
   const text = clone.querySelector('.gauge-text');
 
-  const radius = 10;
-  const circumference = 2 * Math.PI * radius;
+  const circumference = 2 * Math.PI * GAUGE_RADIUS;
   const offset = circumference - (score / 5) * circumference;
 
   fgCircle.setAttribute('stroke-dasharray', circumference);
@@ -1245,11 +1301,11 @@ function renderComplexityGauge(score) {
 
 function getComplexityName(score) {
   if (isNaN(score) || score <= 0) return '';
-  if (score < 1.5) return 'Light';
-  if (score < 2.5) return 'Light Medium';
-  if (score < 3.5) return 'Medium';
-  if (score < 4.5) return 'Medium Heavy';
-  return 'Heavy';
+  if (score < CONFIG.COMPLEXITY_THRESHOLDS[0]) return CONFIG.COMPLEXITY_NAMES[0];
+  if (score < CONFIG.COMPLEXITY_THRESHOLDS[1]) return CONFIG.COMPLEXITY_NAMES[1];
+  if (score < CONFIG.COMPLEXITY_THRESHOLDS[2]) return CONFIG.COMPLEXITY_NAMES[2];
+  if (score < CONFIG.COMPLEXITY_THRESHOLDS[3]) return CONFIG.COMPLEXITY_NAMES[3];
+  return CONFIG.COMPLEXITY_NAMES[4];
 }
 
 function renderRatingGauge(score) {
@@ -1261,8 +1317,7 @@ function renderRatingGauge(score) {
   const fgCircle = clone.querySelector('.gauge-fg');
   const text = clone.querySelector('.gauge-text');
 
-  const radius = 10;
-  const circumference = 2 * Math.PI * radius;
+  const circumference = 2 * Math.PI * GAUGE_RADIUS;
   const offset = circumference - (score / 10) * circumference;
 
   fgCircle.setAttribute('stroke-dasharray', circumference);
@@ -1304,6 +1359,27 @@ function updateStats() {
   statsContainer.textContent = `${statsText} games`;
 }
 
+function createPaginationButton(page, text, isCurrent = false) {
+  const template = document.getElementById('pagination-button-template');
+  const clone = template.content.cloneNode(true);
+  const button = clone.querySelector('.pagination-btn');
+  
+  button.textContent = text || page;
+  button.onclick = () => goToPage(page);
+  
+  if (isCurrent) {
+    button.className += ' current';
+  }
+  
+  return button.outerHTML;
+}
+
+function createPaginationEllipsis() {
+  const template = document.getElementById('pagination-ellipsis-template');
+  const clone = template.content.cloneNode(true);
+  return clone.querySelector('span').outerHTML;
+}
+
 function updatePagination() {
   const container = document.getElementById('pagination');
   const totalPages = Math.ceil(filteredGames.length / GAMES_PER_PAGE);
@@ -1313,36 +1389,41 @@ function updatePagination() {
     return;
   }
 
-  let paginationHTML = '<div class="pagination">';
+  const template = document.getElementById('pagination-template');
+  const clone = template.content.cloneNode(true);
+  const paginationDiv = clone.querySelector('.pagination');
+
+  let paginationHTML = '';
 
   if (currentPage > 1) {
-    paginationHTML += `<button onclick="goToPage(${currentPage - 1})">‹ Previous</button>`;
+    paginationHTML += createPaginationButton(currentPage - 1, '‹ Previous');
   }
 
   const startPage = Math.max(1, currentPage - 2);
   const endPage = Math.min(totalPages, currentPage + 2);
 
   if (startPage > 1) {
-    paginationHTML += `<button onclick="goToPage(1)">1</button>`;
-    if (startPage > 2) paginationHTML += '<span>...</span>';
+    paginationHTML += createPaginationButton(1);
+    if (startPage > 2) paginationHTML += createPaginationEllipsis();
   }
 
   for (let i = startPage; i <= endPage; i++) {
     const isCurrentPage = i === currentPage;
-    paginationHTML += `<button onclick="goToPage(${i})" ${isCurrentPage ? 'class="current"' : ''}>${i}</button>`;
+    paginationHTML += createPaginationButton(i, i, isCurrentPage);
   }
 
   if (endPage < totalPages) {
-    if (endPage < totalPages - 1) paginationHTML += '<span>...</span>';
-    paginationHTML += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+    if (endPage < totalPages - 1) paginationHTML += createPaginationEllipsis();
+    paginationHTML += createPaginationButton(totalPages);
   }
 
   if (currentPage < totalPages) {
-    paginationHTML += `<button onclick="goToPage(${currentPage + 1})">Next ›</button>`;
+    paginationHTML += createPaginationButton(currentPage + 1, 'Next ›');
   }
 
-  paginationHTML += '</div>';
-  container.innerHTML = paginationHTML;
+  paginationDiv.innerHTML = paginationHTML;
+  container.innerHTML = '';
+  container.appendChild(clone);
 }
 
 function goToPage(page) {
@@ -1354,33 +1435,6 @@ function goToPage(page) {
     top: 0,
     behavior: 'smooth'
   });
-}
-
-function parsePlayerCount(countStr) {
-  if (!countStr) return { min: 0, max: 0, open: false };
-  let s = String(countStr).trim();
-
-  if (s.endsWith('+')) {
-    const numPart = s.slice(0, -1);
-    const min = parseInt(numPart, 10);
-    if (String(min) === numPart) {
-      return { min: min, max: Infinity, open: true };
-    }
-  }
-
-  const rangeMatch = s.match(/^(\d+)[–-](\d+)$/);
-  if (rangeMatch) {
-    const min = parseInt(rangeMatch[1], 10);
-    const max = parseInt(rangeMatch[2], 10);
-    return { min: min, max: max, open: false };
-  } const num = parseInt(s, 10);
-  if (!isNaN(num)) {
-    if (String(num) === s) {
-      return { min: num, max: num, open: false };
-    }
-  }
-
-  return { min: 0, max: 0, open: false };
 }
 
 function debounce(func, wait) {
@@ -1568,15 +1622,6 @@ function closeAllDetails() {
   openDetails.forEach(function (elem) {
     elem.removeAttribute("open");
   });
-}
-
-function debounce(func, delay) {
-  let timeout;
-  return function (...args) {
-    const context = this;
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(context, args), delay);
-  };
 }
 
 function closeAll(event) {
