@@ -1,4 +1,3 @@
-
 // Configuration loaded from HTML data attributes
 const CONFIG = (() => {
   return {
@@ -256,6 +255,35 @@ function setupFilters() {
   setupPreviousPlayersFilter();
   setupNumPlaysFilter();
   setupClearAllButton();
+
+  // Ensure player sub-options are hidden initially
+  hideAllPlayerSubOptions();
+  
+  // Ensure "Any" is checked by default for players filter
+  ensurePlayerAnyIsSelected();
+}
+
+function hideAllPlayerSubOptions() {
+  const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
+  allPlayerLabels.forEach(label => {
+    const level = parseInt(label.dataset.level, 10);
+    if (level > 0) {
+      label.style.display = 'none';
+    }
+  });
+}
+
+function ensurePlayerAnyIsSelected() {
+  const playersContainer = document.getElementById('facet-players');
+  if (!playersContainer) return;
+  
+  const anyInput = playersContainer.querySelector('input[value="any"]');
+  if (anyInput && !anyInput.checked) {
+    anyInput.checked = true;
+  }
+  
+  // Make sure all sub-options are hidden when "Any" is selected
+  hideAllPlayerSubOptions();
 }
 
 function setupCategoriesFilter() {
@@ -316,26 +344,54 @@ function setupPlayersFilter() {
     label: 'Any',
     value: 'any',
     default: true,
-    count: allGames.length
-  },
-  ...sortedPlayers.map(p => {
-    const count = allGames.filter(game => {
+    count: allGames.length,
+    level: 0
+  }];
+
+  // Add main player count options and their sub-options
+  sortedPlayers.forEach(p => {
+    const mainCount = allGames.filter(game => {
       return game.players.some(([playerCount, type]) => {
         if (type === 'not recommended') return false;
-        const {
-          min,
-          max
-        } = parsePlayerCount(playerCount);
+        const { min, max } = parsePlayerCount(playerCount);
         return p >= min && p <= max;
       });
     }).length;
-    return {
+
+    // Main player count option
+    playerItems.push({
       label: `${p} player${p === 1 ? '' : 's'}`,
       value: p.toString(),
-      count: count
-    };
-  })
-  ];
+      count: mainCount,
+      level: 0
+    });
+
+    // Sub-options for different recommendation types
+    const recommendationTypes = ['best', 'recommended', 'expansion'];
+    recommendationTypes.forEach(recType => {
+      const typeCount = allGames.filter(game => {
+        return game.players.some(([playerCount, type]) => {
+          if (type !== recType) return false;
+          const { min, max } = parsePlayerCount(playerCount);
+          return p >= min && p <= max;
+        });
+      }).length;
+
+      if (typeCount > 0) {
+        const typeLabel = recType === 'best' ? 'Best with' :
+                         recType === 'recommended' ? 'Recommended with' :
+                         'Expansions allow';
+
+        playerItems.push({
+          label: `${typeLabel} ${p} player${p === 1 ? '' : 's'}`,
+          value: `${p}-${recType}`,
+          count: typeCount,
+          level: 1,
+          parentValue: p.toString()
+        });
+      }
+    });
+  });
 
   createRefinementFilter('facet-players', 'Number of players', playerItems, 'players', true);
 }
@@ -495,6 +551,8 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
     const count = (typeof item === 'object' && item.count !== undefined) ? item.count : null;
     const checked = (isRadio && typeof item === 'object' && item.default) ? 'checked' : '';
     const inputType = isRadio ? 'radio' : 'checkbox';
+    const level = (typeof item === 'object' && item.level !== undefined) ? item.level : 0;
+    const parentValue = (typeof item === 'object' && item.parentValue !== undefined) ? item.parentValue : '';
 
     const clone = template.content.cloneNode(true);
     const labelEl = clone.querySelector('.filter-item');
@@ -507,6 +565,14 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
     input.value = value;
     if (checked) input.checked = true;
     span.textContent = label;
+
+    // Add level and parent attributes for hierarchical structure
+    if (level > 0) {
+      labelEl.setAttribute('data-level', level);
+      labelEl.setAttribute('data-parent-value', parentValue);
+      labelEl.style.display = 'none'; // Initially hide sub-options
+      labelEl.style.paddingLeft = '20px'; // Indent sub-options
+    }
 
     if (count !== null) {
       countEl.textContent = count;
@@ -535,19 +601,35 @@ function createRefinementFilter(facetId, title, items, attributeName, isRadio = 
       if (event.target.tagName === 'INPUT') {
         if (attributeName === 'players') {
           const selectedValue = event.target.value;
-          const mainValue = selectedValue.split('-')[0];
-
           const allPlayerLabels = newContainer.querySelectorAll('label.filter-item[data-level]');
+
+          // First, hide all sub-options
           allPlayerLabels.forEach(label => {
             const level = parseInt(label.dataset.level, 10);
             if (level > 0) {
-              if (label.dataset.parentValue === mainValue) {
-                label.style.display = 'flex';
-              } else {
-                label.style.display = 'none';
-              }
+              label.style.display = 'none';
             }
           });
+
+          // Show sub-options based on selection
+          if (selectedValue !== 'any') {
+            let parentValue;
+            if (selectedValue.includes('-')) {
+              // A sub-option is selected - get its parent value
+              parentValue = selectedValue.split('-')[0];
+            } else {
+              // A main player count is selected
+              parentValue = selectedValue;
+            }
+
+            // Show all sub-options for this parent value
+            allPlayerLabels.forEach(label => {
+              const level = parseInt(label.dataset.level, 10);
+              if (level > 0 && label.dataset.parentValue === parentValue) {
+                label.style.display = 'flex';
+              }
+            });
+          }
         }
         onFilterChange();
       }
@@ -742,13 +824,35 @@ function updateUIFromState(state) {
   const playerRadio = document.querySelector(`input[name="players"][value="${state.selectedPlayerFilter}"]`);
   if (playerRadio) playerRadio.checked = true;
 
+  // Always handle player filter sub-options visibility
+  const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
+
   if (state.selectedPlayerFilter && state.selectedPlayerFilter !== 'any') {
-    const mainValue = state.selectedPlayerFilter.split('-')[0];
-    const allPlayerLabels = document.querySelectorAll('#facet-players label.filter-item[data-level]');
+    if (state.selectedPlayerFilter.includes('-')) {
+      // A sub-option is selected - show all sub-options for the same parent
+      const parentValue = state.selectedPlayerFilter.split('-')[0];
+      allPlayerLabels.forEach(label => {
+        const level = parseInt(label.dataset.level, 10);
+        if (level > 0) {
+          label.style.display = label.dataset.parentValue === parentValue ? 'flex' : 'none';
+        }
+      });
+    } else {
+      // A main player count is selected - show its sub-options
+      const mainValue = state.selectedPlayerFilter;
+      allPlayerLabels.forEach(label => {
+        const level = parseInt(label.dataset.level, 10);
+        if (level > 0) {
+          label.style.display = label.dataset.parentValue === mainValue ? 'flex' : 'none';
+        }
+      });
+    }
+  } else {
+    // Hide all sub-options when "any" is selected
     allPlayerLabels.forEach(label => {
       const level = parseInt(label.dataset.level, 10);
       if (level > 0) {
-        label.style.display = label.dataset.parentValue === mainValue ? 'flex' : 'none';
+        label.style.display = 'none';
       }
     });
   }
@@ -819,11 +923,18 @@ function filterGames(gamesToFilter, filters) {
     }
 
     if (selectedPlayerFilter && selectedPlayerFilter !== 'any') {
-      const targetPlayers = Number(selectedPlayerFilter);
+      // Handle both simple player count (e.g., "2") and detailed format (e.g., "2-best")
+      const filterParts = selectedPlayerFilter.split('-');
+      const targetPlayers = Number(filterParts[0]);
+      const requiredType = filterParts.length > 1 ? filterParts[1] : null;
 
       if (!isNaN(targetPlayers)) {
         const match = game.players.some(([count, type]) => {
           if (!count || type === 'not recommended') return false;
+
+          // If a specific recommendation type is required, check for it
+          if (requiredType && type !== requiredType) return false;
+
           const parsed = parsePlayerCount(count);
           if (parsed.open) {
             return targetPlayers === parsed.min;
@@ -881,10 +992,45 @@ function updateCountsInDOM(facetId, counts, showZero = false) {
       const newCount = counts[value] || 0;
       countSpan.textContent = newCount;
 
-      if (newCount === 0 && !input.checked && !showZero) {
-        item.style.display = 'none';
+      // Special handling for player filter hierarchical structure
+      if (facetId === 'facet-players') {
+        const level = parseInt(item.dataset.level, 10) || 0;
+
+        if (level > 0) {
+          // This is a sub-option - show if:
+          // 1. Its parent is selected, OR
+          // 2. Any sub-option with the same parent is selected, OR
+          // 3. This specific sub-option is selected
+          const parentValue = item.dataset.parentValue;
+          const parentInput = facetContainer.querySelector(`input[value="${parentValue}"]`);
+          const anyInput = facetContainer.querySelector(`input[value="any"]`);
+          
+          // Check if any sub-option with the same parent is selected
+          const anySubOptionSelected = Array.from(facetContainer.querySelectorAll(`input[type="radio"]`))
+            .some(radio => radio.checked && radio.value.includes('-') && radio.value.startsWith(parentValue + '-'));
+
+          // Sub-options should be visible if:
+          // 1. Their specific parent is selected, OR
+          // 2. Any sub-option for this parent is selected
+          // AND "Any" is NOT selected
+          const shouldShow = ((parentInput && parentInput.checked) || anySubOptionSelected) && !(anyInput && anyInput.checked);
+
+          item.style.display = shouldShow ? 'flex' : 'none';
+        } else {
+          // This is a main option - show/hide based on count
+          if (newCount === 0 && !input.checked && !showZero) {
+            item.style.display = 'none';
+          } else {
+            item.style.display = 'flex';
+          }
+        }
       } else {
-        item.style.display = 'flex';
+        // Normal handling for other filters
+        if (newCount === 0 && !input.checked && !showZero) {
+          item.style.display = 'none';
+        } else {
+          item.style.display = 'flex';
+        }
       }
     }
   });
@@ -1356,14 +1502,14 @@ function createPaginationButton(page, text, isCurrent = false) {
   const template = document.getElementById('pagination-button-template');
   const clone = template.content.cloneNode(true);
   const button = clone.querySelector('.pagination-btn');
-  
+
   button.textContent = text || page;
   button.onclick = () => goToPage(page);
-  
+
   if (isCurrent) {
     button.className += ' current';
   }
-  
+
   return button.outerHTML;
 }
 
@@ -1501,8 +1647,6 @@ function on_render() {
   gameCards.forEach(function (card) {
     const color = card.getAttribute("data-color") || "255,255,255";
     const textColor = getTextColorForBg(color);
-
-    // card.style.backgroundColor = `rgba(${color}, 0.3)`;
 
     const gameDetails = card.querySelector(".game-details");
     if (gameDetails) {
