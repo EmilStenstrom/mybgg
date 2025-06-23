@@ -99,6 +99,11 @@ body {
     flex-grow: 1;
 }
 
+/* Active filter indicator - red bottom border */
+.filter-dropdown.filter-active {
+    border-bottom: 3px solid #b71c1c;
+}
+
 .filter-dropdown>summary {
     padding: 5px 10px;
     list-style: none;

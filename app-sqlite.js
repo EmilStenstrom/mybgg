@@ -258,7 +258,7 @@ function setupFilters() {
 
   // Ensure player sub-options are hidden initially
   hideAllPlayerSubOptions();
-  
+
   // Ensure "Any" is checked by default for players filter
   ensurePlayerAnyIsSelected();
 }
@@ -276,12 +276,12 @@ function hideAllPlayerSubOptions() {
 function ensurePlayerAnyIsSelected() {
   const playersContainer = document.getElementById('facet-players');
   if (!playersContainer) return;
-  
+
   const anyInput = playersContainer.querySelector('input[value="any"]');
   if (anyInput && !anyInput.checked) {
     anyInput.checked = true;
   }
-  
+
   // Make sure all sub-options are hidden when "Any" is selected
   hideAllPlayerSubOptions();
 }
@@ -732,6 +732,88 @@ function updateClearButtonVisibility(filters) {
   clearContainer.style.display = isAnyFilterActive ? 'flex' : 'none';
 }
 
+function updateFilterActiveStates(filters) {
+  // Update categories filter
+  const categoriesFilter = document.getElementById('facet-categories');
+  if (categoriesFilter) {
+    if (filters.selectedCategories && filters.selectedCategories.length > 0) {
+      categoriesFilter.classList.add('filter-active');
+    } else {
+      categoriesFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update mechanics filter
+  const mechanicsFilter = document.getElementById('facet-mechanics');
+  if (mechanicsFilter) {
+    if (filters.selectedMechanics && filters.selectedMechanics.length > 0) {
+      mechanicsFilter.classList.add('filter-active');
+    } else {
+      mechanicsFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update players filter
+  const playersFilter = document.getElementById('facet-players');
+  if (playersFilter) {
+    if (filters.selectedPlayerFilter && filters.selectedPlayerFilter !== 'any') {
+      playersFilter.classList.add('filter-active');
+    } else {
+      playersFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update weight filter
+  const weightFilter = document.getElementById('facet-weight');
+  if (weightFilter) {
+    if (filters.selectedWeight && filters.selectedWeight.length > 0) {
+      weightFilter.classList.add('filter-active');
+    } else {
+      weightFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update playing time filter
+  const playingTimeFilter = document.getElementById('facet-playing-time');
+  if (playingTimeFilter) {
+    if (filters.selectedPlayingTime && filters.selectedPlayingTime.length > 0) {
+      playingTimeFilter.classList.add('filter-active');
+    } else {
+      playingTimeFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update min age filter
+  const minAgeFilter = document.getElementById('facet-min-age');
+  if (minAgeFilter) {
+    if (filters.selectedMinAge !== null) {
+      minAgeFilter.classList.add('filter-active');
+    } else {
+      minAgeFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update previous players filter
+  const prevPlayersFilter = document.getElementById('facet-previous-players');
+  if (prevPlayersFilter) {
+    if (filters.selectedPreviousPlayers && filters.selectedPreviousPlayers.length > 0) {
+      prevPlayersFilter.classList.add('filter-active');
+    } else {
+      prevPlayersFilter.classList.remove('filter-active');
+    }
+  }
+
+  // Update number of plays filter
+  const numPlaysFilter = document.getElementById('facet-numplays');
+  if (numPlaysFilter) {
+    if (filters.selectedNumPlays !== null) {
+      numPlaysFilter.classList.add('filter-active');
+    } else {
+      numPlaysFilter.classList.remove('filter-active');
+    }
+  }
+}
+
 function getFiltersFromURL() {
   const params = new URLSearchParams(window.location.search);
   const minAgeParam = params.get('min_age');
@@ -1004,7 +1086,7 @@ function updateCountsInDOM(facetId, counts, showZero = false) {
           const parentValue = item.dataset.parentValue;
           const parentInput = facetContainer.querySelector(`input[value="${parentValue}"]`);
           const anyInput = facetContainer.querySelector(`input[value="any"]`);
-          
+
           // Check if any sub-option with the same parent is selected
           const anySubOptionSelected = Array.from(facetContainer.querySelectorAll(`input[type="radio"]`))
             .some(radio => radio.checked && radio.value.includes('-') && radio.value.startsWith(parentValue + '-'));
@@ -1171,6 +1253,7 @@ function updateAllFilterCounts(filters) {
 
 function applyFiltersAndSort(filters) {
   updateClearButtonVisibility(filters);
+  updateFilterActiveStates(filters);
   updateAllFilterCounts(filters);
 
   filteredGames = filterGames(allGames, filters);
