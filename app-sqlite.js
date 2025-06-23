@@ -1517,10 +1517,6 @@ function on_render() {
       const statsBar = card.querySelector(".stats-bar");
       if (statsBar) {
         statsBar.style.backgroundColor = `rgba(${color}, 0.1)`;
-        const statIcons = statsBar.querySelectorAll(".material-symbols-rounded");
-        statIcons.forEach(icon => {
-          icon.style.color = `rgb(${color})`;
-        });
 
         const gaugeFg = statsBar.querySelector(".gauge-fg");
         if (gaugeFg) {
@@ -1536,7 +1532,7 @@ function on_render() {
         }
       }
 
-      const gameDetailsIcons = gameDetails.querySelectorAll(".material-symbols-rounded");
+      const gameDetailsIcons = gameDetails.querySelectorAll(".icon-themed");
       gameDetailsIcons.forEach(function (icon) {
         icon.style.color = `rgb(${color})`;
       });
