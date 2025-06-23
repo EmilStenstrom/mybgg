@@ -1108,7 +1108,7 @@ function renderGameCard(game) {
   card.setAttribute('data-color', game.color || '255,255,255');
 
   // Set images
-  const summaryImg = clone.querySelector('.summary-image');
+  const summaryImg = clone.querySelector('.game-image');
   const coverImg = clone.querySelector('.cover-image-img');
   summaryImg.src = game.image;
   summaryImg.alt = game.name;

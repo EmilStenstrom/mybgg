@@ -122,6 +122,7 @@ body {
     border: 1px solid #ccc;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     min-width: 200px;
+    padding: 5px 0;
 }
 
 .filter-dropdown-content {
@@ -144,6 +145,21 @@ body {
     margin-right: 1em;
 }
 
+.search-box {
+    max-width: 300px;
+    margin-right: 1em;
+    flex-grow: 1;
+}
+
+#search-input {
+    width: 100%;
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
 .sort-by {
     max-width: 150px;
     margin-right: 1em;
@@ -151,11 +167,16 @@ body {
     flex-grow: 1;
 }
 
-.search-box {
-    max-width: 300px;
-    margin-right: 1em;
-    flex-grow: 1;
+#sort-select {
+    padding: 0.5em;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    font-size: 1em;
+    box-sizing: border-box;
+    height: calc(1em + 1em + 2px);
 }
+
 
 .stats {
     display: inline-block;
@@ -186,11 +207,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-width: 0 1px 1px 0;
 }
 
-.game-card>summary {
+.game-summary {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,24 +222,19 @@ body {
     list-style: none;
 }
 
-.game-card>summary::-webkit-details-marker {
-    display: none;
-}
-
-.game-card>summary>img {
+.game-image {
     display: block;
     margin: 0;
     max-width: 100%;
     max-height: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 5px;
     image-rendering: auto;
 }
 
 .game-details {
     box-shadow: 1px 1px 15px rgba(0, 0, 0, 0.3);
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 5px;
     left: 8px;
     position: absolute;
     top: 8px;
@@ -359,18 +375,6 @@ body {
 
 .expansions-section div a:hover {
     text-decoration: underline;
-}
-
-.rating-section {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.plays-section {
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .close-button {
@@ -517,25 +521,6 @@ body {
 
 .filter-item:hover {
     background: rgba(183, 28, 28, 0.05);
-}
-
-#search-input {
-    width: 100%;
-    padding: 0.5em;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1em;
-    box-sizing: border-box;
-}
-
-#sort-select {
-    padding: 0.5em;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background: white;
-    font-size: 1em;
-    box-sizing: border-box;
-    height: calc(1em + 1em + 2px);
 }
 
 .pagination {
