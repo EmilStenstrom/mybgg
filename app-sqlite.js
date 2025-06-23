@@ -1425,6 +1425,12 @@ function renderGameCard(game) {
   // Set number of plays
   clone.querySelector('.numplays-value').textContent = game.numplays || "No";
 
+  // Set BGG link
+  const bggLink = clone.querySelector('.bgg-link');
+  if (bggLink && game.id) {
+    bggLink.href = `https://boardgamegeek.com/boardgame/${game.id}`;
+  }
+
   return clone;
 }
 
