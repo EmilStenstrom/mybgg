@@ -1502,7 +1502,7 @@ function on_render() {
     const color = card.getAttribute("data-color") || "255,255,255";
     const textColor = getTextColorForBg(color);
 
-    card.style.backgroundColor = `rgba(${color}, 0.5)`;
+    // card.style.backgroundColor = `rgba(${color}, 0.3)`;
 
     const gameDetails = card.querySelector(".game-details");
     if (gameDetails) {
