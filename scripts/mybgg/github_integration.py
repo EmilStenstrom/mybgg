@@ -12,13 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class GitHubAuth:
-    """Handles Gidef setup_github_integration(settings):
-    """Set up GitHub integration with OAuth Device Flow authentication."""
-    github_config = settings['github']
-
-    # Use OAuth Device Flow for automatic authentication
-    # Public client ID for the MyBGG OAuth App
-    public_client_id = "Ov23lir5tLSaSrWi0YMJ"evice Flow authentication."""
+    """Handles GitHub OAuth Device Flow authentication."""
 
     def __init__(self, client_id: str):
         self.client_id = client_id
@@ -183,8 +177,8 @@ class GitHubReleaseManager:
             create_url = f"{self.base_url}/repos/{self.repo}/releases"
             release_data = {
                 'tag_name': tag,
-                'name': f'Snapshot {tag}',
-                'body': 'Automated snapshot of mybgg SQLite database',
+                'name': 'Board Game Collection Database',
+                'body': 'Latest database of board game collection from BoardGameGeek',
                 'draft': False,
                 'prerelease': False
             }

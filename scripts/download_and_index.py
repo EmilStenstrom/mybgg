@@ -56,7 +56,7 @@ def main(args):
             github_manager = setup_github_integration(SETTINGS)
 
             # Upload the gzipped SQLite file
-            snapshot_tag = SETTINGS["github"].get("snapshot_tag", "snapshot")
+            snapshot_tag = SETTINGS["github"].get("snapshot_tag", "database")
             asset_name = SETTINGS["github"].get("snapshot_asset", "mybgg.sqlite.gz")
 
             download_url = github_manager.upload_snapshot(gzip_path, snapshot_tag, asset_name)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     setup_logging()
 
-    parser = argparse.ArgumentParser(description='Download and create SQLite snapshot of boardgames')
+    parser = argparse.ArgumentParser(description='Download and create SQLite database of boardgames')
     parser.add_argument(
         '--no_upload',
         action='store_true',
