@@ -46,11 +46,12 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
    * Go to your forked repository on GitHub
    * Click on `config.json` 
    * Click the pencil icon (✏️) to edit
+   * Replace `YOUR_NAME` with your name (for the website title)
    * Replace `YOUR_BGG_USERNAME` with your BoardGameGeek username  
    * Replace `YOUR_GITHUB_USERNAME` with your GitHub username
    * Scroll down and click **"Commit changes"**
    
-   **Example**: If your BGG username is `johnsmith` and GitHub username is `johnsmith123`, your config should look like:
+   **Example**: If your name is John, BGG username is `johnsmith`, and GitHub username is `johnsmith123`:
    ```json
    {
        "project": {

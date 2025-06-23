@@ -12,7 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class GitHubAuth:
-    """Handles GitHub OAuth Device Flow authentication."""
+    """Handles Gidef setup_github_integration(settings):
+    """Set up GitHub integration with OAuth Device Flow authentication."""
+    github_config = settings['github']
+
+    # Use OAuth Device Flow for automatic authentication
+    # Public client ID for the MyBGG OAuth App
+    public_client_id = "Ov23lir5tLSaSrWi0YMJ"evice Flow authentication."""
 
     def __init__(self, client_id: str):
         self.client_id = client_id
@@ -226,12 +232,8 @@ def setup_github_integration(settings: Dict[str, Any]) -> GitHubReleaseManager:
     github_config = settings['github']
 
     # Use OAuth Device Flow for automatic authentication
-    public_client_id = github_config.get('public_client_id')
-    if not public_client_id or public_client_id == 'YOUR_OAUTH_APP_CLIENT_ID_HERE':
-        raise ValueError(
-            "GitHub OAuth client ID not configured. "
-            "Please ensure the project maintainer has set up the OAuth App correctly."
-        )
+    # Public client ID for the MyBGG OAuth App
+    public_client_id = "Ov23lir5tLSaSrWi0YMJ"
 
     logger.info("Using OAuth Device Flow for automatic authentication")
     print("\n🔐 Setting up GitHub authentication...")
