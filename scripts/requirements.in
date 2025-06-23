@@ -2,8 +2,5 @@
 
 # XML parsing for BGG API  
 declxml
-# HTTP requests and caching for BGG API
-requests
-requests-cache
-# Image processing for colorgram (vendored dependency)
+# Image processing for vendored colorgram
 pillow

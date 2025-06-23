@@ -6,12 +6,13 @@ Simple validation script to check if setup is correct before running the main sc
 import sys
 from pathlib import Path
 
-# Add the scripts directory to the path so we can import simple_utils
+# Add the scripts directory to the path so we can import mybgg modules
 script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 # Now import after path is set
-from simple_utils import parse_config, http_get  # noqa: E402
+from mybgg.config import parse_config_file  # noqa: E402
+from mybgg.http_client import make_http_request  # noqa: E402
 
 def validate_config():
     """Validate the config.ini file"""
@@ -23,7 +24,7 @@ def validate_config():
         return False
 
     try:
-        config = parse_config("config.ini")
+        config = parse_config_file("config.ini")
     except FileNotFoundError:
         print("❌ config.ini not found!")
         return False
@@ -67,11 +68,11 @@ def validate_bgg_user(username):
     try:
         # Check user exists
         url = f"https://boardgamegeek.com/xmlapi2/user?name={username}"
-        response = http_get(url, timeout=10)
+        response = make_http_request(url, timeout=10)
 
         # Check collection exists and is public
         url = f"https://boardgamegeek.com/xmlapi2/collection?username={username}&own=1"
-        response = http_get(url, timeout=10)
+        response = make_http_request(url, timeout=10)
 
         # Basic check for collection content
         if b"<item " in response:

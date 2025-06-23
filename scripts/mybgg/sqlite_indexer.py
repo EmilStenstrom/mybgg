@@ -6,13 +6,8 @@ from .models import BoardGame
 import io
 import time  # Added for fetch_image retry
 from .vendor import colorgram
-import sys
-from pathlib import Path
 from PIL import Image, ImageFile
-
-# Add parent directory to path to import simple_utils
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from simple_utils import http_get  # noqa: E402
+from .http_client import make_http_request
 
 # Allow colorgram to read truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -76,18 +71,17 @@ class SqliteIndexer:
         conn.close()
         logger.info(f"Initialized SQLite database: {self.db_path}")
 
-    def fetch_image(self, url, tries=0): # Copied from indexer.py
+    def fetch_image(self, url, tries=0):  # Copied from indexer.py
         try:
-            response = http_get(url)
+            response = make_http_request(url)
         except Exception as e:
             logger.warning(f"Failed to fetch image {url} (try {tries + 1}): {e}")
-            if tries < 2: # Max 3 tries (0, 1, 2)
+            if tries < 2:  # Max 3 tries (0, 1, 2)
                 time.sleep(2)
                 return self.fetch_image(url, tries=tries + 1)
-            return None # Return None after max retries
+            return None  # Return None after max retries
 
         return response
-        return None
 
     def add_objects(self, collection: List[BoardGame]):
         """Add BoardGame objects to the SQLite database."""
@@ -131,7 +125,7 @@ class SqliteIndexer:
                                     selected_color_rgb = c
                                     break
 
-                            if not selected_color_rgb: # Fallback to the first color
+                            if not selected_color_rgb:  # Fallback to the first color
                                 selected_color_rgb = extracted_colors[0].rgb
 
                             color_str = f"{selected_color_rgb.r}, {selected_color_rgb.g}, {selected_color_rgb.b}"
@@ -140,8 +134,8 @@ class SqliteIndexer:
                     except Exception as e:
                         logger.error(f"Error processing image for color extraction {game['image']}: {e}")
 
-            if not color_str: # Default color if extraction fails or no image
-                color_str = "255, 255, 255" # White
+            if not color_str:  # Default color if extraction fails or no image
+                color_str = "255, 255, 255"  # White
 
             cursor.execute('''
                 INSERT INTO games (

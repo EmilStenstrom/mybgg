@@ -1,16 +1,11 @@
 """
-Simple configuration utilities with no external dependencies
+Configuration parsing utilities for MyBGG project.
 """
 
-import urllib.request
-import urllib.parse
-import urllib.error
-import json
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
-def parse_config(config_path="config.txt"):
+def parse_config_file(config_path="config.txt"):
     """Parse simple key=value config file"""
     config = {}
     config_file = Path(config_path)
@@ -45,36 +40,7 @@ def parse_config(config_path="config.txt"):
     return config
 
 
-def http_get(url, timeout=30):
-    """Simple HTTP GET using urllib"""
-    try:
-        with urllib.request.urlopen(url, timeout=timeout) as response:
-            return response.read()
-    except urllib.error.URLError as e:
-        raise Exception(f"HTTP request failed: {e}")
-
-
-def http_post(url, data=None, headers=None, timeout=30):
-    """Simple HTTP POST using urllib"""
-    if headers is None:
-        headers = {}
-
-    # Prepare request
-    if isinstance(data, dict):
-        data = urllib.parse.urlencode(data).encode('utf-8')
-    elif isinstance(data, str):
-        data = data.encode('utf-8')
-
-    req = urllib.request.Request(url, data=data, headers=headers)
-
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            return response.read()
-    except urllib.error.URLError as e:
-        raise Exception(f"HTTP request failed: {e}")
-
-
-def config_to_nested(config):
+def create_nested_config(config):
     """Convert flat config to nested structure for backward compatibility"""
     return {
         "project": {

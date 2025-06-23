@@ -11,13 +11,13 @@ sys.path.insert(0, str(script_dir))
 from mybgg.downloader import Downloader  # noqa: E402
 from mybgg.sqlite_indexer import SqliteIndexer  # noqa: E402
 from mybgg.github_integration import setup_github_integration  # noqa: E402
-from simple_utils import parse_config, config_to_nested  # noqa: E402
+from mybgg.config import parse_config_file, create_nested_config  # noqa: E402
 from setup_logging import setup_logging  # noqa: E402
 
 def main(args):
-    config = parse_config(args.config)
+    config = parse_config_file(args.config)
     # Convert flat config to nested structure for backward compatibility
-    SETTINGS = config_to_nested(config)
+    SETTINGS = create_nested_config(config)
 
     downloader = Downloader(
         cache_bgg=args.cache_bgg,

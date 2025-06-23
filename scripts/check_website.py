@@ -6,12 +6,13 @@ Simple script to check if the MyBGG website is working properly.
 import sys
 from pathlib import Path
 
-# Add the scripts directory to the path so we can import simple_utils
+# Add the scripts directory to the path so we can import mybgg modules
 script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 # Now import after path is set
-from simple_utils import parse_config, http_get  # noqa: E402
+from mybgg.config import parse_config_file  # noqa: E402
+from mybgg.http_client import make_http_request  # noqa: E402
 
 def check_website():
     """Check if the MyBGG website is accessible and working"""
@@ -23,7 +24,7 @@ def check_website():
         return False
 
     try:
-        config = parse_config("config.ini")
+        config = parse_config_file("config.ini")
     except Exception as e:
         print(f"❌ config.ini has invalid syntax: {e}")
         return False
@@ -40,7 +41,7 @@ def check_website():
     print(f"🔍 Checking website: {website_url}")
 
     try:
-        response = http_get(website_url, timeout=10)
+        response = make_http_request(website_url, timeout=10)
         response_text = response.decode('utf-8', errors='ignore')
 
         # Check if it's the MyBGG website
@@ -57,7 +58,7 @@ def check_website():
             # Check if database file exists in releases (just try to get first few bytes)
             database_url = f"https://github.com/{repo}/releases/latest/download/mybgg.sqlite.gz"
             try:
-                http_get(database_url, timeout=10)
+                make_http_request(database_url, timeout=10)
                 print("✅ Database file found!")
                 print("   If the website shows 'Loading database...' it should work shortly.")
                 print("   Try refreshing the page or waiting a few minutes.")
