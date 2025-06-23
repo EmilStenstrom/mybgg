@@ -301,7 +301,16 @@ function setupCategoriesFilter() {
     count: categoryCounts[cat]
   }));
 
-  createRefinementFilter('facet-categories', 'Categories', items, 'categories');
+  // Only create the filter if there are categories
+  if (items.length > 0) {
+    createRefinementFilter('facet-categories', 'Categories', items, 'categories');
+  } else {
+    // Hide the filter container if no items
+    const container = document.getElementById('facet-categories');
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
 }
 
 function setupMechanicsFilter() {
@@ -319,7 +328,16 @@ function setupMechanicsFilter() {
     count: mechanicCounts[mech]
   }));
 
-  createRefinementFilter('facet-mechanics', 'Mechanics', items, 'mechanics');
+  // Only create the filter if there are mechanics
+  if (items.length > 0) {
+    createRefinementFilter('facet-mechanics', 'Mechanics', items, 'mechanics');
+  } else {
+    // Hide the filter container if no items
+    const container = document.getElementById('facet-mechanics');
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
 }
 
 function setupPlayersFilter() {
@@ -413,7 +431,17 @@ function setupWeightFilter() {
     count: weightCounts[name] || 0
   }));
 
-  createRefinementFilter('facet-weight', 'Complexity', items, 'weight');
+  // Check if all items have zero count (effectively empty filter)
+  const hasAnyItems = items.some(item => item.count > 0);
+  if (hasAnyItems) {
+    createRefinementFilter('facet-weight', 'Complexity', items, 'weight');
+  } else {
+    // Hide the filter container if no items have counts
+    const container = document.getElementById('facet-weight');
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
 }
 
 function setupPlayingTimeFilter() {
@@ -430,7 +458,17 @@ function setupPlayingTimeFilter() {
     count: timeCounts[time] || 0
   }));
 
-  createRefinementFilter('facet-playing-time', 'Playing time', items, 'playing_time');
+  // Check if all items have zero count (effectively empty filter)
+  const hasAnyItems = items.some(item => item.count > 0);
+  if (hasAnyItems) {
+    createRefinementFilter('facet-playing-time', 'Playing time', items, 'playing_time');
+  } else {
+    // Hide the filter container if no items have counts
+    const container = document.getElementById('facet-playing-time');
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
 }
 
 function setupMinAgeFilter() {
@@ -498,7 +536,16 @@ function setupPreviousPlayersFilter() {
     count: playerCounts[player]
   }));
 
-  createRefinementFilter('facet-previous-players', 'Previous players', items, 'previous_players');
+  // Only create the filter if there are previous players
+  if (items.length > 0) {
+    createRefinementFilter('facet-previous-players', 'Previous players', items, 'previous_players');
+  } else {
+    // Hide the filter container if no items
+    const container = document.getElementById('facet-previous-players');
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
 }
 
 function setupNumPlaysFilter() {
