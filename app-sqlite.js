@@ -98,7 +98,22 @@ async function initializeDatabase(settings) {
 
   } catch (error) {
     console.error('Error initializing database:', error);
-    showError(error.message);
+
+    let userMessage = 'Failed to load your board game database. ';
+
+    if (error.message.includes('404') || error.message.includes('Failed to fetch')) {
+      userMessage += 'This usually means:\n\n' +
+        '• You haven\'t run the setup script yet (python scripts/download_and_index.py --cache_bgg)\n' +
+        '• The database upload failed\n' +
+        '• GitHub Pages isn\'t enabled or is still setting up (can take 10-15 minutes)\n\n' +
+        'Try running the script again, and make sure GitHub Pages is enabled in your repository settings.';
+    } else if (error.message.includes('gzip')) {
+      userMessage += 'The database file appears to be corrupted. Try running the setup script again.';
+    } else {
+      userMessage += `Technical error: ${error.message}`;
+    }
+
+    showError(userMessage);
   }
 }
 

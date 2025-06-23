@@ -12,13 +12,13 @@ def main(args):
     SETTINGS = json.load(open(args.config, "rb"))
 
     downloader = Downloader(
-        project_name=SETTINGS["project"]["name"],
         cache_bgg=args.cache_bgg,
         debug=args.debug,
     )
+    extra_params = SETTINGS["boardgamegeek"].get("extra_params", {"own": 1})
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"],
-        extra_params=SETTINGS["boardgamegeek"]["extra_params"],
+        extra_params=extra_params,
     )
 
     # Deduplicate collection based on game ID

@@ -67,7 +67,10 @@ class GitHubAuth:
         # Step 1: Request device and user codes
         device_response = requests.post(
             'https://github.com/login/device/code',
-            data={'client_id': self.client_id},
+            data={
+                'client_id': self.client_id,
+                'scope': 'public_repo'  # Request permission to create releases on public repos
+            },
             headers={'Accept': 'application/json'},
             timeout=10
         )
@@ -219,16 +222,21 @@ class GitHubReleaseManager:
 
 
 def setup_github_integration(settings: Dict[str, Any]) -> GitHubReleaseManager:
-    """Set up GitHub integration with authentication."""
+    """Set up GitHub integration with OAuth Device Flow authentication."""
     github_config = settings['github']
 
-    # Get client_id from settings
-    client_id = github_config.get('client_id')
-    if not client_id:
-        raise ValueError("GitHub client_id not found in settings. Please add it to config.json")
+    # Use OAuth Device Flow for automatic authentication
+    public_client_id = github_config.get('public_client_id')
+    if not public_client_id or public_client_id == 'YOUR_OAUTH_APP_CLIENT_ID_HERE':
+        raise ValueError(
+            "GitHub OAuth client ID not configured. "
+            "Please ensure the project maintainer has set up the OAuth App correctly."
+        )
 
-    # Authenticate and get release manager
-    auth = GitHubAuth(client_id)
+    logger.info("Using OAuth Device Flow for automatic authentication")
+    print("\n🔐 Setting up GitHub authentication...")
+    print("This will open your browser to authenticate with GitHub (no manual token creation needed!)")
+
+    auth = GitHubAuth(public_client_id)
     token = auth.get_access_token()
-
     return GitHubReleaseManager(github_config['repo'], token)

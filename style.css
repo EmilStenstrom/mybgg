@@ -493,6 +493,17 @@ body {
     margin: 1em;
 }
 
+.error pre {
+    text-align: left;
+    white-space: pre-wrap;
+    font-family: inherit;
+    margin: 1em 0;
+    padding: 1em;
+    background: #fff;
+    border-radius: 3px;
+    border: 1px solid #ffcdd2;
+}
+
 .no-results {
     text-align: center;
     padding: 2em;

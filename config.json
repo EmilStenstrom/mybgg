@@ -1,18 +1,12 @@
 {
     "project": {
-        "name": "mybgg",
-        "title": ""
+        "title": "YOUR_NAME's boardgames"
     },
     "boardgamegeek": {
-        "user_name": "YOUR_BGG_USERNAME",
-        "extra_params": {
-            "own": 1
-        }
+        "user_name": "YOUR_BGG_USERNAME"
     },
-    "algolia": {
-        "app_id": "YOUR_APP_ID",
-        "api_key_search_only": "YOUR_PUBLIC_API_KEY",
-        "index_name": "YOUR_INDEX_NAME",
-        "hits_per_page": 24
+    "github": {
+        "repo": "YOUR_GITHUB_USERNAME/mybgg",
+        "public_client_id": "Ov23lir5tLSaSrWi0YMJ"
     }
 }
