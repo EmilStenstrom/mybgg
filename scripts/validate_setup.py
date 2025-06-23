@@ -130,9 +130,7 @@ def validate_python_deps():
             import_name = package
 
             # Special cases for packages that import differently
-            if package == "requests-cache":
-                import_name = "requests_cache"
-            elif "-" in package:
+            if "-" in package:
                 import_name = package.replace("-", "_")
             elif "." in package:
                 import_name = package.replace(".", "_")

@@ -1,8 +1,7 @@
 import io
 import re
 import time
-from urllib.request import urlopen
-from urllib.error import URLError, HTTPError
+from .http_client import make_http_request
 
 from algoliasearch.search_client import SearchClient
 from PIL import Image, ImageFile
@@ -154,11 +153,9 @@ class Indexer:
 
     def fetch_image(self, url, tries=0):
         try:
-            with urlopen(url) as response:
-                if response.status == 200:
-                    return response.read()
-                return None
-        except (URLError, HTTPError) as e:
+            response = make_http_request(url)
+            return response
+        except Exception as e:
             if tries < 3:
                 time.sleep(2)
                 return self.fetch_image(url, tries=tries + 1)

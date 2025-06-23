@@ -197,3 +197,68 @@ class CachedHttpClient:
 
         conn.close()
         return HttpResponse(response_data, headers, status_code, from_cache=False, url=full_url)
+
+def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
+    """Make HTTP request and return JSON response or None for 404s"""
+    if headers is None:
+        headers = {}
+
+    # Set default headers for JSON requests
+    headers.setdefault('User-Agent', 'MyBGG/1.0')
+    headers.setdefault('Accept', 'application/json')
+
+    try:
+        if method.upper() == 'GET':
+            response_data = make_http_request(url, timeout=timeout)
+        else:
+            # For POST requests
+            if isinstance(data, dict):
+                if headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+                    # Form data
+                    data = urllib.parse.urlencode(data).encode('utf-8')
+                else:
+                    # JSON data
+                    data = json.dumps(data).encode('utf-8')
+                    headers['Content-Type'] = 'application/json'
+
+            # Create request with proper headers
+            request = urllib.request.Request(url, data=data, headers=headers)
+            request.get_method = lambda: method.upper()
+
+            with urllib.request.urlopen(request, timeout=timeout) as response:
+                response_data = response.read()
+
+                # Check if response is gzip compressed
+                if response.info().get('Content-Encoding') == 'gzip':
+                    response_data = gzip.decompress(response_data)
+
+        # Parse JSON response
+        if response_data:
+            content = response_data.decode('utf-8')
+            if content.strip():
+                return json.loads(content)
+        return {}
+
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # For 404s, return None to indicate not found
+            return None
+        elif e.code == 200:
+            # Sometimes 200 is returned even on HTTPError
+            content = e.read().decode('utf-8')
+            if content:
+                return json.loads(content)
+            return {}
+        else:
+            raise Exception(f"HTTP {e.code}: {e.reason}")
+    except urllib.error.URLError as e:
+        raise Exception(f"HTTP request failed: {e}")
+
+
+def make_form_post(url, data, headers=None, timeout=30):
+    """Make HTTP POST request with form data"""
+    if headers is None:
+        headers = {}
+
+    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    return make_json_request(url, 'POST', data, headers, timeout)

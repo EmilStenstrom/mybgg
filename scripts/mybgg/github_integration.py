@@ -5,9 +5,7 @@ import webbrowser
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
-from urllib.request import urlopen, Request
-from urllib.parse import urlencode
-from urllib.error import HTTPError, URLError
+from .http_client import make_json_request, make_form_post
 
 
 logger = logging.getLogger(__name__)
@@ -20,36 +18,8 @@ def _make_http_request(
     headers: Optional[Dict[str, str]] = None,
     timeout: int = 10
 ) -> Optional[Dict[str, Any]]:
-    """Make HTTP request using urllib and return JSON response."""
-    if headers is None:
-        headers = {}
-
-    # Set default headers
-    headers.setdefault('User-Agent', 'MyBGG/1.0')
-    headers.setdefault('Accept', 'application/json')
-
-    req = Request(url, data=data, headers=headers, method=method)
-
-    try:
-        with urlopen(req, timeout=timeout) as response:
-            content = response.read().decode('utf-8')
-            if content:
-                return json.loads(content)
-            return {}
-    except HTTPError as e:
-        if e.code == 404:
-            # For 404s, return None to indicate not found
-            return None
-        elif e.code == 200:
-            # Sometimes 200 is returned even on HTTPError
-            content = e.read().decode('utf-8')
-            if content:
-                return json.loads(content)
-            return {}
-        else:
-            raise Exception(f"HTTP {e.code}: {e.reason}")
-    except URLError as e:
-        raise Exception(f"URL Error: {e.reason}")
+    """Make HTTP request using our HTTP client and return JSON response."""
+    return make_json_request(url, method, data, headers, timeout)
 
 
 def _make_http_post_form(
@@ -59,13 +29,7 @@ def _make_http_post_form(
     timeout: int = 10
 ) -> Optional[Dict[str, Any]]:
     """Make HTTP POST request with form data."""
-    if headers is None:
-        headers = {}
-
-    headers['Content-Type'] = 'application/x-www-form-urlencoded'
-    encoded_data = urlencode(data).encode('utf-8')
-
-    return _make_http_request(url, 'POST', encoded_data, headers, timeout)
+    return make_form_post(url, data, headers, timeout)
 
 
 def _make_http_post_json(
