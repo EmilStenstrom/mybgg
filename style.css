@@ -247,13 +247,12 @@ body {
     border-radius: 5px;
     box-shadow: 3px 3px 15px rgba(0, 0, 0, 0.3);
     image-rendering: smooth;
-    filter: grayscale(0.5);
 }
 
 .game-image:hover {
-    transform: scale(1.02);
+    transform: scale(1.05);
     transition: all 0.2s ease-in-out;
-    filter: grayscale(0);
+    border: 1px solid rgba(0, 0, 0, 0.5);
 }
 
 .game-details {
