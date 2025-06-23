@@ -3,30 +3,36 @@
 Simple validation script to check if setup is correct before running the main script.
 """
 
-import toml
 import sys
-import requests
 from pathlib import Path
 
+# Add the scripts directory to the path so we can import simple_utils
+script_dir = Path(__file__).parent
+sys.path.insert(0, str(script_dir))
+
+# Now import after path is set
+from simple_utils import parse_config, http_get  # noqa: E402
+
 def validate_config():
-    """Validate the config.toml file"""
-    config_path = Path("config.toml")
+    """Validate the config.ini file"""
+    config_path = Path("config.ini")
 
     if not config_path.exists():
-        print("❌ config.toml not found!")
+        print("❌ config.ini not found!")
         print("   Make sure you're running this from the mybgg directory")
         return False
 
     try:
-        with open(config_path) as f:
-            config = toml.load(f)
-    except toml.TomlDecodeError as e:
-        print("❌ config.toml has invalid TOML syntax!")
+        config = parse_config("config.ini")
+    except FileNotFoundError:
+        print("❌ config.ini not found!")
+        return False
+    except ValueError as e:
+        print("❌ config.ini has invalid syntax!")
         print(f"   Error: {e}")
-        print("   Check your TOML syntax at https://www.toml-lint.com/")
         return False
     except Exception as e:
-        print("❌ Error reading config.toml!")
+        print("❌ Error reading config.ini!")
         print(f"   Error: {e}")
         return False
 
@@ -35,7 +41,7 @@ def validate_config():
 
     for field in required_fields:
         if field not in config:
-            print(f"❌ Missing field '{field}' in config.toml")
+            print(f"❌ Missing field '{field}' in config.ini")
             return False
 
         value = config[field]
@@ -44,7 +50,7 @@ def validate_config():
             print(f"   Current value: {value}")
             return False
 
-    print("✅ config.toml looks good!")
+    print("✅ config.ini looks good!")
 
     # Convert flat config to nested structure for compatibility with other functions
     nested_config = {
@@ -61,24 +67,14 @@ def validate_bgg_user(username):
     try:
         # Check user exists
         url = f"https://boardgamegeek.com/xmlapi2/user?name={username}"
-        response = requests.get(url, timeout=10)
-
-        if response.status_code != 200:
-            print(f"❌ BGG user '{username}' not found!")
-            print("   Check your BGG username in config.json")
-            return False
+        response = http_get(url, timeout=10)
 
         # Check collection exists and is public
         url = f"https://boardgamegeek.com/xmlapi2/collection?username={username}&own=1"
-        response = requests.get(url, timeout=10)
-
-        if response.status_code != 200:
-            print(f"❌ Cannot access collection for '{username}'")
-            print("   Make sure your BGG collection is set to public")
-            return False
+        response = http_get(url, timeout=10)
 
         # Basic check for collection content
-        if b"<item " in response.content:
+        if b"<item " in response:
             print(f"✅ BGG user '{username}' found with accessible collection!")
         else:
             print(f"⚠️  BGG user '{username}' found but collection appears empty")
@@ -86,9 +82,9 @@ def validate_bgg_user(username):
 
         return True
 
-    except requests.RequestException as e:
+    except Exception as e:
         print(f"❌ Error checking BGG user: {e}")
-        print("   Check your internet connection")
+        print("   Check your internet connection and BGG username")
         return False
 
 def validate_python_deps():
@@ -133,13 +129,11 @@ def validate_python_deps():
             import_name = package
 
             # Special cases for packages that import differently
-            if package == "colorgram.py":
-                import_name = "colorgram"
-            elif package == "requests-cache":
+            if package == "requests-cache":
                 import_name = "requests_cache"
             elif "-" in package:
                 import_name = package.replace("-", "_")
-            elif "." in package and package != "colorgram.py":
+            elif "." in package:
                 import_name = package.replace(".", "_")
 
             __import__(import_name)

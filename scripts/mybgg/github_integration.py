@@ -1,14 +1,116 @@
 import json
 import os
-import requests
 import time
 import webbrowser
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
+from urllib.request import urlopen, Request
+from urllib.parse import urlencode
+from urllib.error import HTTPError, URLError
 
 
 logger = logging.getLogger(__name__)
+
+
+def _make_http_request(
+    url: str,
+    method: str = 'GET',
+    data: Optional[bytes] = None,
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 10
+) -> Optional[Dict[str, Any]]:
+    """Make HTTP request using urllib and return JSON response."""
+    if headers is None:
+        headers = {}
+
+    # Set default headers
+    headers.setdefault('User-Agent', 'MyBGG/1.0')
+    headers.setdefault('Accept', 'application/json')
+
+    req = Request(url, data=data, headers=headers, method=method)
+
+    try:
+        with urlopen(req, timeout=timeout) as response:
+            content = response.read().decode('utf-8')
+            if content:
+                return json.loads(content)
+            return {}
+    except HTTPError as e:
+        if e.code == 404:
+            # For 404s, return None to indicate not found
+            return None
+        elif e.code == 200:
+            # Sometimes 200 is returned even on HTTPError
+            content = e.read().decode('utf-8')
+            if content:
+                return json.loads(content)
+            return {}
+        else:
+            raise Exception(f"HTTP {e.code}: {e.reason}")
+    except URLError as e:
+        raise Exception(f"URL Error: {e.reason}")
+
+
+def _make_http_post_form(
+    url: str,
+    data: Dict[str, str],
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 10
+) -> Optional[Dict[str, Any]]:
+    """Make HTTP POST request with form data."""
+    if headers is None:
+        headers = {}
+
+    headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    encoded_data = urlencode(data).encode('utf-8')
+
+    return _make_http_request(url, 'POST', encoded_data, headers, timeout)
+
+
+def _make_http_post_json(
+    url: str,
+    data: Dict[str, Any],
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 10
+) -> Optional[Dict[str, Any]]:
+    """Make HTTP POST request with JSON data."""
+    if headers is None:
+        headers = {}
+
+    headers['Content-Type'] = 'application/json'
+    json_data = json.dumps(data).encode('utf-8')
+
+    return _make_http_request(url, 'POST', json_data, headers, timeout)
+
+
+def _make_http_delete(
+    url: str,
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 10
+) -> bool:
+    """Make HTTP DELETE request."""
+    if headers is None:
+        headers = {}
+
+    try:
+        _make_http_request(url, 'DELETE', None, headers, timeout)
+        return True
+    except Exception:
+        return False
+
+
+def _upload_file(
+    url: str,
+    file_data: bytes,
+    headers: Optional[Dict[str, str]] = None,
+    timeout: int = 60
+) -> Optional[Dict[str, Any]]:
+    """Upload file data to URL."""
+    if headers is None:
+        headers = {}
+
+    return _make_http_request(url, 'POST', file_data, headers, timeout)
 
 
 class GitHubAuth:
@@ -56,8 +158,8 @@ class GitHubAuth:
         """Check if the token is still valid by making a test API call."""
         try:
             headers = {'Authorization': f"token {token_data['access_token']}"}
-            response = requests.get('https://api.github.com/user', headers=headers, timeout=10)
-            return response.status_code == 200
+            response = _make_http_request('https://api.github.com/user', headers=headers, timeout=10)
+            return response is not None
         except Exception as e:
             logger.warning(f"Token validation failed: {e}")
             return False
@@ -65,17 +167,18 @@ class GitHubAuth:
     def _perform_device_flow(self) -> str:
         """Perform the complete OAuth Device Flow."""
         # Step 1: Request device and user codes
-        device_response = requests.post(
+        device_data = _make_http_post_form(
             'https://github.com/login/device/code',
-            data={
+            {
                 'client_id': self.client_id,
                 'scope': 'public_repo'  # Request permission to create releases on public repos
             },
             headers={'Accept': 'application/json'},
             timeout=10
         )
-        device_response.raise_for_status()
-        device_data = device_response.json()
+
+        if not device_data:
+            raise Exception("Failed to get device code from GitHub")
 
         # Step 2: Show user code and open browser
         user_code = device_data['user_code']
@@ -101,9 +204,9 @@ class GitHubAuth:
         while time.time() - start_time < expires_in:
             time.sleep(interval)
 
-            token_response = requests.post(
+            token_data = _make_http_post_form(
                 'https://github.com/login/oauth/access_token',
-                data={
+                {
                     'client_id': self.client_id,
                     'device_code': device_code,
                     'grant_type': 'urn:ietf:params:oauth:grant-type:device_code'
@@ -112,21 +215,16 @@ class GitHubAuth:
                 timeout=10
             )
 
-            if token_response.status_code != 200:
-                continue
-
-            token_data = token_response.json()
-
-            if 'access_token' in token_data:
+            if token_data and 'access_token' in token_data:
                 logger.info("Authorization successful!")
                 self._save_token(token_data)
                 return token_data['access_token']
-            elif token_data.get('error') == 'authorization_pending':
+            elif token_data and token_data.get('error') == 'authorization_pending':
                 continue
-            elif token_data.get('error') == 'slow_down':
+            elif token_data and token_data.get('error') == 'slow_down':
                 interval += 5
                 continue
-            else:
+            elif token_data and token_data.get('error'):
                 raise Exception(f"OAuth error: {token_data.get('error_description', 'Unknown error')}")
 
         raise Exception("OAuth Device Flow timed out")
@@ -166,12 +264,12 @@ class GitHubReleaseManager:
         """Find existing release or create a new one."""
         # Try to find existing release
         url = f"{self.base_url}/repos/{self.repo}/releases/tags/{tag}"
-        response = requests.get(url, headers=self.headers, timeout=10)
+        response = _make_http_request(url, headers=self.headers, timeout=10)
 
-        if response.status_code == 200:
+        if response is not None:
             logger.info(f"Found existing release: {tag}")
-            return response.json()
-        elif response.status_code == 404:
+            return response
+        else:
             # Create new release
             logger.info(f"Creating new release: {tag}")
             create_url = f"{self.base_url}/repos/{self.repo}/releases"
@@ -182,13 +280,10 @@ class GitHubReleaseManager:
                 'draft': False,
                 'prerelease': False
             }
-            create_response = requests.post(create_url, json=release_data, headers=self.headers, timeout=10)
-            create_response.raise_for_status()
-            return create_response.json()
-        else:
-            response.raise_for_status()
-            # This should never be reached due to raise_for_status, but added for type safety
-            return {}
+            create_response = _make_http_post_json(create_url, release_data, headers=self.headers, timeout=10)
+            if not create_response:
+                raise Exception("Failed to create GitHub release")
+            return create_response
 
     def _delete_existing_asset(self, release: Dict[str, Any], asset_name: str):
         """Delete existing asset with the same name."""
@@ -196,8 +291,9 @@ class GitHubReleaseManager:
             if asset['name'] == asset_name:
                 logger.info(f"Deleting existing asset: {asset_name}")
                 delete_url = f"{self.base_url}/repos/{self.repo}/releases/assets/{asset['id']}"
-                delete_response = requests.delete(delete_url, headers=self.headers, timeout=10)
-                delete_response.raise_for_status()
+                success = _make_http_delete(delete_url, headers=self.headers, timeout=10)
+                if not success:
+                    logger.warning(f"Failed to delete existing asset: {asset_name}")
                 break
 
     def _upload_asset(self, release: Dict[str, Any], file_path: str, asset_name: str):
@@ -211,13 +307,7 @@ class GitHubReleaseManager:
         upload_headers['Content-Type'] = 'application/gzip'
 
         logger.info(f"Uploading {len(file_data):,} bytes...")
-        upload_response = requests.post(
-            upload_url,
-            data=file_data,
-            headers=upload_headers,
-            timeout=60
-        )
-        upload_response.raise_for_status()
+        _upload_file(upload_url, file_data, headers=upload_headers, timeout=60)
         logger.info("Asset upload successful!")
 
 

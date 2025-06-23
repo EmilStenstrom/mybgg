@@ -95,8 +95,21 @@ class BGGClient:
         try:
             response = self.requester.get(BGGClient.BASE_URL + url, params=params)
             response.raise_for_status()  # This will raise an exception for 4xx and 5xx status codes
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 429:  # Too Many Requests
+                if tries < 3:
+                    logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
+                    sleep_with_backoff_and_jitter(30, tries)
+                    return self._make_request(url, params=params, tries=tries + 1)
+                else:
+                    raise BGGException(f"BGG returned status code {e.response.status_code}")
+            else:
+                if tries < 10:
+                    sleep_with_backoff_and_jitter(1, tries)
+                    return self._make_request(url, params=params, tries=tries + 1)
+                else:
+                    raise BGGException("BGG API closed the connection prematurely, please try again...")
         except (
-            requests.exceptions.HTTPError,
             requests.exceptions.ConnectionError,
             requests.exceptions.ChunkedEncodingError
         ):
@@ -105,21 +118,17 @@ class BGGClient:
                 return self._make_request(url, params=params, tries=tries + 1)
             else:
                 raise BGGException("BGG API closed the connection prematurely, please try again...")
-        except requests.exceptions.TooManyRequests:
-            if tries < 3:
-                logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
-                sleep_with_backoff_and_jitter(30, tries)
-                return self._make_request(url, params=params, tries=tries + 1)
-            else:
-                raise BGGException(f"BGG returned status code {response.status_code} when requesting {response.url}")
 
         logger.debug("REQUEST: " + response.url)
         logger.debug("RESPONSE: \n" + prettify_if_xml(response.text))
 
         tree = fromstring(response.text)
-        if tree.tag == "message" and "Your request for this collection has been accepted" in tree.text:
+        if tree.tag == "message" and tree.text and "Your request for this collection has been accepted" in tree.text:
             if tries < 10:
-                logger.debug("BGG returned \"Your request for this collection has been accepted\", waiting 10 seconds before trying again...")
+                logger.debug(
+                    "BGG returned \"Your request for this collection has been accepted\", "
+                    "waiting 10 seconds before trying again..."
+                )
                 sleep_with_backoff_and_jitter(10, tries)
                 return self._make_request(url, params=params, tries=tries + 1)
             else:

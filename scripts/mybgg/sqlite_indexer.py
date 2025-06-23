@@ -5,9 +5,14 @@ from typing import List, Dict, Any
 from .models import BoardGame
 import io
 import time  # Added for fetch_image retry
-import colorgram
-import requests
+from .vendor import colorgram
+import sys
+from pathlib import Path
 from PIL import Image, ImageFile
+
+# Add parent directory to path to import simple_utils
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from simple_utils import http_get  # noqa: E402
 
 # Allow colorgram to read truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -73,17 +78,15 @@ class SqliteIndexer:
 
     def fetch_image(self, url, tries=0): # Copied from indexer.py
         try:
-            response = requests.get(url)
-            response.raise_for_status() # Raise an exception for bad status codes
-        except (requests.exceptions.RequestException, requests.exceptions.ChunkedEncodingError) as e:
+            response = http_get(url)
+        except Exception as e:
             logger.warning(f"Failed to fetch image {url} (try {tries + 1}): {e}")
             if tries < 2: # Max 3 tries (0, 1, 2)
                 time.sleep(2)
                 return self.fetch_image(url, tries=tries + 1)
             return None # Return None after max retries
 
-        if response.status_code == 200:
-            return response.content
+        return response
         return None
 
     def add_objects(self, collection: List[BoardGame]):

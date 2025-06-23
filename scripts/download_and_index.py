@@ -1,29 +1,23 @@
-import toml
 import sys
 import gzip
 import os
+from pathlib import Path
 
-from mybgg.downloader import Downloader
-from mybgg.sqlite_indexer import SqliteIndexer
-from mybgg.github_integration import setup_github_integration
-from setup_logging import setup_logging
+# Add the scripts directory to the path for imports
+script_dir = Path(__file__).parent
+sys.path.insert(0, str(script_dir))
+
+# Now import after path is set
+from mybgg.downloader import Downloader  # noqa: E402
+from mybgg.sqlite_indexer import SqliteIndexer  # noqa: E402
+from mybgg.github_integration import setup_github_integration  # noqa: E402
+from simple_utils import parse_config, config_to_nested  # noqa: E402
+from setup_logging import setup_logging  # noqa: E402
 
 def main(args):
-    with open(args.config, 'r') as f:
-        config = toml.load(f)
-
+    config = parse_config(args.config)
     # Convert flat config to nested structure for backward compatibility
-    SETTINGS = {
-        "project": {
-            "title": config["title"]
-        },
-        "boardgamegeek": {
-            "user_name": config["bgg_username"]
-        },
-        "github": {
-            "repo": config["github_repo"]
-        }
-    }
+    SETTINGS = config_to_nested(config)
 
     downloader = Downloader(
         cache_bgg=args.cache_bgg,
@@ -49,7 +43,7 @@ def main(args):
     print(f"Imported {num_games} games and {num_expansions} expansions from boardgamegeek.")
 
     if not len(collection):
-        assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
+        assert False, "No games imported, is the boardgamegeek part of config.ini correctly set?"
 
     # Create SQLite database
     sqlite_path = "mybgg.sqlite"
@@ -114,8 +108,8 @@ if __name__ == '__main__':
         '--config',
         type=str,
         required=False,
-        default="config.toml",
-        help="Path to the config file (default: config.toml from the working directory)."
+        default="config.ini",
+        help="Path to the config file (default: config.ini from the working directory)."
     )
 
     args = parser.parse_args()

@@ -1,5 +1,9 @@
+# Core dependencies for MyBGG
+
+# XML parsing for BGG API  
 declxml
-requests-cache
-colorgram.py
+# HTTP requests and caching for BGG API
 requests
-toml
+requests-cache
+# Image processing for colorgram (vendored dependency)
+pillow
