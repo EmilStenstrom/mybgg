@@ -3,7 +3,7 @@
 Simple script to check if the MyBGG website is working properly.
 """
 
-import json
+import toml
 import requests
 import sys
 from pathlib import Path
@@ -12,23 +12,23 @@ def check_website():
     """Check if the MyBGG website is accessible and working"""
 
     # Load config to get repository info
-    config_path = Path("config.json")
+    config_path = Path("config.toml")
     if not config_path.exists():
-        print("❌ config.json not found! Make sure you're in the mybgg directory.")
+        print("❌ config.toml not found! Make sure you're in the mybgg directory.")
         return False
 
     try:
         with open(config_path) as f:
-            config = json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"❌ config.json has invalid JSON: {e}")
+            config = toml.load(f)
+    except Exception as e:
+        print(f"❌ config.toml has invalid syntax: {e}")
         return False
 
-    if "github" not in config or "repo" not in config["github"]:
-        print("❌ github.repo not found in config.json")
+    if "github_repo" not in config:
+        print("❌ github_repo not found in config.toml")
         return False
 
-    repo = config["github"]["repo"]
+    repo = config["github_repo"]
     username = repo.split("/")[0]
 
     website_url = f"https://{username}.github.io/mybgg"

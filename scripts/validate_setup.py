@@ -3,52 +3,56 @@
 Simple validation script to check if setup is correct before running the main script.
 """
 
-import json
+import toml
 import sys
 import requests
 from pathlib import Path
 
 def validate_config():
-    """Validate the config.json file"""
-    config_path = Path("config.json")
+    """Validate the config.toml file"""
+    config_path = Path("config.toml")
 
     if not config_path.exists():
-        print("❌ config.json not found!")
+        print("❌ config.toml not found!")
         print("   Make sure you're running this from the mybgg directory")
         return False
 
     try:
         with open(config_path) as f:
-            config = json.load(f)
-    except json.JSONDecodeError as e:
-        print("❌ config.json has invalid JSON syntax!")
+            config = toml.load(f)
+    except toml.TomlDecodeError as e:
+        print("❌ config.toml has invalid TOML syntax!")
         print(f"   Error: {e}")
-        print("   Check for missing commas, extra quotes, etc.")
+        print("   Check your TOML syntax at https://www.toml-lint.com/")
+        return False
+    except Exception as e:
+        print("❌ Error reading config.toml!")
+        print(f"   Error: {e}")
         return False
 
     # Check required fields
-    required_fields = [
-        ("project", "title"),
-        ("boardgamegeek", "user_name"),
-        ("github", "repo")
-    ]
+    required_fields = ["title", "bgg_username", "github_repo"]
 
-    for section, field in required_fields:
-        if section not in config:
-            print(f"❌ Missing section '{section}' in config.json")
-            return False
-        if field not in config[section]:
-            print(f"❌ Missing field '{field}' in section '{section}'")
+    for field in required_fields:
+        if field not in config:
+            print(f"❌ Missing field '{field}' in config.toml")
             return False
 
-        value = config[section][field]
+        value = config[field]
         if not value or "YOUR_" in str(value).upper():
-            print(f"❌ Please replace placeholder in {section}.{field}")
+            print(f"❌ Please replace placeholder: {field}")
             print(f"   Current value: {value}")
             return False
 
-    print("✅ config.json looks good!")
-    return True, config
+    print("✅ config.toml looks good!")
+
+    # Convert flat config to nested structure for compatibility with other functions
+    nested_config = {
+        "project": {"title": config["title"]},
+        "boardgamegeek": {"user_name": config["bgg_username"]},
+        "github": {"repo": config["github_repo"]}
+    }
+    return True, nested_config
 
 def validate_bgg_user(username):
     """Check if BGG username exists and has a public collection"""

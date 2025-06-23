@@ -1,6 +1,9 @@
 # MyBGG - View and filter your boardgame collection
 
-_This project is meant to be forked. The original project is available here: https://github.com/EmilStenstrom/mybgg_
+_This project i   ⚠️ **Important**: Make sure your TOML is valid! Common mistakes:
+   - Forgetting quotes around strings with spaces or special characters
+   - Using the wrong quote type (use double quotes for strings)
+   - Forgetting to escape backslashes in Windows pathsant to be forked. The original project is available here: https://github.com/EmilStenstrom/mybgg_
 
 Create a beautiful, searchable website for your BoardGameGeek collection! This project downloads your games from BoardGameGeek, creates a database, and automatically hosts it as a website using GitHub Pages.
 
@@ -16,7 +19,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 ## Quick Start Checklist
 
 - [ ] **Fork this repository** to your GitHub account
-- [ ] **Edit config.json** with your BGG and GitHub usernames  
+- [ ] **Edit config.toml** with your BGG and GitHub usernames  
 - [ ] **Enable GitHub Pages** in your repository settings
 - [ ] **Install Python dependencies**: `pip install -r scripts/requirements.txt`
 - [ ] **Validate setup**: `python scripts/validate_setup.py`
@@ -40,11 +43,11 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       Forking a project copies it to your own GitHub account. On the top of this page, click the "Fork" button and accept all the defaults. You now have a copy of this project you can make changes to.
    </details>
 
-2. **Update the config.json file** with your details:
+2. **Update the config.toml file** with your details:
    
    **Easy way (recommended)**: Edit directly on GitHub:
    * Go to your forked repository on GitHub
-   * Click on `config.json` 
+   * Click on `config.toml`
    * Click the pencil icon (✏️) to edit
    * Replace `YOUR_NAME` with your name (for the website title)
    * Replace `YOUR_BGG_USERNAME` with your BoardGameGeek username  
@@ -52,21 +55,16 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
    * Scroll down and click **"Commit changes"**
    
    **Example**: If your name is John, BGG username is `johnsmith`, and GitHub username is `johnsmith123`:
-   ```json
-   {
-       "project": {
-           "title": "John's boardgames"
-       },
-       "boardgamegeek": {
-           "user_name": "johnsmith"
-       },
-       "github": {
-           "repo": "johnsmith123/mybgg"
-       }
-   }
+   ```toml
+   # MyBGG Configuration
+   # Only edit the values below
+
+   title = "John's boardgames"
+   bgg_username = "johnsmith"
+   github_repo = "johnsmith123/mybgg"
    ```
 
-   ⚠️ **Important**: Make sure your JSON is valid! Common mistakes:
+   ⚠️ **Important**: Make sure your TOML is valid! Common mistakes:
    - Missing commas between lines
    - Extra commas after the last item  
    - Using single quotes instead of double quotes
@@ -77,11 +75,11 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       <summary>Alternative: Edit on your computer</summary>
 
       * Clone your forked project: `git clone https://github.com/YOUR_USERNAME/mybgg.git`
-      * Edit the `config.json` file
+      * Edit the `config.toml` file
       * Commit and push your changes:
       ```bash
-      git add config.json
-      git commit -m "Update config.json with my details"
+      git add config.toml
+      git commit -m "Update config.toml with my details"
       git push
       ```
    </details>
@@ -193,7 +191,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 ### Common Setup Issues
 
 **"No games imported" error**:
-- Check that your BGG username in `config.json` is correct (no spaces, special characters)
+- Check that your BGG username in `config.toml` is correct (no spaces, special characters)
 - Make sure your BoardGameGeek collection is set to public ([BGG Collection Settings](https://boardgamegeek.com/collection/settings))
 - Verify you have games marked as "owned" in your BGG collection
 - Try the validation script: `python scripts/validate_setup.py`
@@ -217,12 +215,11 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 - Check that the script said "Successfully uploaded to GitHub" when you ran it
 - Try accessing your site in an incognito/private browser window (clears cache)
 
-**JSON syntax error when editing config.json**:
-- Make sure you have commas between all items except the last one
-- Use double quotes (`"`) not single quotes (`'`) around all strings
-- Check that all brackets `{` and `}` are matched
-- Use [JSONLint](https://jsonlint.com/) to validate your JSON syntax
-- Remember: no comma after the last item in each section
+**TOML syntax error when editing config.toml**:
+- Check that strings with spaces are properly quoted: `title = "John's boardgames"`
+- Make sure section names are in square brackets: `[project]`
+- Use [TOML Lint](https://www.toml-lint.com/) to validate your syntax
+- TOML is more forgiving than JSON - no trailing commas to worry about!
 
 ### Less Common Issues
 

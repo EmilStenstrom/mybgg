@@ -1,4 +1,4 @@
-import json
+import toml
 import sys
 import gzip
 import os
@@ -9,7 +9,21 @@ from mybgg.github_integration import setup_github_integration
 from setup_logging import setup_logging
 
 def main(args):
-    SETTINGS = json.load(open(args.config, "rb"))
+    with open(args.config, 'r') as f:
+        config = toml.load(f)
+
+    # Convert flat config to nested structure for backward compatibility
+    SETTINGS = {
+        "project": {
+            "title": config["title"]
+        },
+        "boardgamegeek": {
+            "user_name": config["bgg_username"]
+        },
+        "github": {
+            "repo": config["github_repo"]
+        }
+    }
 
     downloader = Downloader(
         cache_bgg=args.cache_bgg,
@@ -100,8 +114,8 @@ if __name__ == '__main__':
         '--config',
         type=str,
         required=False,
-        default="config.json",
-        help="Path to the config file (default: config.json from the working directory)."
+        default="config.toml",
+        help="Path to the config file (default: config.toml from the working directory)."
     )
 
     args = parser.parse_args()
