@@ -1512,11 +1512,6 @@ function on_render() {
       if (cardHeader) {
         cardHeader.style.backgroundColor = `rgb(${color})`;
         cardHeader.style.color = textColor;
-
-        const closeBtn = cardHeader.querySelector('.close-button');
-        if (closeBtn) {
-          closeBtn.style.color = textColor;
-        }
       }
 
       const statsBar = card.querySelector(".stats-bar");
@@ -1535,19 +1530,16 @@ function on_render() {
 
       const bottomInfo = card.querySelector(".bottom-info");
       if (bottomInfo) {
-        const playIcon = bottomInfo.querySelector(".plays-section .material-symbols-rounded");
-        if (playIcon) playIcon.style.color = `rgb(${color})`;
-
-        const rankIcon = bottomInfo.querySelector(".rank-section .material-symbols-rounded");
-        if (rankIcon) {
-          rankIcon.style.color = `rgb(${color})`;
-        }
-
         const ratingGaugeFg = bottomInfo.querySelector(".rating-gauge .gauge-fg");
         if (ratingGaugeFg) {
           ratingGaugeFg.style.stroke = `rgb(${color})`;
         }
       }
+
+      const gameDetailsIcons = gameDetails.querySelectorAll(".material-symbols-rounded");
+      gameDetailsIcons.forEach(function (icon) {
+        icon.style.color = `rgb(${color})`;
+      });
     }
   });
 

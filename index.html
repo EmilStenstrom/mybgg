@@ -64,7 +64,9 @@
             <h1 class="game-title"></h1>
             <div class="category-chips-container"></div>
           </div>
-          <button class="close-button"><span class="material-symbols-rounded">close</span></button>
+          <button class="close-button">
+            <span class="material-symbols-rounded icon-small">close</span>
+          </button>
         </div>
 
         <div class="stats-bar">
@@ -102,7 +104,7 @@
         </div>
 
         <div class="bottom-info">
-          <div class="rating-section stat-item" style="display: none;">
+          <div class="stat-item rating-section" style="display: none;">
             <div class="rating-gauge-container"></div>
             <span>Rating</span>
           </div>
@@ -110,9 +112,13 @@
             <span class="material-symbols-rounded">stars</span>
             <span>Rank: <span class="rank-value"></span></span>
           </div>
-          <div class="plays-section">
+          <div class="stat-item plays-section">
             <span class="material-symbols-rounded">timer_play</span>
             <span><span class="numplays-value"></span> plays</span>
+          </div>
+          <div class="stat-item bgg-link-section">
+            <span class="material-symbols-rounded">outbound</span>
+            <a href="" target="_blank" class="bgg-link">View on BGG</a>
           </div>
         </div>
       </div>
@@ -185,7 +191,7 @@
 
   <template id="filter-dropdown-template">
     <details class="filter-dropdown">
-      <summary><span class="material-symbols-rounded">filter_list</span> <span class="filter-title"></span></summary>
+      <summary><span class="material-symbols-rounded icon-medium">filter_list</span> <span class="filter-title"></span></summary>
       <div class="filter-dropdown-content"></div>
     </details>
   </template>

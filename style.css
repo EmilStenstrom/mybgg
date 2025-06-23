@@ -68,6 +68,14 @@ body {
     font-size: 24px;
 }
 
+.material-symbols-rounded.icon-medium {
+    font-size: 18px;
+}
+
+.material-symbols-rounded.icon-small {
+    font-size: 16px;
+}
+
 .facets {
     display: flex;
     flex-direction: row;
@@ -103,10 +111,6 @@ body {
     justify-content: flex-start;
     text-align: left;
     gap: 0.5em;
-}
-
-.filter-dropdown>summary>.material-symbols-rounded {
-    font-size: 18px;
 }
 
 .filter-dropdown[open]>.filter-dropdown-content {
@@ -386,11 +390,6 @@ body {
     z-index: 10;
     padding: 0;
     transition: background-color 0.2s ease;
-}
-
-.close-button .material-symbols-rounded {
-    font-size: 16px;
-    color: white;
 }
 
 .close-button:hover {
