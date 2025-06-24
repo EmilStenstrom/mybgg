@@ -67,28 +67,28 @@ function loadINI(path, callback) {
     .then(text => {
       const config = {};
       const lines = text.split('\n');
-      
+
       for (const line of lines) {
         const trimmed = line.trim();
         // Skip empty lines and comments
         if (!trimmed || trimmed.startsWith('#')) continue;
-        
+
         // Parse key = value pairs
         const equalIndex = trimmed.indexOf('=');
         if (equalIndex > 0) {
           const key = trimmed.substring(0, equalIndex).trim();
           let value = trimmed.substring(equalIndex + 1).trim();
-          
+
           // Remove quotes if present
-          if ((value.startsWith('"') && value.endsWith('"')) || 
+          if ((value.startsWith('"') && value.endsWith('"')) ||
               (value.startsWith("'") && value.endsWith("'"))) {
             value = value.slice(1, -1);
           }
-          
+
           config[key] = value;
         }
       }
-      
+
       // Transform flat config into nested structure expected by the app
       const settings = {
         title: config.title || "MyBGG",
@@ -97,10 +97,9 @@ function loadINI(path, callback) {
         },
         github: {
           repo: config.github_repo,
-          username: config.github_repo.split('/')[0],
         }
       };
-      
+
       callback(settings);
     })
     .catch(error => console.error('Error loading config:', error));
@@ -114,7 +113,7 @@ async function initializeDatabase(settings) {
 
     const isDev = /^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname);
     const dbUrl = isDev ? './mybgg.sqlite.gz' :
-      `https://cors-proxy.mybgg.workers.dev/${settings.github.username}`;
+      `https://cors-proxy.mybgg.workers.dev/${settings.github.repo}`;
 
     console.log(`Loading database from: ${dbUrl}`);
 
