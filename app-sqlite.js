@@ -97,7 +97,7 @@ function loadINI(path, callback) {
         },
         github: {
           repo: config.github_repo,
-          snapshot_asset: "mybgg.sqlite.gz"
+          username: config.github_repo.split('/')[0],
         }
       };
       
@@ -114,7 +114,7 @@ async function initializeDatabase(settings) {
 
     const isDev = /^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname);
     const dbUrl = isDev ? './mybgg.sqlite.gz' :
-      `https://github.com/${settings.github.repo}/releases/latest/download/${settings.github.snapshot_asset}`;
+      `https://cors-proxy.mybgg.workers.dev/${settings.github.username}`;
 
     console.log(`Loading database from: ${dbUrl}`);
 
