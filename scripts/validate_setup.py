@@ -118,6 +118,8 @@ def validate_python_deps():
             # Special cases for packages that import differently
             if package == "pillow":
                 import_name = "PIL"
+            elif package == "pynacl":
+                import_name = "nacl"
             elif "-" in package:
                 import_name = package.replace("-", "_")
             elif "." in package:
