@@ -13,13 +13,18 @@ import time as time_module
 import gzip
 
 
-def make_http_request(url, timeout=30):
+def make_http_request(url, timeout=30, headers=None):
     """Simple HTTP GET using urllib"""
     try:
         # Create request with proper headers
         request = urllib.request.Request(url)
         request.add_header('Accept-Encoding', 'gzip, deflate')
         request.add_header('User-Agent', 'MyBGG/1.0')
+
+        # Add any additional headers
+        if headers:
+            for key, value in headers.items():
+                request.add_header(key, value)
 
         with urllib.request.urlopen(request, timeout=timeout) as response:
             data = response.read()
@@ -110,7 +115,11 @@ class CachedHttpClient:
             cache_name: Name/path of the cache database
             expire_after: Cache TTL in seconds (default 1 hour)
         """
-        self.cache_path = f"{cache_name}.sqlite"
+        # Only add .sqlite extension if not already present
+        if cache_name.endswith('.sqlite'):
+            self.cache_path = cache_name
+        else:
+            self.cache_path = f"{cache_name}.sqlite"
         self.expire_after = expire_after
         self._init_cache()
 
@@ -209,7 +218,7 @@ def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
 
     try:
         if method.upper() == 'GET':
-            response_data = make_http_request(url, timeout=timeout)
+            response_data = make_http_request(url, timeout=timeout, headers=headers)
         else:
             # For POST requests
             if isinstance(data, dict):
