@@ -1,9 +1,6 @@
 # MyBGG - View and filter your boardgame collection
 
-_This project i   ⚠️ **Important**: Make sure your TOML is valid! Common mistakes:
-   - Forgetting quotes around strings with spaces or special characters
-   - Using the wrong quote type (use double quotes for strings)
-   - Forgetting to escape backslashes in Windows pathsant to be forked. The original project is available here: https://github.com/EmilStenstrom/mybgg_
+_This project is meant to be forked. The original project is available here: https://github.com/EmilStenstrom/mybgg_
 
 Create a beautiful, searchable website for your BoardGameGeek collection! This project downloads your games from BoardGameGeek, creates a database, and automatically hosts it as a website using GitHub Pages.
 
