@@ -93,14 +93,12 @@ def validate_python_deps():
     print("🔍 Checking Python dependencies...")
 
     # Read requirements from requirements.in file
-    requirements_path = Path("scripts/requirements.in")
+    requirements_path = Path("requirements.in")
     if not requirements_path.exists():
         print("⚠️  requirements.in not found, using fallback package list")
         required_packages = [
-            "requests",
-            "requests_ratelimiter",
-            "beautifulsoup4",
-            "lxml"
+            "declxml",
+            "pillow"
         ]
     else:
         try:
@@ -117,10 +115,8 @@ def validate_python_deps():
             print(f"⚠️  Error reading requirements.in: {e}")
             print("   Using fallback package list")
             required_packages = [
-                "requests",
-                "requests_ratelimiter",
-                "beautifulsoup4",
-                "lxml"
+                "declxml",
+                "pillow"
             ]
 
     missing = []
@@ -130,7 +126,9 @@ def validate_python_deps():
             import_name = package
 
             # Special cases for packages that import differently
-            if "-" in package:
+            if package == "pillow":
+                import_name = "PIL"
+            elif "-" in package:
                 import_name = package.replace("-", "_")
             elif "." in package:
                 import_name = package.replace(".", "_")
