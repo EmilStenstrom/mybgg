@@ -353,6 +353,12 @@ def setup_github_integration(settings: Dict[str, Any]) -> GitHubReleaseManager:
     """Set up GitHub integration with OAuth Device Flow authentication."""
     github_config = settings['github']
 
+    # Check if MYBGG_GITHUB_TOKEN environment variable is set (for CI/CD)
+    github_token = os.environ.get('MYBGG_GITHUB_TOKEN')
+    if github_token:
+        logger.info("Using MYBGG_GITHUB_TOKEN environment variable for authentication")
+        return GitHubReleaseManager(github_config['repo'], github_token)
+
     # Use OAuth Device Flow for automatic authentication
     # Public client ID for the MyBGG OAuth App
     public_client_id = "Ov23lir5tLSaSrWi0YMJ"

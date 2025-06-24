@@ -21,6 +21,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 - [ ] **Validate setup**: `python scripts/validate_setup.py`
 - [ ] **Generate database**: `python scripts/download_and_index.py --cache_bgg`
 - [ ] **Visit your site**: `https://YOUR_USERNAME.github.io/mybgg`
+- [ ] **Enable hourly updates** (optional): `python scripts/enable_hourly_updates.py`
 
 💡 **New to this?** Follow the detailed instructions below.
 
@@ -153,6 +154,42 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       * You'll see "Successfully uploaded to GitHub: [URL]"
       * Your website will be available at: `https://YOUR_USERNAME.github.io/mybgg`
    </details>
+
+## 🔄 Enable Automatic Hourly Updates (Optional)
+
+Want your website to stay up-to-date automatically? You can enable hourly updates that will sync your collection from BoardGameGeek every hour without any manual work!
+
+**Requirements**: You must complete the Getting Started steps above first.
+
+**To enable hourly updates**:
+```bash
+python scripts/enable_hourly_updates.py
+```
+
+<details>
+   <summary>How it works</summary>
+
+   **What this does**:
+   * Sets up GitHub Actions to run automatically every hour
+   * Downloads your latest collection from BoardGameGeek  
+   * Updates your website with any new games, ratings, or plays
+   * Completely automated - no manual work required
+
+   **What to expect**:
+   * The script extracts your GitHub authentication token from your local setup
+   * Creates a secure repository secret for GitHub Actions to use
+   * Enables the hourly workflow that's already configured in your repository
+
+   **Privacy & Security**:
+   * Your authentication token is stored securely as a GitHub repository secret
+   * Only your repository's automated workflows can access it
+   * The token has minimal permissions (only access to create releases)
+
+   **After setup**:
+   * Check the "Actions" tab in your GitHub repository to see the hourly runs
+   * Your website will automatically reflect any changes to your BGG collection
+   * Updates happen every hour on the hour (e.g., 1:00 PM, 2:00 PM, etc.)
+</details>
 
 ## What to Expect
 

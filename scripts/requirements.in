@@ -1,6 +1,4 @@
-# Core dependencies for MyBGG
-
-# XML parsing for BGG API  
 declxml
-# Image processing for vendored colorgram
 pillow
+cryptography
+pynacl

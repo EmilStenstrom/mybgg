@@ -15,9 +15,9 @@ jobs:
         cache: 'pip'
     - run: python -m pip install --upgrade pip
     - run: pip install -r scripts/requirements.txt
-    - name: Run script if secret is set
+    - name: Run script if token is set
+      if: ${{ secrets.MYBGG_GITHUB_TOKEN != '' }}
       env:
-        APIKEY: ${{secrets.APIKEY}}
-      if: env.APIKEY != null
+        MYBGG_GITHUB_TOKEN: ${{ secrets.MYBGG_GITHUB_TOKEN }}
       run: |
-        python scripts/download_and_index.py --apikey ${{env.APIKEY}} --debug
+        python scripts/download_and_index.py --debug
