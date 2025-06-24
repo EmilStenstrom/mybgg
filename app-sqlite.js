@@ -1699,13 +1699,13 @@ function createPaginationButton(page, text, isCurrent = false) {
     button.className += ' current';
   }
 
-  return button.outerHTML;
+  return button;
 }
 
 function createPaginationEllipsis() {
   const template = document.getElementById('pagination-ellipsis-template');
   const clone = template.content.cloneNode(true);
-  return clone.querySelector('span').outerHTML;
+  return clone.querySelector('span');
 }
 
 function updatePagination() {
@@ -1721,35 +1721,35 @@ function updatePagination() {
   const clone = template.content.cloneNode(true);
   const paginationDiv = clone.querySelector('.pagination');
 
-  let paginationHTML = '';
+  // Clear existing content
+  paginationDiv.innerHTML = '';
 
   if (currentPage > 1) {
-    paginationHTML += createPaginationButton(currentPage - 1, '‹ Previous');
+    paginationDiv.appendChild(createPaginationButton(currentPage - 1, '‹ Previous'));
   }
 
   const startPage = Math.max(1, currentPage - 2);
   const endPage = Math.min(totalPages, currentPage + 2);
 
   if (startPage > 1) {
-    paginationHTML += createPaginationButton(1);
-    if (startPage > 2) paginationHTML += createPaginationEllipsis();
+    paginationDiv.appendChild(createPaginationButton(1));
+    if (startPage > 2) paginationDiv.appendChild(createPaginationEllipsis());
   }
 
   for (let i = startPage; i <= endPage; i++) {
     const isCurrentPage = i === currentPage;
-    paginationHTML += createPaginationButton(i, i, isCurrentPage);
+    paginationDiv.appendChild(createPaginationButton(i, i, isCurrentPage));
   }
 
   if (endPage < totalPages) {
-    if (endPage < totalPages - 1) paginationHTML += createPaginationEllipsis();
-    paginationHTML += createPaginationButton(totalPages);
+    if (endPage < totalPages - 1) paginationDiv.appendChild(createPaginationEllipsis());
+    paginationDiv.appendChild(createPaginationButton(totalPages));
   }
 
   if (currentPage < totalPages) {
-    paginationHTML += createPaginationButton(currentPage + 1, 'Next ›');
+    paginationDiv.appendChild(createPaginationButton(currentPage + 1, 'Next ›'));
   }
 
-  paginationDiv.innerHTML = paginationHTML;
   container.innerHTML = '';
   container.appendChild(clone);
 }
