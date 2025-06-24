@@ -1,43 +1,80 @@
+import sys
+import gzip
 import os
-import json
+from pathlib import Path
 
-from mybgg.downloader import Downloader
-from mybgg.indexer import Indexer
-from setup_logging import setup_logging
+# Add the scripts directory to the path for imports
+script_dir = Path(__file__).parent
+sys.path.insert(0, str(script_dir))
+
+# Now import after path is set
+from mybgg.downloader import Downloader  # noqa: E402
+from mybgg.sqlite_indexer import SqliteIndexer  # noqa: E402
+from mybgg.github_integration import setup_github_integration  # noqa: E402
+from mybgg.config import parse_config_file, create_nested_config  # noqa: E402
+from setup_logging import setup_logging  # noqa: E402
 
 def main(args):
-    SETTINGS = json.load(open(args.config, "rb"))
+    config = parse_config_file(args.config)
+    # Convert flat config to nested structure for backward compatibility
+    SETTINGS = create_nested_config(config)
 
     downloader = Downloader(
-        project_name=SETTINGS["project"]["name"],
         cache_bgg=args.cache_bgg,
         debug=args.debug,
     )
+    extra_params = SETTINGS["boardgamegeek"].get("extra_params", {"own": 1})
     collection = downloader.collection(
         user_name=SETTINGS["boardgamegeek"]["user_name"],
-        extra_params=SETTINGS["boardgamegeek"]["extra_params"],
+        extra_params=extra_params,
     )
+
+    # Deduplicate collection based on game ID
+    seen_ids = set()
+    unique_collection = []
+    for game in collection:
+        if game.id not in seen_ids:
+            unique_collection.append(game)
+            seen_ids.add(game.id)
+    collection = unique_collection
+
     num_games = len(collection)
     num_expansions = sum([len(game.expansions) for game in collection])
     print(f"Imported {num_games} games and {num_expansions} expansions from boardgamegeek.")
 
     if not len(collection):
-        assert False, "No games imported, is the boardgamegeek part of config.json correctly set?"
+        assert False, "No games imported, is the boardgamegeek part of config.ini correctly set?"
 
-    if not args.no_indexing:
-        hits_per_page = SETTINGS["algolia"].get("hits_per_page", 48)
-        indexer = Indexer(
-            app_id=SETTINGS["algolia"]["app_id"],
-            apikey=args.apikey,
-            index_name=SETTINGS["algolia"]["index_name"],
-            hits_per_page=hits_per_page,
-        )
-        indexer.add_objects(collection)
-        indexer.delete_objects_not_in(collection)
+    # Create SQLite database
+    sqlite_path = "mybgg.sqlite"
+    indexer = SqliteIndexer(sqlite_path)
+    indexer.add_objects(collection)
+    print(f"Created SQLite database with {num_games} games and {num_expansions} expansions.")
 
-        print(f"Indexed {num_games} games and {num_expansions} expansions in algolia, and removed everything else.")
+    # Gzip the database and remove the original
+    gzip_path = f"{sqlite_path}.gz"
+    with open(sqlite_path, 'rb') as f_in, gzip.open(gzip_path, 'wb') as f_out:
+        f_out.write(f_in.read())
+    os.remove(sqlite_path)
+    print(f"Created gzipped database: {gzip_path}")
+
+    # Upload to GitHub if not disabled
+    if not args.no_upload:
+        try:
+            github_manager = setup_github_integration(SETTINGS)
+
+            # Upload the gzipped SQLite file
+            snapshot_tag = SETTINGS["github"].get("snapshot_tag", "database")
+            asset_name = SETTINGS["github"].get("snapshot_asset", "mybgg.sqlite.gz")
+
+            download_url = github_manager.upload_snapshot(gzip_path, snapshot_tag, asset_name)
+            print(f"Successfully uploaded to GitHub: {download_url}")
+
+        except Exception as e:
+            print(f"Error uploading to GitHub: {e}")
+            sys.exit(1)
     else:
-        print("Skipped indexing.")
+        print("Skipped GitHub upload.")
 
 
 if __name__ == '__main__':
@@ -45,20 +82,13 @@ if __name__ == '__main__':
 
     setup_logging()
 
-    parser = argparse.ArgumentParser(description='Download and index some boardgames')
+    parser = argparse.ArgumentParser(description='Download and create SQLite database of boardgames')
     parser.add_argument(
-        '--apikey',
-        type=str,
-        required=True,
-        help='The admin api key for your algolia site'
-    )
-    parser.add_argument(
-        '--no_indexing',
+        '--no_upload',
         action='store_true',
         help=(
-            "Skip indexing in algolia. This is useful during development"
-            ", when you want to fetch data från BGG over and over again, "
-            "and don't want to use up your indexing quota with Algolia."
+            "Skip uploading to GitHub. This is useful during development"
+            ", when you want to test the SQLite creation without uploading."
         )
     )
     parser.add_argument(
@@ -78,8 +108,8 @@ if __name__ == '__main__':
         '--config',
         type=str,
         required=False,
-        default="config.json",
-        help="Path to the config file (default: config.json from the working directory)."
+        default="config.ini",
+        help="Path to the config file (default: config.ini from the working directory)."
     )
 
     args = parser.parse_args()

@@ -84,12 +84,30 @@ class BoardGame:
         return Decimal(game_data["rating"])
 
     def calc_weight(self, game_data):
-        weight_mapping = {
-            0: "Light",
-            1: "Light",
-            2: "Light Medium",
-            3: "Medium",
-            4: "Medium Heavy",
-            5: "Heavy",
+        if not game_data.get("weight"):
+            return None
+        return Decimal(game_data["weight"])
+
+    def todict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "categories": self.categories,
+            "mechanics": self.mechanics,
+            "players": self.players,
+            "weight": self.weight,
+            "playing_time": self.playing_time,
+            "min_age": self.min_age,
+            "rank": self.rank,
+            "usersrated": self.usersrated,
+            "numowned": self.numowned,
+            "rating": self.rating,
+            "numplays": self.numplays,
+            "image": self.image,
+            "tags": self.tags,
+            "previous_players": self.previous_players,
+            "expansions": self.expansions,
+            # Add the color field, ensuring it's handled if not present
+            "color": getattr(self, 'color', None)
         }
-        return weight_mapping[round(Decimal(game_data["weight"] or 0))]

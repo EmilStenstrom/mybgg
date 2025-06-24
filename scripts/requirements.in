@@ -1,4 +1,6 @@
-algoliasearch<4
+# Core dependencies for MyBGG
+
+# XML parsing for BGG API  
 declxml
-requests-cache
-colorgram.py
+# Image processing for vendored colorgram
+pillow

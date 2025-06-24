@@ -1,3 +1,5 @@
-*.sqlite
 __pycache__
 .python-version
+*.sqlite
+*.sqlite-journal
+*.sqlite.gz

@@ -4,8 +4,8 @@ import time
 from xml.etree.ElementTree import fromstring
 
 import declxml as xml
-import requests
-from requests_cache import CachedSession
+
+from .http_client import CachedHttpClient, HttpSession
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ class BGGClient:
 
     def __init__(self, cache=None, debug=False):
         if not cache:
-            self.requester = requests.Session()
+            self.requester = HttpSession()
         else:
             self.requester = cache.cache
 
@@ -81,8 +81,10 @@ class BGGClient:
         Notes:
             - This method uses exponential backoff and jitter for retrying failed requests.
             - If the request encounters HTTP errors (4xx or 5xx status codes), a `BGGException` is raised.
-            - If the request encounters connection errors or chunked encoding errors, the method will retry the request up to 10 times.
-            - If the request encounters a "Too Many Requests" error, the method will retry the request up to 3 times with a 30-second delay between retries.
+            - If the request encounters connection errors or chunked encoding errors, the method will retry
+              the request up to 10 times.
+            - If the request encounters a "Too Many Requests" error, the method will retry the request
+              up to 3 times with a 30-second delay between retries.
             - If the response contains XML errors, a `BGGException` is raised with the specific error messages.
             - This method is recursive, meaning it calls itself if a retry is needed.
         """
@@ -95,31 +97,36 @@ class BGGClient:
         try:
             response = self.requester.get(BGGClient.BASE_URL + url, params=params)
             response.raise_for_status()  # This will raise an exception for 4xx and 5xx status codes
-        except (
-            requests.exceptions.HTTPError,
-            requests.exceptions.ConnectionError,
-            requests.exceptions.ChunkedEncodingError
-        ):
-            if tries < 10:
-                sleep_with_backoff_and_jitter(1, tries)
-                return self._make_request(url, params=params, tries=tries + 1)
+        except Exception as e:
+            # Handle both requests exceptions and our simple cache exceptions
+            error_message = str(e)
+            
+            # Check for Too Many Requests (429)
+            if "429" in error_message or "Too Many Requests" in error_message:
+                if tries < 3:
+                    logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
+                    sleep_with_backoff_and_jitter(30, tries)
+                    return self._make_request(url, params=params, tries=tries + 1)
+                else:
+                    raise BGGException("BGG returned Too Many Requests")
             else:
-                raise BGGException("BGG API closed the connection prematurely, please try again...")
-        except requests.exceptions.TooManyRequests:
-            if tries < 3:
-                logger.debug("BGG returned \"Too Many Requests\", waiting 30 seconds before trying again...")
-                sleep_with_backoff_and_jitter(30, tries)
-                return self._make_request(url, params=params, tries=tries + 1)
-            else:
-                raise BGGException(f"BGG returned status code {response.status_code} when requesting {response.url}")
+                # Other HTTP errors or connection errors
+                if tries < 10:
+                    sleep_with_backoff_and_jitter(1, tries)
+                    return self._make_request(url, params=params, tries=tries + 1)
+                else:
+                    raise BGGException("BGG API closed the connection prematurely, please try again...")
 
         logger.debug("REQUEST: " + response.url)
         logger.debug("RESPONSE: \n" + prettify_if_xml(response.text))
 
         tree = fromstring(response.text)
-        if tree.tag == "message" and "Your request for this collection has been accepted" in tree.text:
+        if tree.tag == "message" and tree.text and "Your request for this collection has been accepted" in tree.text:
             if tries < 10:
-                logger.debug("BGG returned \"Your request for this collection has been accepted\", waiting 10 seconds before trying again...")
+                logger.debug(
+                    "BGG returned \"Your request for this collection has been accepted\", "
+                    "waiting 10 seconds before trying again..."
+                )
                 sleep_with_backoff_and_jitter(10, tries)
                 return self._make_request(url, params=params, tries=tries + 1)
             else:
@@ -294,7 +301,7 @@ class BGGClient:
                             alias="numowned"
                         ),
                         xml.string(
-                            "statistics/ratings/bayesaverage",
+                            "statistics/ratings/average",
                             attribute="value",
                             alias="rating"
                         ),
@@ -313,13 +320,9 @@ class BGGClient:
 
 class CacheBackendSqlite:
     def __init__(self, path, ttl):
-        self.cache = CachedSession(
+        self.cache = CachedHttpClient(
             cache_name=path,
-            backend="sqlite",
-            expire_after=ttl,
-            extension="",
-            fast_save=True,
-            allowable_codes=(200,)
+            expire_after=ttl
         )
 
 class BGGException(Exception):

@@ -4,11 +4,11 @@ from mybgg.models import BoardGame
 
 
 class Downloader():
-    def __init__(self, project_name, cache_bgg, debug=False):
+    def __init__(self, cache_bgg, debug=False):
         if cache_bgg:
             self.client = BGGClient(
                 cache=CacheBackendSqlite(
-                    path=f"{project_name}-cache.sqlite",
+                    path=f"mybgg-cache.sqlite",
                     ttl=60 * 60 * 24,
                 ),
                 debug=debug,
