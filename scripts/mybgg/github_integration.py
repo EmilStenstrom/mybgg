@@ -19,7 +19,17 @@ def _make_http_request(
     timeout: int = 10
 ) -> Optional[Dict[str, Any]]:
     """Make HTTP request using our HTTP client and return JSON response."""
-    return make_json_request(url, method, data, headers, timeout)
+    logger.info(f"Making {method} request to URL: {url}")
+    try:
+        result = make_json_request(url, method, data, headers, timeout)
+        if result is None:
+            logger.warning(f"Request to {url} returned None (likely 404 or other error)")
+        else:
+            logger.debug(f"Request to {url} succeeded")
+        return result
+    except Exception as e:
+        logger.error(f"Request to {url} failed with error: {e}")
+        raise
 
 
 def _make_http_post_form(
@@ -181,12 +191,14 @@ class GitHubAuth:
         try:
             headers = {'Authorization': f"Bearer {token_data['access_token']}"}
             logger.debug("Testing token validity with GitHub API...")
+            logger.info("Testing token validity by calling https://api.github.com/user")
             response = _make_http_request('https://api.github.com/user', headers=headers, timeout=10)
             if response is not None:
                 logger.debug("Token validation successful")
+                logger.info(f"Token is valid for user: {response.get('login', 'unknown')}")
                 return True
             else:
-                logger.info("Token validation failed: received None response")
+                logger.info("Token validation failed: received None response (possibly 404)")
                 return False
         except Exception as e:
             # Log as info since we want to see why validation failed
@@ -283,6 +295,7 @@ class GitHubReleaseManager:
     def upload_snapshot(self, file_path: str, tag: str = 'snapshot', asset_name: str = 'mybgg.sqlite.gz'):
         """Upload a file as a snapshot release asset."""
         logger.info(f"Uploading {file_path} to GitHub release {tag}")
+        logger.info(f"Using repository: {self.repo}")
 
         # Step 1: Find or create release
         release = self._find_or_create_release(tag)
@@ -302,26 +315,37 @@ class GitHubReleaseManager:
         """Find existing release or create a new one."""
         # Try to find existing release
         url = f"{self.base_url}/repos/{self.repo}/releases/tags/{tag}"
-        response = _make_http_request(url, headers=self.headers, timeout=10)
+        logger.info(f"Checking for existing release at URL: {url}")
+        try:
+            response = _make_http_request(url, headers=self.headers, timeout=10)
+            if response is not None:
+                logger.info(f"Found existing release: {tag}")
+                return response
+            else:
+                logger.info(f"No existing release found for tag: {tag}, will create new one")
+        except Exception as e:
+            logger.info(f"Error checking for existing release: {e}")
+            logger.info("Will attempt to create new release")
 
-        if response is not None:
-            logger.info(f"Found existing release: {tag}")
-            return response
-        else:
-            # Create new release
-            logger.info(f"Creating new release: {tag}")
-            create_url = f"{self.base_url}/repos/{self.repo}/releases"
-            release_data = {
-                'tag_name': tag,
-                'name': 'Board Game Collection Database',
-                'body': 'Latest database of board game collection from BoardGameGeek',
-                'draft': False,
-                'prerelease': False
-            }
+        # Create new release
+        logger.info(f"Creating new release: {tag}")
+        create_url = f"{self.base_url}/repos/{self.repo}/releases"
+        logger.info(f"Creating release at URL: {create_url}")
+        release_data = {
+            'tag_name': tag,
+            'name': 'Board Game Collection Database',
+            'body': 'Latest database of board game collection from BoardGameGeek',
+            'draft': False,
+            'prerelease': False
+        }
+        try:
             create_response = _make_http_post_json(create_url, release_data, headers=self.headers, timeout=10)
             if not create_response:
-                raise Exception("Failed to create GitHub release")
+                raise Exception(f"Failed to create GitHub release at {create_url}")
+            logger.info(f"Successfully created release: {tag}")
             return create_response
+        except Exception as e:
+            raise Exception(f"Failed to create GitHub release at {create_url}: {e}")
 
     def _delete_existing_asset(self, release: Dict[str, Any], asset_name: str):
         """Delete existing asset with the same name."""
