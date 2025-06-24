@@ -93,31 +93,21 @@ def validate_python_deps():
     print("🔍 Checking Python dependencies...")
 
     # Read requirements from requirements.in file
-    requirements_path = Path("requirements.in")
-    if not requirements_path.exists():
-        print("⚠️  requirements.in not found, using fallback package list")
-        required_packages = [
-            "declxml",
-            "pillow"
-        ]
-    else:
-        try:
-            with open(requirements_path) as f:
-                required_packages = []
-                for line in f:
-                    line = line.strip()
-                    # Skip empty lines and comments
-                    if line and not line.startswith('#'):
-                        # Handle package names with version specifiers
-                        package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0]
-                        required_packages.append(package_name.strip())
-        except Exception as e:
-            print(f"⚠️  Error reading requirements.in: {e}")
-            print("   Using fallback package list")
-            required_packages = [
-                "declxml",
-                "pillow"
-            ]
+    requirements_path = Path("scripts/requirements.in")
+    try:
+        with open(requirements_path) as f:
+            required_packages = []
+            for line in f:
+                line = line.strip()
+                # Skip empty lines and comments
+                if line and not line.startswith('#'):
+                    # Handle package names with version specifiers
+                    package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0]
+                    required_packages.append(package_name.strip())
+    except Exception as e:
+        print(f"❌ Error reading requirements.in: {e}")
+        print("   Make sure you run this from the mybgg directory")
+        return False
 
     missing = []
     for package in required_packages:
