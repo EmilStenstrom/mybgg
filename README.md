@@ -7,11 +7,10 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 ![Site preview](mybgg-preview.png)
 
 **What you'll get:**
-- A searchable website of your board game collection
+- A searchable website based on your board game collection from BoardGameGeek
 - Automatic filtering by players, time, weight, categories, and more
-- Rich game details from BoardGameGeek (ratings, descriptions, mechanics)
-- Mobile-friendly design that works offline
-- Automatic updates when you run the script again
+- Rich game details from BoardGameGeek (ratings, descriptions, mechanics, and more)
+- Free online hosting based off your GitHub account
 
 ## Quick Start Checklist
 
@@ -22,7 +21,6 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 - [ ] **Validate setup**: `python scripts/validate_setup.py`
 - [ ] **Generate database**: `python scripts/download_and_index.py --cache_bgg`
 - [ ] **Visit your site**: `https://YOUR_USERNAME.github.io/mybgg`
-- [ ] **Optional: Check website**: `python scripts/check_website.py`
 
 💡 **New to this?** Follow the detailed instructions below.
 
@@ -64,7 +62,6 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
    ⚠️ **Important**: Make sure your config is valid! Common mistakes:
    - Missing `=` between key and value
    - For values with apostrophes or spaces, use quotes: `title = "John's boardgames"`
-   - Make sure there are no spaces around the `=` sign
 
    **How to find your BGG username**: It's in your BoardGameGeek profile URL. For example, if your profile is `https://boardgamegeek.com/user/johnsmith`, your username is `johnsmith`.
 
@@ -128,7 +125,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 
 6. **Generate your database**:
    ```bash
-   python scripts/download_and_index.py --cache_bgg
+   python scripts/download_and_index.py
    ```
 
    <details>
@@ -155,8 +152,6 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       * You'll see "Created SQLite database with X games and Y expansions"
       * You'll see "Successfully uploaded to GitHub: [URL]"
       * Your website will be available at: `https://YOUR_USERNAME.github.io/mybgg`
-
-      **The `--cache_bgg` flag**: Makes subsequent runs much faster by caching BGG responses. Always use this unless you're debugging.
    </details>
 
 ## What to Expect
@@ -167,14 +162,10 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 - Step 6 (database generation): 5-15 minutes (depends on collection size)
 - GitHub Pages activation: 5-15 minutes (happens automatically in background)
 
-**Subsequent updates**: 2-5 minutes
-- The `--cache_bgg` flag makes repeat runs much faster
-- Only new/changed games are re-downloaded from BGG
-
 **Collection sizes and timing**:
-- Small collection (< 50 games): 2-5 minutes
-- Medium collection (50-200 games): 5-10 minutes  
-- Large collection (200+ games): 10-20 minutes
+- Small collection (< 50 games): 1-3 minutes
+- Medium collection (50-200 games): 3-5 minutes  
+- Large collection (200+ games): 5-10 minutes
 
 **What the script downloads**:
 - Basic game information (name, year, players, etc.)
@@ -248,7 +239,7 @@ To view your website:
 - Go to: `https://YOUR_USERNAME.github.io/mybgg`
 - Or view it locally by running `python -m http.server` and opening `http://localhost:8000`
 
-## Working with the site locally
+## Working with the site locally (optional)
 
 You can also run the website locally on your computer:
 
@@ -267,17 +258,12 @@ To update your database with new games or changed ratings:
 
 1. Run the script again:
    ```bash
-   python scripts/download_and_index.py --cache_bgg
+   python scripts/download_and_index.py
    ```
 
 2. A new release will be created automatically with the updated database
 
 3. Your website will automatically use the new database (may take a few minutes)
-
-**Optional**: Check that your website updated successfully:
-```bash
-python scripts/check_website.py
-```
 
 ## Advanced usage
 
@@ -285,7 +271,7 @@ python scripts/check_website.py
 * **Enable debug logging**: Add `--debug` flag  
 * **Use custom config file**: Add `--config path/to/config.ini`
 
-## Updating this project
+## Updating this project with changes I make to mybgg
 
 To get the latest features and bug fixes:
 
