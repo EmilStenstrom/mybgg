@@ -3,6 +3,7 @@ import os
 import time
 import webbrowser
 import logging
+import getpass
 from pathlib import Path
 from typing import Optional, Dict, Any
 from .http_client import make_json_request, make_form_post
@@ -146,7 +147,17 @@ class GitHubAuth:
                 dir_stat = self.token_file.parent.stat()
                 logger.debug(f"Directory permissions: {oct(dir_stat.st_mode)[-3:]}")
                 logger.debug(f"Directory owner: {dir_stat.st_uid}")
-                logger.debug(f"Current user: {os.getuid()}")
+                
+                # Get current user info (cross-platform)
+                if hasattr(os, 'getuid'):
+                    logger.debug(f"Current user ID: {os.getuid()}")
+                else:
+                    # Windows fallback - get username for debugging
+                    try:
+                        username = getpass.getuser()
+                        logger.debug(f"Current user: {username}")
+                    except Exception:
+                        logger.debug("Could not determine current user")
 
             logger.debug("Opening file for writing...")
             with open(self.token_file, 'w') as f:
@@ -157,8 +168,11 @@ class GitHubAuth:
                 logger.debug("File flushed")
 
             logger.debug("Setting file permissions...")
-            os.chmod(self.token_file, 0o600)
-            logger.debug("Permissions set")
+            try:
+                os.chmod(self.token_file, 0o600)
+                logger.debug("File permissions set successfully")
+            except (OSError, AttributeError) as e:
+                logger.debug(f"Could not set file permissions (this is normal on Windows): {e}")
 
             # Verify the file was actually saved
             logger.debug("Checking if file exists...")
