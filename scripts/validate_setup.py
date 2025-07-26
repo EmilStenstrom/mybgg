@@ -5,6 +5,7 @@ Simple validation script to check if setup is correct before running the main sc
 
 import sys
 from pathlib import Path
+from urllib.parse import unquote
 
 # Add the scripts directory to the path so we can import mybgg modules
 script_dir = Path(__file__).parent
@@ -64,15 +65,16 @@ def validate_config():
 def validate_bgg_user(username):
     """Check if BGG username exists and has a public collection"""
     print(f"🔍 Checking BGG user '{username}'...")
+    safe_username = unquote(username)
 
     try:
         # Check user exists
-        url = f"https://boardgamegeek.com/xmlapi2/user?name={username}"
-        response = make_http_request(url, timeout=10)
+        url = "https://boardgamegeek.com/xmlapi2/user"
+        response = make_http_request(url, params={"name": safe_username}, timeout=10)
 
         # Check collection exists and is public
-        url = f"https://boardgamegeek.com/xmlapi2/collection?username={username}&own=1"
-        response = make_http_request(url, timeout=10)
+        url = "https://boardgamegeek.com/xmlapi2/collection"
+        response = make_http_request(url, params={"username": safe_username, "own": 1}, timeout=10)
 
         # Basic check for collection content
         if b"<item " in response:

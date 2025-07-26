@@ -13,9 +13,14 @@ import time as time_module
 import gzip
 
 
-def make_http_request(url, timeout=30, headers=None):
+def make_http_request(url, params=None, timeout=30, headers=None):
     """Simple HTTP GET using urllib"""
     try:
+        # URL encode params and add to URL
+        if params:
+            query_string = urllib.parse.urlencode(params)
+            url += "?" + query_string
+
         # Create request with proper headers
         request = urllib.request.Request(url)
         request.add_header('Accept-Encoding', 'gzip, deflate')

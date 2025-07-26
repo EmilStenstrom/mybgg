@@ -2,6 +2,7 @@ import logging
 import random
 import time
 from xml.etree.ElementTree import fromstring
+from urllib.parse import unquote
 
 import declxml as xml
 
@@ -23,14 +24,14 @@ class BGGClient:
 
     def collection(self, user_name, **kwargs):
         params = kwargs.copy()
-        params["username"] = user_name
+        params["username"] = unquote(user_name)
         data = self._make_request("/collection?version=1", params)
         collection = self._collection_to_games(data)
         return collection
 
     def plays(self, user_name):
         params = {
-            "username": user_name,
+            "username": unquote(user_name),
             "page": 1,
         }
         all_plays = []
