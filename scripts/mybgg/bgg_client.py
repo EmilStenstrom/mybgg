@@ -101,7 +101,7 @@ class BGGClient:
         except Exception as e:
             # Handle both requests exceptions and our simple cache exceptions
             error_message = str(e)
-            
+
             # Check for Too Many Requests (429)
             if "429" in error_message or "Too Many Requests" in error_message:
                 if tries < 3:
@@ -307,6 +307,8 @@ class BGGClient:
                             alias="rating"
                         ),
                         xml.string("playingtime", attribute="value", alias="playing_time"),
+                        xml.string("minplayers", attribute="value", alias="min_players"),
+                        xml.string("maxplayers", attribute="value", alias="max_players"),
                         xml.string("minage", attribute="value", alias="min_age"),
                     ],
                     required=False,
