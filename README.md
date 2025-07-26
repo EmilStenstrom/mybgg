@@ -29,7 +29,15 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
 
 * [GitHub](https://github.com) account (free). We will store and share your database using GitHub Releases.
 * [BoardGameGeek](https://boardgamegeek.com) account (free). We will fetch all your games and game metadata from here.
-* Computer with Python 3.8+ installed.
+* Computer with Python 3.8-3.12 installed.
+   <details>
+      <summary>Using a newer Python version?</summary>
+      This project is tested with Python versions up to 3.12. If you are using a newer version (like 3.13+), you may need to regenerate the dependencies file. After installing `pip-tools` (`pip install pip-tools`), run the following command:
+      ```bash
+      pip-compile scripts/requirements.in -o scripts/requirements.txt
+      ```
+      Then, proceed with the installation command in step 4.
+   </details>
 
 ## Getting started
 
@@ -40,7 +48,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
    </details>
 
 2. **Update the config.ini file** with your details:
-   
+
    **Easy way (recommended)**: Edit directly on GitHub:
    * Go to your forked repository on GitHub
    * Click on `config.ini`
@@ -49,7 +57,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
    * Replace `YOUR_BGG_USERNAME` with your BoardGameGeek username  
    * Replace `YOUR_GITHUB_USERNAME` with your GitHub username
    * Scroll down and click **"Commit changes"**
-   
+
    **Example**: If your name is John, BGG username is `johnsmith`, and GitHub username is `johnsmith123`:
    ```ini
    # MyBGG Configuration
@@ -90,7 +98,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       * Under "Branch", choose **main** (or **master** if you don't see main)
       * Leave the folder as **/ (root)**
       * Click **Save**
-      
+
       **Verification**: You should see a green checkmark and a message like "Your site is published at https://YOUR_USERNAME.github.io/mybgg". This might take a few minutes to appear.
 
       ⏰ **Note**: GitHub Pages can take 5-10 minutes to activate. Your website will be available at: `https://YOUR_USERNAME.github.io/mybgg` (after you generate your database in step 5)
