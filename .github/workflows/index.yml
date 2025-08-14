@@ -1,4 +1,4 @@
-name: Update Algolia index with BGG data
+name: Update mybgg.sqlite.gz with BGG data
 
 on:
   schedule:
