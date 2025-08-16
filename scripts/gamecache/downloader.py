@@ -1,6 +1,6 @@
-from mybgg.bgg_client import BGGClient
-from mybgg.bgg_client import CacheBackendSqlite
-from mybgg.models import BoardGame
+from gamecache.bgg_client import BGGClient
+from gamecache.bgg_client import CacheBackendSqlite
+from gamecache.models import BoardGame
 
 
 class Downloader():
@@ -8,7 +8,7 @@ class Downloader():
         if cache_bgg:
             self.client = BGGClient(
                 cache=CacheBackendSqlite(
-                    path=f"mybgg-cache.sqlite",
+                    path=f"gamecache-cache.sqlite",
                     ttl=60 * 60 * 24,
                 ),
                 debug=debug,

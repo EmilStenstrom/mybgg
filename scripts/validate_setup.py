@@ -12,8 +12,8 @@ script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 # Now import after path is set
-from mybgg.config import parse_config_file  # noqa: E402
-from mybgg.http_client import make_http_request  # noqa: E402
+from gamecache.config import parse_config_file  # noqa: E402
+from gamecache.http_client import make_http_request  # noqa: E402
 
 def validate_config():
     """Validate the config.ini file"""
@@ -21,7 +21,7 @@ def validate_config():
 
     if not config_path.exists():
         print("❌ config.ini not found!")
-        print("   Make sure you're running this from the mybgg directory")
+        print("   Make sure you're running this from the GameCache directory")
         return False
 
     try:
@@ -108,7 +108,7 @@ def validate_python_deps():
                     required_packages.append(package_name.strip())
     except Exception as e:
         print(f"❌ Error reading requirements.in: {e}")
-        print("   Make sure you run this from the mybgg directory")
+        print("   Make sure you run this from the GameCache directory")
         return False
 
     missing = []
@@ -140,7 +140,7 @@ def validate_python_deps():
     return True
 
 def main():
-    print("🧪 Validating MyBGG setup...\n")
+    print("🧪 Validating GameCache setup...\n")
 
     all_good = True
 

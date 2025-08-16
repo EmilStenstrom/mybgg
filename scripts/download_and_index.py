@@ -8,10 +8,10 @@ script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 # Now import after path is set
-from mybgg.downloader import Downloader  # noqa: E402
-from mybgg.sqlite_indexer import SqliteIndexer  # noqa: E402
-from mybgg.github_integration import setup_github_integration  # noqa: E402
-from mybgg.config import parse_config_file, create_nested_config  # noqa: E402
+from gamecache.downloader import Downloader  # noqa: E402
+from gamecache.sqlite_indexer import SqliteIndexer  # noqa: E402
+from gamecache.github_integration import setup_github_integration  # noqa: E402
+from gamecache.config import parse_config_file, create_nested_config  # noqa: E402
 from setup_logging import setup_logging  # noqa: E402
 
 def main(args):
@@ -46,7 +46,7 @@ def main(args):
         assert False, "No games imported, is the boardgamegeek part of config.ini correctly set?"
 
     # Create SQLite database
-    sqlite_path = "mybgg.sqlite"
+    sqlite_path = "gamecache.sqlite"
     indexer = SqliteIndexer(sqlite_path)
     indexer.add_objects(collection)
     print(f"Created SQLite database with {num_games} games and {num_expansions} expansions.")

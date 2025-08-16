@@ -1,5 +1,5 @@
 """
-Configuration parsing utilities for MyBGG project.
+Configuration parsing utilities for GameCache project.
 """
 
 from pathlib import Path

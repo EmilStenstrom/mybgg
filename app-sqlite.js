@@ -91,7 +91,7 @@ function loadINI(path, callback) {
 
       // Transform flat config into nested structure expected by the app
       const settings = {
-        title: config.title || "MyBGG",
+        title: config.title || "GameCache",
         bgg: {
           username: config.bgg_username
         },
@@ -112,12 +112,19 @@ async function initializeDatabase(settings) {
     });
 
     const isDev = /^(localhost|127\\.0\\.0\\.1)$/.test(location.hostname);
-    const dbUrl = isDev ? './mybgg.sqlite.gz' :
+    // Use existing CORS proxy host
+    const dbUrl = isDev ? './gamecache.sqlite.gz' :
       `https://cors-proxy.mybgg.workers.dev/${settings.github.repo}`;
 
     console.log(`Loading database from: ${dbUrl}`);
 
-    const response = await fetch(dbUrl);
+    let response = await fetch(dbUrl);
+    if (!response.ok && isDev) {
+      // In development, fall back to the legacy local artifact name
+      const legacyDbUrl = './mybgg.sqlite.gz';
+      console.warn(`Primary database URL failed (${dbUrl}), trying legacy local file: ${legacyDbUrl}`);
+      response = await fetch(legacyDbUrl);
+    }
     if (!response.ok) {
       throw new Error(`Failed to fetch database: ${response.status} ${response.statusText}`);
     }
@@ -1927,7 +1934,7 @@ function closeAll(event) {
 document.addEventListener("click", closeAll);
 
 function init(settings) {
-  console.log('Initializing mybgg SQLite app...');
+  console.log('Initializing GameCache SQLite app...');
   initializeDatabase(settings);
 }
 

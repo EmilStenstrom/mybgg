@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SqliteIndexer:
     """SQLite-based indexer to replace Algolia indexer."""
 
-    def __init__(self, db_path: str = "mybgg.sqlite"):
+    def __init__(self, db_path: str = "gamecache.sqlite"):
         self.db_path = db_path
         self.db_path_gz = f"{db_path}.gz"
         self._init_database()

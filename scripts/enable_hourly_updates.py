@@ -17,7 +17,7 @@ from pathlib import Path
 script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
-from mybgg.github_integration import _make_http_request, _make_http_post_json  # noqa: E402
+from gamecache.github_integration import _make_http_request, _make_http_post_json  # noqa: E402
 
 
 def encrypt_secret(public_key: str, secret_value: str) -> str:
@@ -151,7 +151,7 @@ def get_repo_from_config() -> str | None:
                     repo = parts[1].strip()
                     # Remove quotes if present
                     repo = repo.strip('"\'')
-                    if repo and repo != 'YOUR_GITHUB_USERNAME/mybgg':
+                    if repo and repo != 'YOUR_GITHUB_USERNAME/gamecache':
                         return repo
         
         return None
@@ -159,10 +159,13 @@ def get_repo_from_config() -> str | None:
         return None
 
 def main():
-    token_file = Path.home() / '.mybgg' / 'token.json'
+    # Prefer new path, fall back to legacy
+    new_token_file = Path.home() / '.gamecache' / 'token.json'
+    legacy_token_file = Path.home() / '.mybgg' / 'token.json'
+    token_file = new_token_file if new_token_file.exists() else legacy_token_file
 
     if not token_file.exists():
-        print("❌ No token file found at ~/.mybgg/token.json")
+        print("❌ No token file found at ~/.gamecache/token.json or ~/.mybgg/token.json")
         print("Please run the download script first to authenticate with GitHub:")
         print("  python scripts/download_and_index.py --debug")
         print("\nThis will authenticate you with GitHub and save the token locally.")
@@ -179,17 +182,32 @@ def main():
 
         token = token_data['access_token']
         print("✅ Found GitHub token!")
+        # One-time migration: if we read from legacy path, ensure new path has the token too
+        new_token_path = Path.home() / '.gamecache' / 'token.json'
+        if token_file != new_token_path:
+            try:
+                new_token_path.parent.mkdir(exist_ok=True)
+                with open(new_token_path, 'w') as nf:
+                    json.dump(token_data, nf, indent=2)
+                try:
+                    os.chmod(new_token_path, 0o600)
+                except Exception:
+                    pass
+                print(f"🔁 Migrated token to {new_token_path}")
+            except Exception as e:
+                print(f"⚠️  Could not migrate token to {new_token_path}: {e}")
         
         # Try to get repository from config
         repo = get_repo_from_config()
         
         if repo:
             print(f"✅ Found repository: {repo}")
-            print(f"\n🔄 Creating GitHub secret 'MYBGG_GITHUB_TOKEN' in {repo}...")
+            print(f"\n🔄 Creating GitHub secrets 'GAMECACHE_GITHUB_TOKEN' and 'MYBGG_GITHUB_TOKEN' in {repo}...")
 
             try:
+                create_github_secret(repo, token, 'GAMECACHE_GITHUB_TOKEN', token)
                 create_github_secret(repo, token, 'MYBGG_GITHUB_TOKEN', token)
-                print("✅ Successfully created GitHub secret!")
+                print("✅ Successfully created both GitHub secrets!")
                 print("\n🎉 Hourly updates are now enabled!")
                 print("Your board game collection will be automatically updated every hour.")
                 print("You can test it by going to the Actions tab in your repository.")
@@ -214,8 +232,9 @@ def show_manual_instructions(token: str):
     print("2. Go to your GitHub repository settings")
     print("3. Navigate to Settings > Secrets and variables > Actions")
     print("4. Click 'New repository secret'")
-    print("5. Name: MYBGG_GITHUB_TOKEN")
-    print("6. Value: paste the token")
+    print("5. Create both of these:")
+    print("   - GAMECACHE_GITHUB_TOKEN = <paste token>")
+    print("   - MYBGG_GITHUB_TOKEN = <paste token>")
     print("7. Click 'Add secret'")
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple script to check if the MyBGG website is working properly.
+Simple script to check if the GameCache website is working properly.
 """
 
 import sys
@@ -11,16 +11,16 @@ script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
 # Now import after path is set
-from mybgg.config import parse_config_file  # noqa: E402
-from mybgg.http_client import make_http_request  # noqa: E402
+from gamecache.config import parse_config_file  # noqa: E402
+from gamecache.http_client import make_http_request  # noqa: E402
 
 def check_website():
-    """Check if the MyBGG website is accessible and working"""
+    """Check if the GameCache website is accessible and working"""
 
     # Load config to get repository info
     config_path = Path("config.ini")
     if not config_path.exists():
-        print("❌ config.ini not found! Make sure you're in the mybgg directory.")
+        print("❌ config.ini not found! Make sure you're in the GameCache directory.")
         return False
 
     try:
@@ -36,7 +36,7 @@ def check_website():
     repo = config["github_repo"]
     username = repo.split("/")[0]
 
-    website_url = f"https://{username}.github.io/mybgg"
+    website_url = f"https://{username}.github.io/gamecache"
 
     print(f"🔍 Checking website: {website_url}")
 
@@ -44,9 +44,9 @@ def check_website():
         response = make_http_request(website_url, timeout=10)
         response_text = response.decode('utf-8', errors='ignore')
 
-        # Check if it's the MyBGG website
-        if "mybgg" not in response_text.lower() and "boardgame" not in response_text.lower():
-            print("⚠️  Website is accessible but doesn't look like MyBGG")
+        # Check if it's the GameCache website
+        if "gamecache" not in response_text.lower() and "boardgame" not in response_text.lower():
+            print("⚠️  Website is accessible but doesn't look like GameCache")
             print("   This might be a different GitHub Pages site")
             return False
 
@@ -79,14 +79,14 @@ def check_website():
         return False
 
 def main():
-    print("🌐 Checking MyBGG website status...\n")
+    print("🌐 Checking GameCache website status...\n")
 
     success = check_website()
 
     print("\n" + "=" * 50)
 
     if success:
-        print("🎉 Your MyBGG website appears to be working!")
+        print("🎉 Your GameCache website appears to be working!")
     else:
         print("❌ Website check failed - see issues above")
         sys.exit(1)

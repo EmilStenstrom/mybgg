@@ -1,5 +1,5 @@
 """
-HTTP client functionality for MyBGG project.
+HTTP client functionality for GameCache project.
 Provides simple HTTP functionality with caching capabilities.
 """
 
@@ -24,7 +24,7 @@ def make_http_request(url, params=None, timeout=30, headers=None):
         # Create request with proper headers
         request = urllib.request.Request(url)
         request.add_header('Accept-Encoding', 'gzip, deflate')
-        request.add_header('User-Agent', 'MyBGG/1.0')
+        request.add_header('User-Agent', 'GameCache/1.0')
 
         # Add any additional headers
         if headers:
@@ -218,7 +218,7 @@ def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
         headers = {}
 
     # Set default headers for JSON requests
-    headers.setdefault('User-Agent', 'MyBGG/1.0')
+    headers.setdefault('User-Agent', 'GameCache/1.0')
     headers.setdefault('Accept', 'application/json')
 
     try:

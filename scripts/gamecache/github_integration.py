@@ -93,7 +93,15 @@ class GitHubAuth:
 
     def __init__(self, client_id: str):
         self.client_id = client_id
-        self.token_file = Path.home() / '.mybgg' / 'token.json'
+        # New path, with support for legacy path and one-time migration
+        self.new_token_file = Path.home() / '.gamecache' / 'token.json'
+        self.old_token_file = Path.home() / '.mybgg' / 'token.json'
+        # Always save to the new path
+        self.token_file = self.new_token_file
+        self.token_file.parent.mkdir(exist_ok=True)
+        # Internal flags/state for migration
+        self._loaded_from_legacy = False
+        self._loaded_token_data: Optional[Dict[str, Any]] = None
         self.token_file.parent.mkdir(exist_ok=True)
 
     def get_access_token(self) -> str:
@@ -123,9 +131,21 @@ class GitHubAuth:
     def _load_token(self) -> Optional[Dict[str, Any]]:
         """Load token from local storage."""
         try:
-            if self.token_file.exists():
-                with open(self.token_file, 'r') as f:
-                    return json.load(f)
+            # Prefer new token path
+            if self.new_token_file.exists():
+                with open(self.new_token_file, 'r') as f:
+                    data = json.load(f)
+                    self._loaded_from_legacy = False
+                    self._loaded_token_data = data
+                    return data
+            # Fallback to legacy token path
+            if self.old_token_file.exists():
+                with open(self.old_token_file, 'r') as f:
+                    data = json.load(f)
+                    self._loaded_from_legacy = True
+                    self._loaded_token_data = data
+                    logger.info(f"Loaded legacy token from {self.old_token_file}. Will migrate to {self.new_token_file} after validation.")
+                    return data
         except Exception as e:
             logger.warning(f"Failed to load token: {e}")
         return None
@@ -188,6 +208,15 @@ class GitHubAuth:
                     saved_data = json.load(f)
                 logger.debug(f"Verified saved token data keys: {list(saved_data.keys())}")
                 logger.info(f"Token successfully saved to {self.token_file}")
+                # If we originally loaded from legacy, attempt one-time migration copy
+                if self._loaded_from_legacy and self.old_token_file.exists():
+                    try:
+                        # Leave legacy file as-is, but ensure new file now exists
+                        logger.info(f"One-time migration complete. New token stored at {self.new_token_file}")
+                        # Reset flag to avoid repeated messages
+                        self._loaded_from_legacy = False
+                    except Exception as e:
+                        logger.warning(f"Token migration note: {e}")
             else:
                 logger.error(f"Token file was not created at {self.token_file}")
                 # List directory contents to see what's there
@@ -391,14 +420,15 @@ def setup_github_integration(settings: Dict[str, Any]) -> GitHubReleaseManager:
     """Set up GitHub integration with OAuth Device Flow authentication."""
     github_config = settings['github']
 
-    # Check if MYBGG_GITHUB_TOKEN environment variable is set (for CI/CD)
-    github_token = os.environ.get('MYBGG_GITHUB_TOKEN')
+    # Check if GAMECACHE_GITHUB_TOKEN or MYBGG_GITHUB_TOKEN environment variable is set (for CI/CD)
+    github_token = os.environ.get('GAMECACHE_GITHUB_TOKEN') or os.environ.get('MYBGG_GITHUB_TOKEN')
     if github_token:
-        logger.info("Using MYBGG_GITHUB_TOKEN environment variable for authentication")
+        source = 'GAMECACHE_GITHUB_TOKEN' if os.environ.get('GAMECACHE_GITHUB_TOKEN') else 'MYBGG_GITHUB_TOKEN'
+        logger.info(f"Using {source} environment variable for authentication")
         return GitHubReleaseManager(github_config['repo'], github_token)
 
     # Use OAuth Device Flow for automatic authentication
-    # Public client ID for the MyBGG OAuth App
+    # Public client ID for the GameCache OAuth App
     public_client_id = "Ov23lir5tLSaSrWi0YMJ"
 
     logger.info("Using OAuth Device Flow for automatic authentication")
