@@ -345,6 +345,24 @@ To get the latest features and bug fixes:
    git push
    ```
 
+### Updating after the rename
+
+If your fork predates the rename, or you see errors like:
+
+```
+remote: Repository not found.
+fatal: repository 'https://github.com/EmilStenstrom/mybgg.git/' not found
+```
+
+Update your `upstream` to the new URL and pull the latest changes:
+
+```bash
+git remote set-url upstream https://github.com/EmilStenstrom/gamecache.git
+git fetch upstream
+git checkout main
+git merge upstream/main
+```
+
 ## Credits
 
 * Meeple icon (CC4 Attribution): https://icon-icons.com/icon/meeple/38522#256
