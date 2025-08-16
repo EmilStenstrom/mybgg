@@ -335,7 +335,7 @@ class GitHubReleaseManager:
         }
         self.base_url = 'https://api.github.com'
 
-    def upload_snapshot(self, file_path: str, tag: str = 'snapshot', asset_name: str = 'mybgg.sqlite.gz'):
+    def upload_snapshot(self, file_path: str, tag: str = 'snapshot', asset_name: str = 'gamecache.sqlite.gz'):
         """Upload a file as a snapshot release asset."""
         logger.info(f"Uploading {file_path} to GitHub release {tag}")
         logger.info(f"Using repository: {self.repo}")

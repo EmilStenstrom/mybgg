@@ -6,7 +6,7 @@ Simple script to check if the GameCache website is working properly.
 import sys
 from pathlib import Path
 
-# Add the scripts directory to the path so we can import mybgg modules
+# Add the scripts directory to the path so we can import gamecache modules
 script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
@@ -56,7 +56,7 @@ def check_website():
             print("🔍 Checking database...")
 
             # Check if database file exists in releases (just try to get first few bytes)
-            database_url = f"https://github.com/{repo}/releases/latest/download/mybgg.sqlite.gz"
+            database_url = f"https://github.com/{repo}/releases/latest/download/gamecache.sqlite.gz"
             try:
                 make_http_request(database_url, timeout=10)
                 print("✅ Database file found!")

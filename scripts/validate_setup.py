@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-# Add the scripts directory to the path so we can import mybgg modules
+# Add the scripts directory to the path so we can import gamecache modules
 script_dir = Path(__file__).parent
 sys.path.insert(0, str(script_dir))
 
