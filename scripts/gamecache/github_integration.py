@@ -67,11 +67,18 @@ def _make_http_delete(
     """Make HTTP DELETE request."""
     if headers is None:
         headers = {}
-
     try:
         _make_http_request(url, 'DELETE', None, headers, timeout)
         return True
-    except Exception:
+    except Exception as e:
+        msg = str(e)
+        if 'HTTP 404' in msg:
+            logger.info(f"DELETE {url} 404 (already gone) -> success")
+            return True
+        if 'HTTP 307' in msg:
+            logger.info(f"DELETE {url} 307 redirect issue -> tolerating")
+            return True
+        logger.debug(f"DELETE failed {url}: {e}")
         return False
 
 
@@ -144,7 +151,10 @@ class GitHubAuth:
                     data = json.load(f)
                     self._loaded_from_legacy = True
                     self._loaded_token_data = data
-                    logger.info(f"Loaded legacy token from {self.old_token_file}. Will migrate to {self.new_token_file} after validation.")
+                    logger.info(
+                        f"Loaded legacy token from {self.old_token_file}. Will migrate to "
+                        f"{self.new_token_file} after validation."
+                    )
                     return data
         except Exception as e:
             logger.warning(f"Failed to load token: {e}")
@@ -412,8 +422,25 @@ class GitHubReleaseManager:
         upload_headers['Content-Type'] = 'application/gzip'
 
         logger.info(f"Uploading {len(file_data):,} bytes...")
-        _upload_file(upload_url, file_data, headers=upload_headers, timeout=60)
-        logger.info("Asset upload successful!")
+        try:
+            _upload_file(upload_url, file_data, headers=upload_headers, timeout=60)
+            logger.info("Asset upload successful!")
+        except Exception as e:
+            if 'HTTP 422' in str(e):
+                logger.warning("422 duplicate? refreshing + retry once")
+                refreshed = _make_http_request(
+                    f"{self.base_url}/repos/{self.repo}/releases/{release['id']}",
+                    headers=self.headers,
+                    timeout=10,
+                )
+                if refreshed:
+                    self._delete_existing_asset(refreshed, asset_name)
+                    _upload_file(upload_url, file_data, headers=upload_headers, timeout=60)
+                    logger.info("Asset upload successful on retry")
+                else:
+                    raise
+            else:
+                raise
 
 
 def setup_github_integration(settings: Dict[str, Any]) -> GitHubReleaseManager:

@@ -212,8 +212,12 @@ class CachedHttpClient:
         conn.close()
         return HttpResponse(response_data, headers, status_code, from_cache=False, url=full_url)
 
-def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
-    """Make HTTP request and return JSON response or None for 404s"""
+def make_json_request(url, method='GET', data=None, headers=None, timeout=30,
+                      _redirects=0, _max_redirects=5):
+    """Make HTTP request and return JSON response or None for 404s.
+
+    Adds manual redirect handling for non-GET methods (DELETE/POST/etc.).
+    """
     if headers is None:
         headers = {}
 
@@ -221,11 +225,12 @@ def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
     headers.setdefault('User-Agent', 'GameCache/1.0')
     headers.setdefault('Accept', 'application/json')
 
+    method = method.upper()
     try:
-        if method.upper() == 'GET':
+        if method == 'GET' and data is None:
             response_data = make_http_request(url, timeout=timeout, headers=headers)
         else:
-            # For POST requests
+            # For POST/other requests
             if isinstance(data, dict):
                 if headers.get('Content-Type') == 'application/x-www-form-urlencoded':
                     # Form data
@@ -237,7 +242,7 @@ def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
 
             # Create request with proper headers
             request = urllib.request.Request(url, data=data, headers=headers)
-            request.get_method = lambda: method.upper()
+            request.get_method = lambda: method
 
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 response_data = response.read()
@@ -254,17 +259,40 @@ def make_json_request(url, method='GET', data=None, headers=None, timeout=30):
         return {}
 
     except urllib.error.HTTPError as e:
+        # Manual redirect handling (urllib auto-handles GET/HEAD; we add method-preserving logic)
+        if e.code in (301, 302, 303, 307, 308):
+            if _redirects >= _max_redirects:
+                raise Exception(f"HTTP redirect loop after {_max_redirects} for {url}")
+            loc = e.headers.get('Location')
+            if not loc:
+                raise Exception(f"HTTP {e.code}: Redirect with no Location for {url}")
+            new_url = urllib.parse.urljoin(url, loc)
+            # Per RFC 7231: 303 forces GET
+            if e.code == 303:
+                return make_json_request(new_url, 'GET', None, headers, timeout,
+                                         _redirects + 1, _max_redirects)
+            return make_json_request(new_url, method, data, headers, timeout,
+                                     _redirects + 1, _max_redirects)
+
+        body = ''
+        try:
+            raw = e.read()
+            if raw:
+                body = raw.decode('utf-8', errors='replace')
+        except Exception:
+            pass
         if e.code == 404:
             # For 404s, return None to indicate not found
             return None
-        elif e.code == 200:
-            # Sometimes 200 is returned even on HTTPError
-            content = e.read().decode('utf-8')
-            if content:
-                return json.loads(content)
+        if e.code == 200:
+            if body.strip():
+                try:
+                    return json.loads(body)
+                except Exception:
+                    return {}
             return {}
-        else:
-            raise Exception(f"HTTP {e.code}: {e.reason}")
+        snippet = f" Body: {body[:300]}" if body else ''
+        raise Exception(f"HTTP {e.code}: {e.reason}.{snippet}")
     except urllib.error.URLError as e:
         raise Exception(f"HTTP request failed: {e}")
 
