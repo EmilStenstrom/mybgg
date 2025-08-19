@@ -99,7 +99,7 @@ Create a beautiful, searchable website for your BoardGameGeek collection! This p
       * Click the **Settings** tab (at the top of your repository page)
       * Scroll down to **Pages** in the left sidebar and click it
       * Under "Source", select **Deploy from a branch**
-      * Under "Branch", choose **main** (or **master** if you don't see main)
+      * Under "Branch", choose **master**
       * Leave the folder as **/ (root)**
       * Click **Save**
 
@@ -332,7 +332,7 @@ To get the latest features and bug fixes:
 2. **Fetch and merge updates**:
    ```bash
    git fetch upstream
-   git merge upstream/main
+   git merge upstream/master
    ```
 
 3. **Update dependencies**:
@@ -359,8 +359,8 @@ Update your `upstream` to the new URL and pull the latest changes:
 ```bash
 git remote set-url upstream https://github.com/EmilStenstrom/gamecache.git
 git fetch upstream
-git checkout main
-git merge upstream/main
+git checkout master
+git merge upstream/master
 ```
 
 ## Credits
